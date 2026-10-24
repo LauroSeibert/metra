@@ -13,6 +13,7 @@ export interface ListProducts$Params {
   search?: string;
   categoryId?: number;
   active?: boolean;
+  lowStock?: boolean;
   sort?: string;
   page?: number;
   pageSize?: number;
@@ -24,6 +25,7 @@ export function listProducts(http: HttpClient, rootUrl: string, params?: ListPro
     rb.query('search', params.search, {});
     rb.query('categoryId', params.categoryId, {});
     rb.query('active', params.active, {});
+    rb.query('lowStock', params.lowStock, {});
     rb.query('sort', params.sort, {});
     rb.query('page', params.page, {});
     rb.query('pageSize', params.pageSize, {});

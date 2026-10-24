@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 
 // Uso:
 //   dotnet run --project backend/src/Erp.Seed -- seed --profile small|full
-//   dotnet run --project backend/src/Erp.Seed -- measure --url http://localhost:5080 --requests 300
+//   dotnet run --project backend/src/Erp.Seed -- measure --url http://localhost:5080 --requests 300 --target products|stock|all
 // O measure entra na API com ERP_EMAIL e ERP_PASSWORD (variáveis de ambiente; o Admin do .env serve).
 // Connection string: ConnectionStrings__Erp (variável de ambiente) ou user-secrets da API.
 var command = args.Length > 0 ? args[0] : "seed";
@@ -45,7 +45,8 @@ switch (command)
             return 1;
         }
 
-        return await new ListingBenchmark(url, requests, email, password).RunAsync(cancellation.Token).ConfigureAwait(false);
+        var target = options.GetValueOrDefault("target", "all");
+        return await new ListingBenchmark(url, requests, email, password, target).RunAsync(cancellation.Token).ConfigureAwait(false);
 
     default:
         await Console.Error.WriteLineAsync($"Comando desconhecido: {command}. Use seed ou measure.").ConfigureAwait(false);

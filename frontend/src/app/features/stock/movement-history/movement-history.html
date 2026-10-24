@@ -1,0 +1,122 @@
+<erp-page-header [title]="strings.history.title" [subtitle]="strings.history.subtitle">
+  <a matButton="outlined" class="erp-secondary-action" routerLink="/stock">
+    <mat-icon>arrow_back</mat-icon>
+    {{ strings.history.back }}
+  </a>
+</erp-page-header>
+
+<section class="erp-toolbar filters" [attr.aria-label]="strings.history.title">
+  <erp-product-picker
+    class="grow"
+    subscriptSizing="dynamic"
+    [label]="strings.history.product"
+    [(selected)]="product"
+  />
+
+  <mat-form-field subscriptSizing="dynamic">
+    <mat-label>{{ strings.history.typeFilter }}</mat-label>
+    <mat-select [value]="type()" (valueChange)="type.set($event)">
+      <mat-option [value]="null">{{ strings.history.allTypes }}</mat-option>
+      @for (option of types; track option) {
+        <mat-option [value]="option">{{ strings.types[option] }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field subscriptSizing="dynamic" class="date">
+    <mat-label>{{ strings.history.from }}</mat-label>
+    <input matInput type="date" [value]="from()" (change)="onDate('from', $event)" />
+  </mat-form-field>
+
+  <mat-form-field subscriptSizing="dynamic" class="date">
+    <mat-label>{{ strings.history.to }}</mat-label>
+    <input matInput type="date" [value]="to()" (change)="onDate('to', $event)" />
+  </mat-form-field>
+
+  @if (hasFilters()) {
+    <button matButton type="button" (click)="clearFilters()">
+      <mat-icon>filter_alt_off</mat-icon>
+      {{ strings.history.clearFilters }}
+    </button>
+  }
+</section>
+
+<erp-data-table
+  [columns]="columns"
+  [rows]="rows()"
+  [rowKey]="rowKey"
+  [loading]="firstPage.isLoading()"
+  [error]="loadError()"
+  [emptyMessage]="strings.history.empty"
+  (retry)="firstPage.reload()"
+>
+  <ng-template erpCell="occurredAt" [erpCellOf]="rows()" let-movement>
+    <span class="date">{{ movement.occurredAt | date: 'short' }}</span>
+  </ng-template>
+
+  <ng-template erpCell="product" [erpCellOf]="rows()" let-movement>
+    <div class="product">
+      <strong>{{ movement.productName }}</strong>
+      <small>{{ movement.sku }}</small>
+    </div>
+  </ng-template>
+
+  <ng-template erpCell="type" [erpCellOf]="rows()" let-movement>
+    <erp-status-chip [label]="strings.types[movement.type]" [tone]="tones[movement.type]" />
+  </ng-template>
+
+  <ng-template erpCell="quantity" [erpCellOf]="rows()" let-movement>
+    <strong class="quantity" [class.in]="movement.quantity > 0" [class.out]="movement.quantity < 0">
+      {{ movement.quantity > 0 ? '+' : '' }}{{ movement.quantity | number: '1.0-3' }}
+    </strong>
+    <small class="unit">{{ movement.unitCode ?? '' }}</small>
+  </ng-template>
+
+  <ng-template erpCell="unitCost" [erpCellOf]="rows()" let-movement>
+    {{ movement.unitCost === null ? '—' : (movement.unitCost | currency) }}
+  </ng-template>
+
+  <ng-template erpCell="user" [erpCellOf]="rows()" let-movement>
+    {{ movement.userName ?? '—' }}
+  </ng-template>
+
+  <ng-template erpCell="note" [erpCellOf]="rows()" let-movement>
+    <span class="note">
+      @if (movement.type === 'Reversal' && movement.referenceId) {
+        {{ strings.history.reversalOf(movement.referenceId) }}{{ movement.note ? ' · ' : '' }}
+      }
+      {{ movement.note ?? '' }}
+    </span>
+  </ng-template>
+
+  <ng-template erpCell="actions" [erpCellOf]="rows()" let-movement>
+    @if (movement.reversedById) {
+      <erp-status-chip [label]="strings.history.reversed" tone="neutral" [plain]="true" />
+    } @else if (canReverse(movement)) {
+      <div class="erp-row-actions">
+        <button
+          class="erp-row-action danger"
+          type="button"
+          [matTooltip]="strings.history.reverse"
+          [attr.aria-label]="strings.history.reverse + ' ' + movement.id"
+          (click)="reverse(movement)"
+        >
+          <mat-icon>undo</mat-icon>
+        </button>
+      </div>
+    }
+  </ng-template>
+</erp-data-table>
+
+@if (rows().length > 0) {
+  <div class="more">
+    @if (hasMore()) {
+      <button matButton="outlined" type="button" [disabled]="loadingMore()" (click)="loadMore()">
+        <mat-icon>expand_more</mat-icon>
+        {{ loadingMore() ? strings.history.loading : strings.history.loadMore }}
+      </button>
+    } @else {
+      <span>{{ strings.history.end }}</span>
+    }
+  </div>
+}

@@ -27,6 +27,16 @@ Termo de negócio (como aparece na tela) → nome no código e no banco. Termo n
 | CPF / CNPJ (documento) | `Document`, `TaxDocument` | `partner.document` | Normalizado (só dígitos e letras); CNPJ pode ser alfanumérico (2026) |
 | Tipo de documento | `TaxDocumentKind` (`Cpf`/`Cnpj`) | `partner.document_kind` | Deduzido do tamanho |
 
+## Estoque
+
+| Termo (pt-BR) | Código (C# / TS) | Banco | Observação |
+| --- | --- | --- | --- |
+| Movimentação de estoque | `StockMovement` | `stock_movement` | Imutável; quantidade com sinal |
+| Entrada / Saída / Ajuste / Estorno | `StockMovementType.Entry` / `Exit` / `Adjustment` / `Reversal` | `stock_movement.type` (texto) | Ajuste: informa a contagem, grava a diferença |
+| Saldo de estoque | `StockBalance` | `stock_balance` | Um por produto; soma das movimentações |
+| Estoque baixo / abaixo do mínimo | `LowStock` | — | Saldo < estoque mínimo |
+| Parâmetro da empresa | `AppSetting`, `SettingKeys` | `app_setting` | `stock.allowNegative` (padrão: não) |
+
 ## Acesso
 
 | Termo (pt-BR) | Código (C# / TS) | Banco | Observação |
@@ -47,8 +57,6 @@ Termo de negócio (como aparece na tela) → nome no código e no banco. Termo n
 
 | Termo | Código |
 | --- | --- |
-| Movimentação de estoque | `StockMovement` |
-| Saldo de estoque | `StockBalance` |
 | Venda / item da venda | `Sale` / `SaleItem` |
 | Lançamento financeiro | `FinancialEntry` |
 | Categoria financeira | `FinancialCategory` |

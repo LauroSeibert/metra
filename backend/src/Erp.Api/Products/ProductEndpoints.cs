@@ -55,12 +55,13 @@ internal static class ProductEndpoints
         string? search,
         long? categoryId,
         bool? active,
+        bool? lowStock,
         string? sort,
         int? page,
         int? pageSize,
         CancellationToken cancellationToken) =>
         TypedResults.Ok(await service
-            .ListAsync(new ProductListQuery(search, categoryId, active, sort, page, pageSize), cancellationToken)
+            .ListAsync(new ProductListQuery(search, categoryId, active, lowStock, sort, page, pageSize), cancellationToken)
             .ConfigureAwait(false));
 
     private static async Task<Ok<ProductDto>> GetAsync(long id, ProductService service, CancellationToken cancellationToken) =>

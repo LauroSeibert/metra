@@ -46,6 +46,9 @@ Classes globais (`src/styles.scss`): `erp-primary-action` (botão verde da açã
 - **Cadastro**: `PageHeader` com "Voltar" → seções em `Card` com grade de 3 colunas → ações no rodapé à direita.
   Erros por campo em `mat-error`; erro geral num banner âmbar no topo. Rotas `<modulo>/edit` (novo) e
   `<modulo>/edit/:id`; ao salvar a tela continua aberta (cadastro novo passa para `edit/:id`).
+- **Histórico longo** (paginação por chave): `DataTable` sem paginador e botão "Carregar mais" abaixo, que acrescenta
+  a página seguinte; no fim, "Fim do histórico.". Referência: `features/stock/movement-history`.
+- **Escolher produto**: `<erp-product-picker [(selected)]>` (`features/products/product-picker`), busca por SKU ou nome.
 - **Estados**: toda tela trata carregando (barra + linhas fantasma), vazio (ícone + mensagem) e erro (mensagem + "Tentar de novo").
   O carregando só aparece se passar de `LOADING_DELAY_MS` (250 ms, `delayedFlag`); antes disso as linhas
   fantasma ocupam o espaço invisíveis, para a tela não piscar com respostas rápidas.

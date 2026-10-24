@@ -1,10 +1,11 @@
 namespace Erp.Application.Products;
 
-/// <summary>Filtros da listagem de produtos.</summary>
+/// <summary>Filtros da listagem de produtos. <see cref="LowStock"/>: saldo abaixo do estoque mínimo.</summary>
 public sealed record ProductListQuery(
     string? Search,
     long? CategoryId,
     bool? Active,
+    bool? LowStock,
     string? Sort,
     int? Page,
     int? PageSize);
@@ -21,6 +22,7 @@ public sealed record ProductListItemDto(
     decimal CostPrice,
     decimal SalePrice,
     decimal MinStock,
+    decimal StockQuantity,
     bool Active,
     DateTime UpdatedAt);
 

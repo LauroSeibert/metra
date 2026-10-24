@@ -2,6 +2,8 @@ using Erp.Application.Abstractions;
 using Erp.Domain.Common;
 using Erp.Domain.Partners;
 using Erp.Domain.Products;
+using Erp.Domain.Settings;
+using Erp.Domain.Stock;
 using Erp.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +20,14 @@ public sealed class ErpDbContext(DbContextOptions<ErpDbContext> options, TimePro
     public DbSet<Unit> Units => Set<Unit>();
 
     public DbSet<Partner> Partners => Set<Partner>();
+
+    public DbSet<StockMovement> StockMovements => Set<StockMovement>();
+
+    public DbSet<StockBalance> StockBalances => Set<StockBalance>();
+
+    public DbSet<AppSetting> AppSettings => Set<AppSetting>();
+
+    public IQueryable<UserName> UserNames => Users.Select(u => new UserName { Id = u.Id, FullName = u.FullName });
 
     public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {

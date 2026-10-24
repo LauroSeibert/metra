@@ -3,6 +3,7 @@ using Erp.Application.Abstractions;
 using Erp.Application.Common;
 using Erp.Domain.Common;
 using Erp.Domain.Products;
+using Erp.Domain.Stock;
 using Microsoft.EntityFrameworkCore;
 
 namespace Erp.Application.Products;
@@ -28,6 +29,14 @@ public sealed class ProductService(IErpDbContext db)
         if (query.Active is { } active)
         {
             products = products.Where(p => p.Active == active);
+        }
+
+        if (query.LowStock is { } lowStock)
+        {
+            // Produto sem linha de saldo conta como zero.
+            products = lowStock
+                ? products.Where(p => (db.StockBalances.Where(b => b.ProductId == p.Id).Select(b => (decimal?)b.Quantity).FirstOrDefault() ?? 0) < p.MinStock)
+                : products.Where(p => (db.StockBalances.Where(b => b.ProductId == p.Id).Select(b => (decimal?)b.Quantity).FirstOrDefault() ?? 0) >= p.MinStock);
         }
 
         var pattern = SearchPattern.Prefix(query.Search);
@@ -115,12 +124,14 @@ public sealed class ProductService(IErpDbContext db)
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         db.Products.Add(product);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        // Todo produto nasce com saldo zero (StockBalance), para a movimentação só atualizar.
+        db.StockBalances.Add(StockBalance.Empty(product.Id));
         if (product.HasPendingSku)
         {
             await AssignGeneratedSkuAsync(product, categoryName, cancellationToken).ConfigureAwait(false);
-            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
         return await GetAsync(product.Id, cancellationToken).ConfigureAwait(false);
     }
@@ -178,7 +189,7 @@ public sealed class ProductService(IErpDbContext db)
         return await GetAsync(product.Id, cancellationToken).ConfigureAwait(false);
     }
 
-    private static readonly Expression<Func<Product, ProductListItemDto>> ToListItem = p => new ProductListItemDto(
+    private Expression<Func<Product, ProductListItemDto>> ToListItem => p => new ProductListItemDto(
         p.Id,
         p.Sku,
         p.Name,
@@ -190,6 +201,7 @@ public sealed class ProductService(IErpDbContext db)
         p.CostPrice,
         p.SalePrice,
         p.MinStock,
+        db.StockBalances.Where(b => b.ProductId == p.Id).Select(b => (decimal?)b.Quantity).FirstOrDefault() ?? 0,
         p.Active,
         p.UpdatedAt);
 

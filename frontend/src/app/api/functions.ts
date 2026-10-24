@@ -67,3 +67,13 @@ export type { ActivatePartner$Params as ActivatePartner$Params } from './fn/part
 export { activatePartner as activatePartner } from './fn/partners/activate-partner';
 export type { DeactivatePartner$Params as DeactivatePartner$Params } from './fn/partners/deactivate-partner';
 export { deactivatePartner as deactivatePartner } from './fn/partners/deactivate-partner';
+export type { ListStockBalances$Params as ListStockBalances$Params } from './fn/stock/list-stock-balances';
+export { listStockBalances as listStockBalances } from './fn/stock/list-stock-balances';
+export type { ListStockMovements$Params as ListStockMovements$Params } from './fn/stock/list-stock-movements';
+export { listStockMovements as listStockMovements } from './fn/stock/list-stock-movements';
+export type { CreateStockMovement$Params as CreateStockMovement$Params } from './fn/stock/create-stock-movement';
+export { createStockMovement as createStockMovement } from './fn/stock/create-stock-movement';
+export type { GetStockMovement$Params as GetStockMovement$Params } from './fn/stock/get-stock-movement';
+export { getStockMovement as getStockMovement } from './fn/stock/get-stock-movement';
+export type { ReverseStockMovement$Params as ReverseStockMovement$Params } from './fn/stock/reverse-stock-movement';
+export { reverseStockMovement as reverseStockMovement } from './fn/stock/reverse-stock-movement';

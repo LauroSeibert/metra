@@ -5,6 +5,9 @@ export const PRODUCTS_STRINGS = {
     subtitle: 'Catálogo de produtos vendidos pela empresa.',
     newProduct: 'Novo produto',
     noCategory: 'Sem categoria',
+    stockFilter: 'Estoque',
+    allStock: 'Todos',
+    lowStock: 'Abaixo do mínimo',
     categories: 'Categorias',
     units: 'Unidades',
     searchLabel: 'Buscar por SKU ou nome',
@@ -41,6 +44,7 @@ export const PRODUCTS_STRINGS = {
   },
   columns: {
     product: 'Produto',
+    stock: 'Estoque',
     sku: 'SKU',
     name: 'Nome',
     category: 'Categoria',
@@ -148,4 +152,10 @@ export const PRODUCTS_STRINGS = {
   edit: 'Editar',
   cancel: 'Cancelar',
   save: 'Salvar',
+  picker: {
+    label: 'Produto',
+    placeholder: 'Digite o SKU ou o nome',
+    noResults: 'Nenhum produto ativo encontrado.',
+    clear: 'Limpar produto',
+  },
 } as const;

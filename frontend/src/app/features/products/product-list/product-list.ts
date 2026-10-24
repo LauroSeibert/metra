@@ -117,6 +117,7 @@ export class ProductList {
     { key: 'categoryName', header: PRODUCTS_STRINGS.columns.category },
     { key: 'unitCode', header: PRODUCTS_STRINGS.columns.unit, align: 'center', optional: true },
     { key: 'salePrice', header: PRODUCTS_STRINGS.columns.salePrice, align: 'end', sortable: true },
+    { key: 'stockQuantity', header: PRODUCTS_STRINGS.columns.stock, align: 'end', optional: true },
     { key: 'active', header: PRODUCTS_STRINGS.columns.status, align: 'center' },
     { key: 'actions', header: PRODUCTS_STRINGS.columns.actions, align: 'end', role: 'actions' },
   ];
@@ -127,6 +128,8 @@ export class ProductList {
   protected readonly categoryId = signal<number | null>(
     readOptionalInt(this.initial, 'categoryId'),
   );
+  /** Só produtos com saldo abaixo do estoque mínimo. */
+  protected readonly lowStock = signal(this.initial.get('stock') === 'low');
   protected readonly sort = signal<DataTableSort>(
     readSort(this.initial, SORTABLE_FIELDS, DEFAULT_SORT),
   );
@@ -139,6 +142,7 @@ export class ProductList {
       this.searchTerm(),
       this.status(),
       this.categoryId(),
+      this.lowStock(),
       this.sort(),
       this.pageSize(),
     ],
@@ -149,6 +153,7 @@ export class ProductList {
     search: this.searchTerm() || undefined,
     categoryId: this.categoryId() ?? undefined,
     active: ACTIVE_BY_STATUS[this.status()],
+    lowStock: this.lowStock() || undefined,
     sort: toSortParam(this.sort()),
     page: this.page(),
     pageSize: this.pageSize(),
@@ -217,6 +222,7 @@ export class ProductList {
             search: this.searchTerm(),
             status: this.status(),
             categoryId: this.categoryId(),
+            stock: this.lowStock() ? 'low' : null,
             sort: toSortParam(this.sort()),
             page: this.page(),
             pageSize: this.pageSize(),
@@ -240,10 +246,15 @@ export class ProductList {
     this.search.set('');
     this.status.set('all');
     this.categoryId.set(null);
+    this.lowStock.set(false);
   }
 
   protected readonly hasFilters = computed(
-    () => this.search().trim() !== '' || this.status() !== 'all' || this.categoryId() !== null,
+    () =>
+      this.search().trim() !== '' ||
+      this.status() !== 'all' ||
+      this.categoryId() !== null ||
+      this.lowStock(),
   );
 
   protected onPage(change: DataTablePage): void {

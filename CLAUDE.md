@@ -23,7 +23,8 @@ Plano completo e fases: `docs/plan.md` (leia só a seção que a tarefa pedir).
 - Front, dentro de `frontend/`: `npm start`, `npm run build`, `npm test` e `npm run lint`
 - Regenerar cliente OpenAPI: `npm run api:generate` dentro de `frontend/` (depois do `dotnet build`)
 - Seed: `dotnet run --project backend/src/Erp.Seed -- seed --profile small|full`
-- Medir listagem: `dotnet run --project backend/src/Erp.Seed -c Release -- measure` (com `ERP_EMAIL` e `ERP_PASSWORD`)
+- Medir listagens: `dotnet run --project backend/src/Erp.Seed -c Release -- measure --target products|stock|all`,
+  com `ERP_EMAIL` e `ERP_PASSWORD`. O seed só completa tabelas vazias (produtos, parceiros, estoque...).
 
 ## Regras globais
 - Código em inglês, interface em pt-BR; termos de negócio em `docs/domain-glossary.md`.
