@@ -103,3 +103,17 @@ export type { ReverseFinancialPayment$Params as ReverseFinancialPayment$Params }
 export { reverseFinancialPayment as reverseFinancialPayment } from './fn/financial-entries/reverse-financial-payment';
 export type { CancelFinancialEntry$Params as CancelFinancialEntry$Params } from './fn/financial-entries/cancel-financial-entry';
 export { cancelFinancialEntry as cancelFinancialEntry } from './fn/financial-entries/cancel-financial-entry';
+export type { ListSales$Params as ListSales$Params } from './fn/sales/list-sales';
+export { listSales as listSales } from './fn/sales/list-sales';
+export type { CreateSale$Params as CreateSale$Params } from './fn/sales/create-sale';
+export { createSale as createSale } from './fn/sales/create-sale';
+export type { GetSaleSettings$Params as GetSaleSettings$Params } from './fn/sales/get-sale-settings';
+export { getSaleSettings as getSaleSettings } from './fn/sales/get-sale-settings';
+export type { GetSale$Params as GetSale$Params } from './fn/sales/get-sale';
+export { getSale as getSale } from './fn/sales/get-sale';
+export type { UpdateSale$Params as UpdateSale$Params } from './fn/sales/update-sale';
+export { updateSale as updateSale } from './fn/sales/update-sale';
+export type { ConfirmSale$Params as ConfirmSale$Params } from './fn/sales/confirm-sale';
+export { confirmSale as confirmSale } from './fn/sales/confirm-sale';
+export type { CancelSale$Params as CancelSale$Params } from './fn/sales/cancel-sale';
+export { cancelSale as cancelSale } from './fn/sales/cancel-sale';

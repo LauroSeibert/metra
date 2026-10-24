@@ -26,6 +26,7 @@ const STRINGS = LAYOUT_STRINGS.search;
 
 /** Atalhos de cadastro, além das telas do menu. */
 const CREATE: readonly Command[] = [
+  { label: 'Nova venda', hint: STRINGS.create, icon: 'add', path: '/sales/edit', write: true },
   { label: 'Novo produto', hint: STRINGS.create, icon: 'add', path: '/products/edit', write: true },
   {
     label: 'Novo parceiro',

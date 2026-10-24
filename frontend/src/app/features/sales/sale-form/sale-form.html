@@ -1,0 +1,306 @@
+<erp-page-header
+  [title]="loaded() ? strings.form.editTitle(loaded()!.number) : strings.form.newTitle"
+  [subtitle]="
+    !canWrite()
+      ? strings.form.readOnly
+      : isEdit() && !editable()
+        ? strings.form.notDraft
+        : strings.form.subtitle
+  "
+>
+  <a matButton="outlined" class="erp-secondary-action" [routerLink]="isEdit() ? '../..' : '..'">
+    <mat-icon>arrow_back</mat-icon>
+    {{ strings.form.back }}
+  </a>
+  @if (canWrite() && loaded(); as sale) {
+    @if (sale.status !== 'Cancelled') {
+      <button
+        matButton="outlined"
+        class="erp-danger-action"
+        type="button"
+        [disabled]="busy()"
+        (click)="cancelSale()"
+      >
+        <mat-icon>block</mat-icon>
+        {{ strings.form.cancelSale }}
+      </button>
+    }
+  }
+</erp-page-header>
+
+@if (loadError()) {
+  <erp-card class="state" role="alert">
+    <mat-icon>cloud_off</mat-icon>
+    <p>{{ strings.form.loadError }}</p>
+    <button matButton="outlined" type="button" (click)="reload()">
+      <mat-icon>refresh</mat-icon>
+      {{ strings.form.reload }}
+    </button>
+  </erp-card>
+} @else if (loading()) {
+  @if (showSkeleton()) {
+    <erp-card class="state" aria-busy="true">
+      <span class="erp-skeleton"></span>
+      <span class="erp-skeleton"></span>
+    </erp-card>
+  }
+} @else {
+  <form novalidate (submit)="save($event)">
+    @if (bannerErrors().length > 0) {
+      <div class="banner" role="alert">
+        <mat-icon>warning</mat-icon>
+        <div>
+          @for (error of bannerErrors(); track $index) {
+            <p>{{ error }}</p>
+          }
+        </div>
+        @if (conflict()) {
+          <button matButton="outlined" type="button" (click)="reload()">
+            {{ strings.form.reload }}
+          </button>
+        }
+      </div>
+    }
+
+    @if (loaded(); as sale) {
+      <div class="info">
+        <erp-status-chip [label]="strings.status[sale.status]" [tone]="statusTone(sale)" />
+        @if (sale.confirmedAt && sale.status === 'Confirmed') {
+          <span>{{ strings.form.confirmedInfo((sale.confirmedAt | date: 'short') ?? '') }}</span>
+        }
+        @if (sale.cancelledAt) {
+          <span>{{
+            strings.form.cancelledInfo(
+              (sale.cancelledAt | date: 'short') ?? '',
+              sale.cancellationReason ?? ''
+            )
+          }}</span>
+        }
+      </div>
+    }
+
+    <div class="layout">
+      <div class="main">
+        <erp-card class="section">
+          <header>
+            <h2>{{ strings.form.customer }}</h2>
+            <p>{{ strings.form.customerHint }}</p>
+          </header>
+          <div class="fields">
+            <erp-partner-picker
+              class="span-2"
+              type="Customer"
+              [label]="strings.form.partner"
+              [disabled]="!editable()"
+              [error]="attempted() && !partner() ? strings.validation.partner : null"
+              [(selected)]="partner"
+            />
+
+            <mat-form-field>
+              <mat-label>{{ strings.form.issuedAt }}</mat-label>
+              <input matInput type="date" [formField]="saleForm.issuedAt" />
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>{{ strings.form.paymentMethod }}</mat-label>
+              <mat-select [formField]="saleForm.paymentMethod">
+                @for (method of paymentMethods; track method) {
+                  <mat-option [value]="method">{{ strings.paymentMethods[method] }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>{{ strings.form.installments }}</mat-label>
+              <input matInput type="number" [formField]="saleForm.installments" />
+              @if (saleForm.installments().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>{{ strings.form.saleDiscount }}</mat-label>
+              <erp-money-input [formField]="saleForm.discount" />
+              @if (saleForm.discount().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              } @else if (editable() && maxDiscountPercent() !== null) {
+                <mat-hint>{{ strings.form.maxDiscount(maxDiscountPercent()!) }}</mat-hint>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="full">
+              <mat-label>{{ strings.form.note }}</mat-label>
+              <textarea matInput rows="2" [formField]="saleForm.note"></textarea>
+              @if (saleForm.note().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </erp-card>
+
+        <erp-card class="section">
+          <header>
+            <h2>{{ strings.form.items }}</h2>
+            <p>{{ strings.form.itemsHint }}</p>
+          </header>
+
+          @if (editable()) {
+            <div class="add">
+              <erp-product-picker
+                class="grow"
+                subscriptSizing="dynamic"
+                [label]="strings.form.addProduct"
+                [(selected)]="productToAdd"
+              />
+              <button
+                matButton="outlined"
+                type="button"
+                [disabled]="!productToAdd()"
+                (click)="addProduct()"
+              >
+                <mat-icon>add</mat-icon>
+                {{ strings.form.addProduct }}
+              </button>
+            </div>
+          }
+
+          @if (lines().length === 0) {
+            <p class="empty">{{ strings.form.noItems }}</p>
+          } @else {
+            <table class="items">
+              <thead>
+                <tr>
+                  <th>{{ strings.form.product }}</th>
+                  <th class="end">{{ strings.form.quantity }}</th>
+                  <th class="end">{{ strings.form.unitPrice }}</th>
+                  <th class="end">{{ strings.form.itemDiscount }}</th>
+                  <th class="end">{{ strings.form.itemTotal }}</th>
+                  @if (editable()) {
+                    <th>
+                      <span class="erp-sr-only">{{ strings.form.remove }}</span>
+                    </th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (line of lines(); track line.productId; let index = $index) {
+                  <tr>
+                    <td>
+                      <span class="name">{{ line.name }}</span>
+                      <span class="sku erp-mono">{{ line.sku }}</span>
+                    </td>
+                    <td class="end">
+                      @if (editable()) {
+                        <input
+                          class="cell-input"
+                          type="number"
+                          min="0"
+                          step="any"
+                          [attr.aria-label]="strings.form.quantity + ' ' + line.name"
+                          [value]="line.quantity"
+                          (change)="onLineInput(index, 'quantity', $event)"
+                        />
+                      } @else {
+                        {{ line.quantity }}
+                      }
+                      <small>{{ line.unitCode }}</small>
+                    </td>
+                    <td class="end erp-mono">{{ line.unitPrice | currency }}</td>
+                    <td class="end">
+                      @if (editable()) {
+                        <input
+                          class="cell-input"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          [attr.aria-label]="strings.form.itemDiscount + ' ' + line.name"
+                          [value]="line.discount"
+                          (change)="onLineInput(index, 'discount', $event)"
+                        />
+                      } @else {
+                        <span class="erp-mono">{{ line.discount | currency }}</span>
+                      }
+                    </td>
+                    <td class="end erp-mono">{{ lineTotal(line) | currency }}</td>
+                    @if (editable()) {
+                      <td class="end">
+                        <button
+                          class="erp-row-action danger"
+                          type="button"
+                          [title]="strings.form.remove"
+                          [attr.aria-label]="strings.form.remove + ' ' + line.name"
+                          (click)="removeLine(index)"
+                        >
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </erp-card>
+      </div>
+
+      <aside class="summary">
+        <erp-card class="section">
+          <header>
+            <h2>{{ strings.form.total }}</h2>
+          </header>
+          <dl>
+            <dt>{{ strings.form.gross }}</dt>
+            <dd>{{ totals().gross | currency }}</dd>
+            <dt>{{ strings.form.itemDiscounts }}</dt>
+            <dd>− {{ totals().itemDiscounts | currency }}</dd>
+            <dt>{{ strings.form.saleDiscount }}</dt>
+            <dd>− {{ totals().discount | currency }}</dd>
+            <dt class="grand">{{ strings.form.total }}</dt>
+            <dd class="grand">{{ totals().total | currency }}</dd>
+          </dl>
+
+          @if (editable()) {
+            <div class="actions">
+              <button
+                matButton="filled"
+                class="erp-primary-action"
+                type="button"
+                [disabled]="busy() || lines().length === 0"
+                (click)="confirmSale()"
+              >
+                <mat-icon>task_alt</mat-icon>
+                {{ strings.form.confirm }}
+              </button>
+              <button
+                matButton="outlined"
+                class="erp-secondary-action"
+                type="submit"
+                [disabled]="busy()"
+              >
+                <mat-icon>save</mat-icon>
+                {{ busy() ? strings.form.saving : strings.form.save }}
+              </button>
+            </div>
+          }
+        </erp-card>
+
+        @if (loaded()?.receivables?.length) {
+          <erp-card class="section">
+            <header>
+              <h2>{{ strings.form.receivables }}</h2>
+            </header>
+            <ol class="receivables">
+              @for (receivable of loaded()!.receivables; track receivable.id) {
+                <li>
+                  <span>{{ receivable.installmentNo }}/{{ receivable.installmentTotal }}</span>
+                  <span class="erp-mono">{{ receivable.dueDate | date: 'dd/MM/yyyy' }}</span>
+                  <strong class="erp-mono">{{ receivable.amount | currency }}</strong>
+                </li>
+              }
+            </ol>
+          </erp-card>
+        }
+      </aside>
+    </div>
+  </form>
+}
