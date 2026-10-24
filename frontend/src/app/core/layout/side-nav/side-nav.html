@@ -1,0 +1,29 @@
+<ul class="nav" [attr.aria-label]="strings.mainNav">
+  @for (item of items; track item.path) {
+    <li>
+      @if (item.available) {
+        <a
+          class="item"
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+          [matTooltip]="item.label"
+          matTooltipPosition="right"
+          [attr.aria-label]="item.label"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+        </a>
+      } @else {
+        <span
+          class="item disabled"
+          aria-disabled="true"
+          [matTooltip]="item.label + ' · ' + strings.comingSoon"
+          matTooltipPosition="right"
+          [attr.aria-label]="item.label + ' (' + strings.comingSoon + ')'"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+        </span>
+      }
+    </li>
+  }
+</ul>

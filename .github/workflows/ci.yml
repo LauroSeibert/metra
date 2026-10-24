@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Restore
+        run: dotnet restore backend/Erp.slnx
+      - name: Format (lint)
+        run: dotnet format backend/Erp.slnx --verify-no-changes --no-restore
+      - name: Build
+        run: dotnet build backend/Erp.slnx --no-restore -c Release
+      - name: Test
+        run: dotnet test --solution backend/Erp.slnx --no-build -c Release
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Build (com orçamento de bundle)
+        run: npm run build
+      - name: Test
+        run: npm test
+
+  compose:
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare .env
+        run: |
+          cp .env.example .env
+          sed -i "s/^MYSQL_PASSWORD=.*/MYSQL_PASSWORD=ci_$(openssl rand -hex 8)/" .env
+          sed -i "s/^MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD=ci_$(openssl rand -hex 8)/" .env
+      - name: Start environment
+        run: docker compose up -d --build --wait mysql && docker compose up -d --build api web
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 30); do curl -fs http://localhost:5080/health/ready && break; sleep 2; done
+          curl -fs http://localhost:5080/health/ready
+          curl -fs http://localhost:8080/ | grep -q "<app-root"
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs
+      - name: Stop
+        if: always()
+        run: docker compose down -v

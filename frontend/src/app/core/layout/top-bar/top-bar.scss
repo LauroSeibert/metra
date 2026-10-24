@@ -1,0 +1,48 @@
+:host {
+  --mat-icon-button-icon-color: var(--erp-on-primary);
+
+  display: flex;
+  align-items: center;
+  gap: var(--erp-space-5);
+  height: 100%;
+  padding: 0 var(--erp-space-5);
+  background: var(--erp-primary);
+  color: var(--erp-on-primary);
+}
+
+.brand {
+  font-size: var(--erp-font-size-lg);
+  font-weight: var(--erp-font-weight-bold);
+}
+
+.breadcrumb ol {
+  display: flex;
+  gap: var(--erp-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--erp-font-size-md);
+
+  li + li::before {
+    content: '/';
+    margin-right: var(--erp-space-2);
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--erp-space-2);
+  margin-left: auto;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: var(--erp-space-2);
+  padding: var(--erp-space-1) var(--erp-space-3);
+  border-radius: var(--erp-radius-pill);
+  background: var(--erp-primary-soft);
+  color: var(--erp-primary);
+  font-weight: var(--erp-font-weight-medium);
+}

@@ -1,0 +1,27 @@
+<div class="brand">{{ strings.appName }}</div>
+
+<nav class="breadcrumb" [attr.aria-label]="strings.breadcrumb">
+  <ol>
+    @for (label of breadcrumb(); track $index) {
+      <li>{{ label }}</li>
+    }
+  </ol>
+</nav>
+
+<div class="actions">
+  <button matIconButton type="button" [matTooltip]="strings.help" [attr.aria-label]="strings.help">
+    <mat-icon>help</mat-icon>
+  </button>
+  <button
+    matIconButton
+    type="button"
+    [matTooltip]="strings.notifications"
+    [attr.aria-label]="strings.notifications"
+  >
+    <mat-icon>notifications</mat-icon>
+  </button>
+  <div class="profile" [attr.aria-label]="strings.profile">
+    <mat-icon>account_circle</mat-icon>
+    <span>{{ strings.userName }}</span>
+  </div>
+</div>

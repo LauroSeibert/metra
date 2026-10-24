@@ -1,0 +1,58 @@
+// Tokens de design do ERP. Toda cor, raio, espaçamento e sombra vem daqui.
+// Origem dos valores e regras de uso: docs/design-system.md.
+:root {
+  // Cores (medidas no protótipo do Painel do Parceiro)
+  --erp-primary: #2f4fd8;
+  --erp-primary-soft: #e0e6ff;
+  --erp-on-primary: #ffffff;
+  --erp-bg: #eef1f7;
+  --erp-surface: #ffffff;
+  --erp-surface-muted: #eef3fb;
+  --erp-border: #dde3ef;
+  --erp-text: #141a3a;
+  --erp-text-muted: #4a5272;
+  --erp-success: #087a3a;
+  --erp-danger: #b3361a;
+  --erp-info: #5be0f7;
+  --erp-info-soft: #ddf6fc;
+  --erp-info-text: #0e5368;
+  --erp-warning: #ffe14d;
+  --erp-warning-soft: #fff1d6;
+  --erp-warning-text: #7a4a0e;
+
+  // Tipografia
+  --erp-font-family: 'Inter', system-ui, sans-serif;
+  --erp-font-size-sm: 0.75rem;
+  --erp-font-size-md: 0.875rem;
+  --erp-font-size-lg: 1rem;
+  --erp-font-size-xl: 1.5rem;
+  --erp-font-size-display: 2rem;
+  --erp-font-weight-regular: 400;
+  --erp-font-weight-medium: 500;
+  --erp-font-weight-bold: 700;
+  --erp-line-height-body: 1.5;
+  --erp-letter-spacing-caps: 0.06em;
+
+  // Espaçamento (escala de 4 px)
+  --erp-space-1: 4px;
+  --erp-space-2: 8px;
+  --erp-space-3: 12px;
+  --erp-space-4: 16px;
+  --erp-space-5: 24px;
+  --erp-space-6: 32px;
+  --erp-space-7: 48px;
+
+  // Forma
+  --erp-radius-sm: 8px;
+  --erp-radius-card: 16px;
+  --erp-radius-pill: 999px;
+  --erp-border-width: 1px;
+  --erp-shadow-card: 0 1px 2px rgb(20 26 58 / 6%), 0 4px 16px rgb(20 26 58 / 6%);
+  --erp-opacity-disabled: 0.4;
+
+  // Estrutura da página
+  --erp-topbar-height: 64px;
+  --erp-sidenav-width: 72px;
+  --erp-nav-item-size: 44px;
+  --erp-content-max-width: 1440px;
+}

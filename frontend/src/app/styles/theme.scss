@@ -1,0 +1,33 @@
+// Tema do Angular Material apontando para os tokens de design (tokens.scss).
+@use '@angular/material' as mat;
+
+@mixin apply() {
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$blue-palette,
+      ),
+      typography: (
+        plain-family: var(--erp-font-family),
+        brand-family: var(--erp-font-family),
+      ),
+      density: 0,
+    )
+  );
+
+  @include mat.theme-overrides(
+    (
+      primary: var(--erp-primary),
+      on-primary: var(--erp-on-primary),
+      primary-container: var(--erp-primary-soft),
+      surface: var(--erp-surface),
+      on-surface: var(--erp-text),
+      on-surface-variant: var(--erp-text-muted),
+      background: var(--erp-bg),
+      error: var(--erp-danger),
+      outline-variant: var(--erp-border),
+      corner-full: var(--erp-radius-pill),
+    )
+  );
+}

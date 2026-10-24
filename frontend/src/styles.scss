@@ -1,0 +1,17 @@
+@use './app/styles/tokens';
+@use './app/styles/theme';
+
+html {
+  height: 100%;
+  @include theme.apply();
+}
+
+body {
+  color-scheme: light;
+  margin: 0;
+  height: 100%;
+  background-color: var(--erp-bg);
+  color: var(--erp-text);
+  font-family: var(--erp-font-family);
+  font-size: var(--erp-font-size-md);
+}

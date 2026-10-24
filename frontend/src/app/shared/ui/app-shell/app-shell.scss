@@ -1,0 +1,30 @@
+:host {
+  display: grid;
+  grid-template-columns: var(--erp-sidenav-width) 1fr;
+  grid-template-rows: var(--erp-topbar-height) 1fr;
+  grid-template-areas:
+    'top top'
+    'side content';
+  min-height: 100vh;
+}
+
+.top {
+  grid-area: top;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.side {
+  grid-area: side;
+  background: var(--erp-surface);
+  border-right: var(--erp-border-width) solid var(--erp-border);
+}
+
+.content {
+  grid-area: content;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--erp-content-max-width);
+  padding: var(--erp-space-6);
+}
