@@ -30,8 +30,12 @@ Registre a rota em `app.routes.ts` com `loadChildren` e `data: { breadcrumb }`, 
 - `rows`/`total` com `linkedSignal` para manter a página anterior durante o carregamento.
 - Perfil: `canWrite = inject(AuthService).canWrite`; sem ele, esconda criar/inativar e troque o ícone de
   editar por `visibility`. Itens por página padrão: `auth.pageSize()` (preferência do usuário).
-- `<erp-page-header>` com ações à direita (principal com `class="erp-primary-action"`), `<erp-segmented-control>`
-  para filtros rápidos e `<erp-data-table>` com `erpCell` e `erpExpandedRow` tipados por `[erpCellOf]="rows()"`.
+- Visual: `docs/design/listagem.png` e `docs/design-system.md` (Padrões de tela > Listagem).
+- `<erp-page-header>` com ações à direita (principal com `class="erp-primary-action"`) → `<erp-kpi-strip>` com as
+  contagens (as que filtram são `selectable`) → `<erp-data-table>` com os filtros em
+  `<section tableToolbar class="erp-toolbar">` (busca com `erpSlashFocus`, selects com `erp-filter-label` e opção
+  "Todas" de valor sentinela, contagem em `erp-count`), `erpCell`/`erpExpandedRow` tipados por `[erpCellOf]="rows()"`,
+  situação com `erp-dot` e `[rowMuted]` para inativos.
 
 ## Cadastro (copie `product-form/`)
 
@@ -43,12 +47,7 @@ Registre a rota em `app.routes.ts` com `loadChildren` e `data: { breadcrumb }`, 
 - Edição envia `version`; em `concurrency_conflict` mostre o banner com "Recarregar dados".
 - Campos: `<mat-form-field>` + `[formField]` + `<mat-error>` com `campo().errors()[0]`.
 
-## Testes (copie os `*.spec.ts` de produtos)
-
-`FakeApi` com `.on(fn, resposta)` e `callsTo(fn)`; `signInAs('Operator')` (`core/auth/testing.ts`) antes de criar o componente. Cubra: parâmetros da primeira carga, filtro, busca com debounce,
-vazio, erro, validação que bloqueia o envio, erro do servidor no campo e envio da versão na edição.
-
 ## Antes de entregar
 
-`npm run lint`, `npm run build` (orçamento de bundle) e `npm test` dentro de `frontend/`. Confira no navegador
-os três estados e um fluxo de cadastro completo.
+`npm run build` dentro de `frontend/` e uma olhada no navegador (lista, cadastro e erro de validação).
+Sem testes novos (escopo simplificado em `docs/plan.md`).

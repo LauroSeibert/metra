@@ -25,16 +25,10 @@ Copie a estrutura; não invente camada nova.
 4. **Endpoint** (`Erp.Api/<Modulo>/<Entidade>Endpoints.cs`): `MapGroup("/kebab-case-plural")`, `WithName` único
    (vira o nome da função no front), `TypedResults`, `ProducesValidationProblem`/`ProducesProblem` para 400/404/409.
    Mapeie em `Program.cs` dentro de `MapGroup("/api/v1")`.
-5. **Testes**: unitários das regras do domínio em `Erp.UnitTests`; integração em `Erp.IntegrationTests` usando
-   `MySqlApiFixture` e `ApiClient` (dados com `Unique(...)`, sem depender de ordem). Cliente autenticado:
-   `fixture.ClientFor(Roles.Operator)`; enums vêm como texto, então leia com `ReadFromJsonAsync<T>(Json, Ct)`.
-   Cubra também 403 para o Viewer nos endpoints de escrita. Cubra 201, 400 com campos,
-   404, 409 de duplicidade e de versão, paginação e limite de 100.
-6. **Contrato e front**: `dotnet build backend/Erp.slnx` regenera `backend/openapi/erp-api.json`;
+5. **Contrato e front**: `dotnet build backend/Erp.slnx` regenera `backend/openapi/erp-api.json`;
    depois `npm run api:generate` em `frontend/`. Commite os dois juntos.
 
 ## Antes de entregar
 
-- `dotnet format backend/Erp.slnx --verify-no-changes`, `dotnet build`, `dotnet test --solution backend/Erp.slnx`.
-- Consulta nova em tabela grande: `EXPLAIN` no seed completo, registrado em `docs/modules/<modulo>.md`.
-- Regra de negócio fora de `docs/plan.md` ou do glossário: pare e pergunte.
+`dotnet build backend/Erp.slnx`. Sem testes, `EXPLAIN` ou docs de módulo novos (escopo simplificado em `docs/plan.md`).
+Regra de negócio fora de `docs/plan.md` ou do glossário: pare e pergunte.

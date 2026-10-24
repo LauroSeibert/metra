@@ -16,7 +16,8 @@ export const PARTNERS_STRINGS = {
     searchLabel: 'Buscar por nome ou CPF/CNPJ',
     searchPlaceholder: 'Comece a digitar o nome ou o documento',
     typeFilter: 'Tipo',
-    allTypes: 'Todos os tipos',
+    allTypes: 'Todos',
+    kpis: 'Indicadores de parceiros',
     customers: 'Clientes',
     suppliers: 'Fornecedores',
     statusFilter: 'Situação',
@@ -29,6 +30,13 @@ export const PARTNERS_STRINGS = {
     deactivate: 'Inativar parceiro',
     activated: 'Parceiro ativado.',
     deactivated: 'Parceiro inativado.',
+  },
+  kpis: {
+    allHint: 'Clientes e fornecedores',
+    activeHint: 'Em uso nas operações',
+    inactiveHint: 'Fora das operações',
+    suppliers: 'Fornecedores',
+    suppliersHint: 'Inclui quem também é cliente',
   },
   columns: {
     name: 'Nome',

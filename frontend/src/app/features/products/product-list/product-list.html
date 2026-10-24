@@ -1,6 +1,6 @@
 <erp-page-header [title]="strings.list.title" [subtitle]="strings.list.subtitle">
   <a matButton="outlined" class="erp-secondary-action" routerLink="categories">
-    <mat-icon>category</mat-icon>
+    <mat-icon>sell</mat-icon>
     {{ strings.list.categories }}
   </a>
   <a matButton="outlined" class="erp-secondary-action" routerLink="units">
@@ -15,93 +15,14 @@
   }
 </erp-page-header>
 
-<section class="erp-kpi-grid" aria-label="Indicadores do catálogo">
-  <erp-kpi-card
-    icon="inventory_2"
-    tone="primary"
-    [label]="strings.kpis.total"
-    [value]="kpis()?.total ?? null"
-    [hint]="strings.kpis.totalHint"
-  />
-  <erp-kpi-card
-    icon="check_circle"
-    tone="success"
-    [label]="strings.kpis.active"
-    [value]="kpis()?.active ?? null"
-    [hint]="
-      activeShare() === null
-        ? undefined
-        : strings.kpis.activeShare((activeShare() | percent: '1.0-0') ?? '')
-    "
-  />
-  <erp-kpi-card
-    icon="pause_circle"
-    tone="neutral"
-    [label]="strings.kpis.inactive"
-    [value]="kpis()?.inactive ?? null"
-    [hint]="strings.kpis.inactiveHint"
-  />
-  <erp-kpi-card
-    icon="category"
-    tone="info"
-    [label]="strings.kpis.categories"
-    [value]="kpis()?.categories ?? null"
-    [hint]="strings.kpis.categoriesHint"
-  />
-</section>
-
-<section class="erp-toolbar" [attr.aria-label]="strings.list.searchLabel">
-  <mat-form-field class="grow" subscriptSizing="dynamic">
-    <mat-icon matPrefix>search</mat-icon>
-    <mat-label>{{ strings.list.searchLabel }}</mat-label>
-    <input
-      matInput
-      type="search"
-      [placeholder]="strings.list.searchPlaceholder"
-      [value]="search()"
-      (input)="onSearchInput($event)"
-    />
-  </mat-form-field>
-
-  <mat-form-field subscriptSizing="dynamic">
-    <mat-label>{{ strings.list.categoryFilter }}</mat-label>
-    <mat-select [value]="categoryId()" (valueChange)="categoryId.set($event)">
-      <mat-option [value]="null">{{ strings.list.allCategories }}</mat-option>
-      @for (category of categoryOptions(); track category.id) {
-        <mat-option [value]="category.id">{{ category.name }}</mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-
-  <mat-form-field subscriptSizing="dynamic">
-    <mat-label>{{ strings.list.stockFilter }}</mat-label>
-    <mat-select [value]="lowStock()" (valueChange)="lowStock.set($event)">
-      <mat-option [value]="false">{{ strings.list.allStock }}</mat-option>
-      <mat-option [value]="true">{{ strings.list.lowStock }}</mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <erp-segmented-control
-    [options]="statusOptions"
-    [(value)]="status"
-    [label]="strings.list.statusFilter"
-  />
-</section>
-
-<div class="results">
-  <span>{{ strings.list.results((total() | number) ?? '0') }}</span>
-  @if (hasFilters()) {
-    <button matButton type="button" (click)="clearFilters()">
-      <mat-icon>filter_alt_off</mat-icon>
-      {{ strings.list.clearFilters }}
-    </button>
-  }
-</div>
+<!-- Todos / Ativos / Inativos filtram a lista; Categorias é só informação. -->
+<erp-kpi-strip [items]="kpiItems()" [(selected)]="status" [label]="strings.kpis.label" />
 
 <erp-data-table
   [columns]="columns"
   [rows]="rows()"
   [rowKey]="rowKey"
+  [rowMuted]="inactive"
   [loading]="products.isLoading()"
   [error]="loadError()"
   [emptyMessage]="strings.list.empty"
@@ -113,45 +34,92 @@
   (retry)="products.reload()"
   (rowActivate)="openProduct($event)"
 >
+  <section tableToolbar class="erp-toolbar" [attr.aria-label]="strings.list.searchLabel">
+    <mat-form-field class="grow" subscriptSizing="dynamic">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        erpSlashFocus
+        type="search"
+        [attr.aria-label]="strings.list.searchLabel"
+        [placeholder]="strings.list.searchLabel"
+        [value]="search()"
+        (input)="onSearchInput($event)"
+      />
+      <span matSuffix class="erp-kbd" aria-hidden="true">/</span>
+    </mat-form-field>
+
+    <mat-form-field subscriptSizing="dynamic">
+      <span matTextPrefix class="erp-filter-label">{{ strings.list.categoryFilter }}</span>
+      <mat-select
+        [value]="categoryId() ?? 0"
+        [aria-label]="strings.list.categoryFilter"
+        (valueChange)="categoryId.set($event || null)"
+      >
+        <mat-option [value]="0">{{ strings.list.allCategories }}</mat-option>
+        @for (category of categoryOptions(); track category.id) {
+          <mat-option [value]="category.id">{{ category.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field subscriptSizing="dynamic">
+      <span matTextPrefix class="erp-filter-label">{{ strings.list.stockFilter }}</span>
+      <mat-select
+        [value]="lowStock()"
+        [aria-label]="strings.list.stockFilter"
+        (valueChange)="lowStock.set($event)"
+      >
+        <mat-option [value]="false">{{ strings.list.allStock }}</mat-option>
+        <mat-option [value]="true">{{ strings.list.lowStock }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    @if (hasFilters()) {
+      <button matButton type="button" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        {{ strings.list.clearFilters }}
+      </button>
+    }
+    <span class="erp-count">{{ strings.list.results((total() | number) ?? '0') }}</span>
+  </section>
+
   <ng-template erpCell="name" [erpCellOf]="rows()" let-product>
     <a class="product-name" [routerLink]="['edit', product.id]">{{ product.name }}</a>
+    <span class="category">{{ product.categoryName ?? strings.list.noCategory }}</span>
   </ng-template>
 
   <ng-template erpCell="sku" [erpCellOf]="rows()" let-product>
     <span class="sku">{{ product.sku }}</span>
   </ng-template>
 
-  <ng-template erpCell="categoryName" [erpCellOf]="rows()" let-product>
-    @if (product.categoryName; as category) {
-      {{ category }}
-    } @else {
-      <span class="missing">{{ strings.list.noCategory }}</span>
-    }
-  </ng-template>
-
   <ng-template erpCell="unitCode" [erpCellOf]="rows()" let-product>
-    @if (product.unitCode; as unitCode) {
-      <erp-status-chip [label]="unitCode" tone="neutral" [plain]="true" />
-    } @else {
-      <span class="missing">—</span>
-    }
+    {{ product.unitCode ?? '—' }}
   </ng-template>
 
   <ng-template erpCell="salePrice" [erpCellOf]="rows()" let-product>
-    <strong class="price">{{ product.salePrice | currency }}</strong>
+    {{ product.salePrice | currency }}
   </ng-template>
 
   <ng-template erpCell="stockQuantity" [erpCellOf]="rows()" let-product>
-    <span class="stock" [class.low]="product.stockQuantity < product.minStock">
-      {{ product.stockQuantity | number: '1.0-3' }}
-    </span>
+    @if (product.stockQuantity <= 0) {
+      <span class="stock-flag zero">{{ strings.list.zeroStock }}</span>
+    } @else if (product.stockQuantity < product.minStock) {
+      <span class="stock-flag low">{{ strings.list.lowStockFlag }}</span>
+    }
+    <span
+      [class.zero]="product.stockQuantity <= 0"
+      [class.low]="product.stockQuantity > 0 && product.stockQuantity < product.minStock"
+      >{{ product.stockQuantity | number: '1.0-3' }}</span
+    >
   </ng-template>
 
   <ng-template erpCell="active" [erpCellOf]="rows()" let-product>
-    <erp-status-chip
-      [label]="product.active ? strings.status.activeChip : strings.status.inactiveChip"
-      [tone]="product.active ? 'success' : 'neutral'"
-    />
+    @if (product.active) {
+      <span class="erp-dot" [attr.aria-label]="strings.status.activeChip"></span>
+    } @else {
+      <span class="erp-dot off">{{ strings.status.inactiveChip }}</span>
+    }
   </ng-template>
 
   <ng-template erpCell="actions" [erpCellOf]="rows()" let-product>

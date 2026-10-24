@@ -11,14 +11,6 @@
   </button>
 }
 
-<a class="brand" routerLink="/">
-  <span class="mark" aria-hidden="true">E</span>
-  <span class="brand-text">
-    <strong>{{ strings.appName }}</strong>
-    <small>{{ strings.appTagline }}</small>
-  </span>
-</a>
-
 <nav class="breadcrumb" [attr.aria-label]="strings.breadcrumb">
   <ol>
     @for (label of breadcrumb(); track $index; let last = $last) {
@@ -27,12 +19,15 @@
   </ol>
 </nav>
 
+<erp-command-search class="search" />
+
 <div class="actions">
+  <span class="demo">{{ strings.demoBadge }}</span>
   <button
     matIconButton
     type="button"
     class="help"
-    [matTooltip]="strings.help"
+    [title]="strings.help"
     [attr.aria-label]="strings.help"
   >
     <mat-icon>help</mat-icon>
@@ -40,7 +35,7 @@
   <button
     matIconButton
     type="button"
-    [matTooltip]="strings.notifications"
+    [title]="strings.notifications"
     [attr.aria-label]="strings.notifications"
   >
     <mat-icon>notifications</mat-icon>
@@ -56,7 +51,6 @@
       <strong>{{ profile()?.fullName }}</strong>
       <small>{{ roleName() }}</small>
     </span>
-    <mat-icon class="chevron" aria-hidden="true">expand_more</mat-icon>
   </button>
   <!-- Popover nativo do HTML: fecha com Esc e com clique fora, sem JavaScript extra no bundle. -->
   <div id="account-menu" class="account-menu" popover role="menu">

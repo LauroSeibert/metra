@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 /**
- * Moldura da aplicação: barra superior, menu lateral e conteúdo em largura total.
+ * Moldura da aplicação: menu lateral na altura toda (com a marca no topo) e, à direita, barra superior
+ * e conteúdo.
  * - desktop: menu com rótulos ou recolhido (`compact`);
  * - tablet: menu só com ícones (`compact`);
  * - mobile: menu em gaveta sobre o conteúdo (`mobile` + `navOpen`).

@@ -1,21 +1,9 @@
 @use 'breakpoints' as bp;
 
-.results {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--erp-space-3);
-  min-height: 36px;
-  margin-bottom: var(--erp-space-3);
-  padding: 0 var(--erp-space-1);
-  color: var(--erp-text-muted);
-  font-size: var(--erp-font-size-sm);
-  font-weight: var(--erp-font-weight-medium);
-}
-
 .product-name {
-  color: var(--erp-text);
-  font-weight: var(--erp-font-weight-semibold);
+  display: block;
+  color: inherit;
+  font-weight: var(--erp-font-weight-medium);
   text-decoration: none;
 
   &:hover {
@@ -24,15 +12,17 @@
   }
 }
 
-.sku {
+.category {
+  display: block;
   color: var(--erp-text-muted);
-  font-family: ui-monospace, 'Cascadia Mono', 'SFMono-Regular', monospace;
   font-size: var(--erp-font-size-sm);
-  white-space: nowrap;
 }
 
-.price {
-  font-weight: var(--erp-font-weight-semibold);
+.sku {
+  color: var(--erp-text-muted);
+  font-family: var(--erp-font-mono);
+  font-size: var(--erp-font-size-sm);
+  white-space: nowrap;
 }
 
 .missing {
@@ -88,11 +78,17 @@ dt {
   }
 }
 
-.stock {
-  font-variant-numeric: tabular-nums;
+// Estoque abaixo do mínimo (âmbar) e zerado (vermelho), com a palavra antes do número.
+.stock-flag {
+  margin-right: var(--erp-space-2);
+  font-family: var(--erp-font-family);
+  font-size: var(--erp-font-size-sm);
+}
 
-  &.low {
-    color: var(--erp-warning-text);
-    font-weight: var(--erp-font-weight-semibold);
-  }
+.low {
+  color: var(--erp-warning-text);
+}
+
+.zero {
+  color: var(--erp-danger);
 }

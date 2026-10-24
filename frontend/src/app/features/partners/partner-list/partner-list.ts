@@ -41,11 +41,8 @@ import {
 } from '../../../shared/ui/data-table/data-table';
 import { DataTableCell } from '../../../shared/ui/data-table/data-table-templates';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
-import {
-  SegmentedControl,
-  SegmentedOption,
-} from '../../../shared/ui/segmented-control/segmented-control';
-import { StatusChip } from '../../../shared/ui/status-chip/status-chip';
+import { KpiItem, KpiStrip } from '../../../shared/ui/kpi-strip/kpi-strip';
+import { SlashFocus } from '../../../shared/ui/slash-focus';
 import { formatDocument } from '../partner-rules';
 import { PARTNERS_STRINGS } from '../partners.strings';
 
@@ -75,9 +72,9 @@ const DEFAULT_SORT: DataTableSort = { field: 'name', direction: 'asc' };
     MatTooltipModule,
     DataTable,
     DataTableCell,
+    KpiStrip,
     PageHeader,
-    SegmentedControl,
-    StatusChip,
+    SlashFocus,
   ],
   templateUrl: './partner-list.html',
   styleUrl: './partner-list.scss',
@@ -94,11 +91,6 @@ export class PartnerList {
   protected readonly strings = PARTNERS_STRINGS;
   protected readonly canWrite = this.auth.canWrite;
   protected readonly typeOptions = PARTNER_TYPES;
-  protected readonly statusOptions: readonly SegmentedOption<StatusFilter>[] = [
-    { value: 'all', label: PARTNERS_STRINGS.status.all },
-    { value: 'active', label: PARTNERS_STRINGS.status.active },
-    { value: 'inactive', label: PARTNERS_STRINGS.status.inactive },
-  ];
   protected readonly columns: readonly DataTableColumn[] = [
     { key: 'name', header: PARTNERS_STRINGS.columns.name, sortable: true, role: 'title' },
     {
@@ -107,15 +99,21 @@ export class PartnerList {
       sortable: true,
       role: 'subtitle',
     },
-    { key: 'type', header: PARTNERS_STRINGS.columns.type },
     { key: 'contact', header: PARTNERS_STRINGS.columns.contact, optional: true },
-    { key: 'active', header: PARTNERS_STRINGS.columns.status, align: 'center' },
+    { key: 'active', header: PARTNERS_STRINGS.columns.status },
     { key: 'actions', header: PARTNERS_STRINGS.columns.actions, align: 'end', role: 'actions' },
   ];
 
   protected readonly search = signal(readText(this.initial, 'search'));
   protected readonly type = signal<PartnerType | null>(readType(this.initial.get('type')));
-  protected readonly status = signal<StatusFilter>(readStatus(this.initial.get('status')));
+  protected readonly status = signal<StatusFilter | 'suppliers'>(
+    readStatus(this.initial.get('status')),
+  );
+  /** A célula de fornecedores não é filtro: vale como "todos". */
+  private readonly statusFilter = computed<StatusFilter>(() => {
+    const status = this.status();
+    return status === 'suppliers' ? 'all' : status;
+  });
   protected readonly sort = signal<DataTableSort>(
     readSort(this.initial, SORTABLE_FIELDS, DEFAULT_SORT),
   );
@@ -123,14 +121,20 @@ export class PartnerList {
   private readonly searchTerm = debounced(computed(() => this.search().trim()));
 
   protected readonly page = linkedSignal<unknown, number>({
-    source: () => [this.searchTerm(), this.type(), this.status(), this.sort(), this.pageSize()],
+    source: () => [
+      this.searchTerm(),
+      this.type(),
+      this.statusFilter(),
+      this.sort(),
+      this.pageSize(),
+    ],
     computation: (_source, previous) => (previous ? 1 : readInt(this.initial, 'page', 1)),
   });
 
   private readonly query = computed<ListPartners$Params>(() => ({
     search: this.searchTerm() || undefined,
     type: this.type() ?? undefined,
-    active: ACTIVE_BY_STATUS[this.status()],
+    active: ACTIVE_BY_STATUS[this.statusFilter()],
     sort: toSortParam(this.sort()),
     page: this.page(),
     pageSize: this.pageSize(),
@@ -156,9 +160,61 @@ export class PartnerList {
     this.partners.status() === 'error' ? PARTNERS_STRINGS.list.loadError : null,
   );
   protected readonly hasFilters = computed(
-    () => this.search().trim() !== '' || this.type() !== null || this.status() !== 'all',
+    () => this.search().trim() !== '' || this.type() !== null || this.statusFilter() !== 'all',
   );
   protected readonly rowKey = (partner: PartnerListItemDto) => partner.id;
+  protected readonly inactive = (partner: PartnerListItemDto) => !partner.active;
+
+  /** Contagens da base inteira (independem dos filtros): só o total de cada consulta. */
+  protected readonly stats = resource({
+    loader: async () => {
+      const [all, active, inactive, suppliers] = await Promise.all([
+        this.api.invoke(listPartners, { pageSize: 1 }),
+        this.api.invoke(listPartners, { active: true, pageSize: 1 }),
+        this.api.invoke(listPartners, { active: false, pageSize: 1 }),
+        this.api.invoke(listPartners, { type: 'Supplier', pageSize: 1 }),
+      ]);
+      return {
+        all: all.totalCount,
+        active: active.totalCount,
+        inactive: inactive.totalCount,
+        suppliers: suppliers.totalCount,
+      };
+    },
+  });
+  protected readonly kpiItems = computed<readonly KpiItem<StatusFilter | 'suppliers'>[]>(() => {
+    const stats = this.stats.hasValue() ? this.stats.value() : null;
+    const kpis = PARTNERS_STRINGS.kpis;
+    return [
+      {
+        key: 'all',
+        label: PARTNERS_STRINGS.status.all,
+        value: stats?.all ?? null,
+        hint: kpis.allHint,
+        selectable: true,
+      },
+      {
+        key: 'active',
+        label: PARTNERS_STRINGS.status.active,
+        value: stats?.active ?? null,
+        hint: kpis.activeHint,
+        selectable: true,
+      },
+      {
+        key: 'inactive',
+        label: PARTNERS_STRINGS.status.inactive,
+        value: stats?.inactive ?? null,
+        hint: kpis.inactiveHint,
+        selectable: true,
+      },
+      {
+        key: 'suppliers',
+        label: kpis.suppliers,
+        value: stats?.suppliers ?? null,
+        hint: kpis.suppliersHint,
+      },
+    ];
+  });
   protected readonly formatDocument = formatDocument;
 
   constructor() {
@@ -170,7 +226,7 @@ export class PartnerList {
           {
             search: this.searchTerm(),
             type: this.type(),
-            status: this.status(),
+            status: this.statusFilter(),
             sort: toSortParam(this.sort()),
             page: this.page(),
             pageSize: this.pageSize(),
@@ -215,6 +271,7 @@ export class PartnerList {
         this.notifier.success(PARTNERS_STRINGS.list.activated);
       }
       this.partners.reload();
+      this.stats.reload();
     } catch (error) {
       this.notifier.error(toApiProblem(error).message);
     }

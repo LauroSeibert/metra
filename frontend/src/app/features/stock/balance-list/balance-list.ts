@@ -43,11 +43,8 @@ import {
 } from '../../../shared/ui/data-table/data-table';
 import { DataTableCell } from '../../../shared/ui/data-table/data-table-templates';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
-import {
-  SegmentedControl,
-  SegmentedOption,
-} from '../../../shared/ui/segmented-control/segmented-control';
-import { StatusChip } from '../../../shared/ui/status-chip/status-chip';
+import { KpiItem, KpiStrip } from '../../../shared/ui/kpi-strip/kpi-strip';
+import { SlashFocus } from '../../../shared/ui/slash-focus';
 import { MovementDialog, MovementDialogData } from '../movement-dialog/movement-dialog';
 import { STOCK_STRINGS } from '../stock.strings';
 
@@ -76,9 +73,9 @@ const DEFAULT_SORT: DataTableSort = { field: 'name', direction: 'asc' };
     MatTooltipModule,
     DataTable,
     DataTableCell,
+    KpiStrip,
     PageHeader,
-    SegmentedControl,
-    StatusChip,
+    SlashFocus,
   ],
   templateUrl: './balance-list.html',
   styleUrl: './balance-list.scss',
@@ -94,18 +91,12 @@ export class BalanceList {
 
   protected readonly strings = STOCK_STRINGS;
   protected readonly canWrite = this.auth.canWrite;
-  protected readonly levelOptions: readonly SegmentedOption<LevelFilter>[] = [
-    { value: 'all', label: STOCK_STRINGS.balances.all },
-    { value: 'low', label: STOCK_STRINGS.balances.low },
-    { value: 'ok', label: STOCK_STRINGS.balances.ok },
-  ];
   protected readonly columns: readonly DataTableColumn[] = [
     { key: 'name', header: STOCK_STRINGS.columns.product, sortable: true, role: 'title' },
     { key: 'sku', header: STOCK_STRINGS.columns.sku, sortable: true, role: 'subtitle' },
-    { key: 'unitCode', header: STOCK_STRINGS.columns.unit, align: 'center', optional: true },
+    { key: 'unitCode', header: STOCK_STRINGS.columns.unit, optional: true },
     { key: 'quantity', header: STOCK_STRINGS.columns.quantity, align: 'end', sortable: true },
     { key: 'minStock', header: STOCK_STRINGS.columns.minStock, align: 'end', optional: true },
-    { key: 'lowStock', header: STOCK_STRINGS.columns.level, align: 'center' },
     { key: 'actions', header: STOCK_STRINGS.columns.actions, align: 'end', role: 'actions' },
   ];
 
@@ -169,6 +160,45 @@ export class BalanceList {
     () => this.search().trim() !== '' || this.categoryId() !== null || this.level() !== 'all',
   );
   protected readonly rowKey = (balance: StockBalanceDto) => balance.productId;
+  protected readonly inactive = (balance: StockBalanceDto) => !balance.active;
+
+  /** Contagens por nível (independem dos filtros): só o total de cada consulta. */
+  protected readonly stats = resource({
+    loader: async () => {
+      const [all, low] = await Promise.all([
+        this.api.invoke(listStockBalances, { pageSize: 1 }),
+        this.api.invoke(listStockBalances, { lowStock: true, pageSize: 1 }),
+      ]);
+      return { all: all.totalCount, low: low.totalCount };
+    },
+  });
+  protected readonly kpiItems = computed<readonly KpiItem<LevelFilter>[]>(() => {
+    const stats = this.stats.hasValue() ? this.stats.value() : null;
+    const kpis = STOCK_STRINGS.balances.kpis;
+    return [
+      {
+        key: 'all',
+        label: STOCK_STRINGS.balances.all,
+        value: stats?.all ?? null,
+        hint: kpis.allHint,
+        selectable: true,
+      },
+      {
+        key: 'low',
+        label: STOCK_STRINGS.balances.low,
+        value: stats?.low ?? null,
+        hint: kpis.lowHint,
+        selectable: true,
+      },
+      {
+        key: 'ok',
+        label: STOCK_STRINGS.balances.ok,
+        value: stats ? stats.all - stats.low : null,
+        hint: kpis.okHint,
+        selectable: true,
+      },
+    ];
+  });
 
   constructor() {
     effect(() => {
@@ -230,6 +260,7 @@ export class BalanceList {
     );
     if (saved) {
       this.balances.reload();
+      this.stats.reload();
     }
   }
 

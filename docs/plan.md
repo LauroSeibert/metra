@@ -17,6 +17,15 @@ O projeto é um ERP de demonstração para pequenas empresas de comércio, const
 
 **Quem lê este documento:** você, para decidir a stack e o escopo, e a IA que for implementar, para seguir as regras da seção *Boas práticas obrigatórias*.
 
+## Escopo simplificado (24/10/2026)
+
+Esta seção prevalece sobre o resto do documento. A demo é local e serve para validar o uso dos arquivos `.md` do
+Claude gastando poucos tokens, então o foco passa a ser telas funcionando, com validações, e a parte visual.
+
+- Sem testes novos, benchmarks, metas de p95 nem `EXPLAIN`. Os testes que já existem ficam, sem ampliar.
+- Seed só no perfil `small`. Sem ADR nem `docs/modules/*.md` novo por fase.
+- CI só com build, lint e contrato OpenAPI. Orçamento de bundle folgado (1 MB de aviso).
+- Verificação ao fim de cada tarefa: `dotnet build` e `npm run build`.
 ## Os arquivos CLAUDE.md ficam salvos no repositório?
 
 Sim: o `CLAUDE.md` do projeto é feito para ser versionado no git e compartilhado com todo o time. Só os arquivos pessoais ficam de fora, segundo a [documentação oficial](https://code.claude.com/docs/en/memory).
@@ -377,10 +386,10 @@ A ordem segue as dependências do negócio: produtos primeiro, como módulo de r
 3. **Acesso e parceiros.** Login, perfil do usuário, políticas por perfil, clientes e fornecedores com validação de CPF e CNPJ. *Saída:* testes de autorização cobrindo os três perfis.
 4. **Estoque.** Movimentações imutáveis, saldo transacional e paginação por chave. *Saída:* invariante "soma das movimentações é igual ao saldo" testada, e histórico com 1 milhão de linhas respondendo dentro da meta.
 5. **Lançamentos financeiros.** Contas a pagar e a receber, parcelas, baixa e estorno, com o padrão "cartão de resumo + tabela" do protótipo. *Saída:* testes de integração do ciclo aberto, pago e estornado.
-6. **Vendas.** Rascunho, confirmação e cancelamento, integrados a estoque e financeiro. *Saída:* teste de integração da cadeia completa: confirmar baixa o estoque e gera as parcelas, cancelar desfaz ambos.
-7. **Dashboard.** Consultas com EF Core, cache curto e carregamento com `@defer`. *Saída:* dashboard abaixo de 500 ms no seed completo.
-8. **Configurações.** Parâmetros da empresa e usuários. *Saída:* um parâmetro alterado, como o estoque negativo, muda o comportamento da venda.
-9. **Endurecimento.** Revisão de índices com `EXPLAIN`, orçamento de bundle, checklist de segurança, e2e dos três fluxos e README. *Saída:* CI verde com todas as verificações obrigatórias.
+6. **Vendas.** Rascunho, confirmação e cancelamento, integrados a estoque e financeiro. *Saída:* telas de lista e cadastro funcionando.
+7. **Dashboard.** Indicadores e um ou dois gráficos com consultas simples. *Saída:* tela inicial com os números do negócio.
+8. **Configurações.** Dados da empresa e lista de usuários. *Saída:* tela simples de consulta e edição.
+9. ~~Endurecimento~~ (cortado no escopo simplificado; fica só um README curto).
 10. **Experimento e artigo.** Criar uma branch por cenário a partir do commit final, removendo ou restaurando os arquivos de contexto, e rodar o protocolo da seção *Critérios de pronto e medição*, registrando os resultados.
 
 ## Como começar

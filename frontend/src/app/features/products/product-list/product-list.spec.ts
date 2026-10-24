@@ -77,11 +77,14 @@ describe('ProductList', () => {
     expect(lastListParams().pageSize).toBe(50);
   });
 
-  it('filters inactive products through the segmented control', async () => {
+  it('filters inactive products through the KPI strip', async () => {
     await render();
 
-    const inactive = Array.from(element.querySelectorAll<HTMLButtonElement>('[role="radio"]')).find(
-      (button) => button.textContent?.trim() === PRODUCTS_STRINGS.status.inactive,
+    const inactive = Array.from(
+      element.querySelectorAll<HTMLButtonElement>('erp-kpi-strip button.cell'),
+    ).find(
+      (button) =>
+        button.querySelector('.label')?.textContent?.trim() === PRODUCTS_STRINGS.status.inactive,
     );
     inactive?.click();
     await settle();
