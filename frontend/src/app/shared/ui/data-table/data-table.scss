@@ -1,5 +1,5 @@
-// Tabela em cartão. Abaixo de 720 px de largura disponível vira lista de cartões (container query),
-// então funciona igual em celular, em painel lateral ou em diálogo.
+// Tabela em cartão, com os filtros dentro (referência: docs/design/listagem.png). Abaixo de 720 px de
+// largura disponível vira lista de cartões (container query): igual em celular, painel ou diálogo.
 :host {
   container: data-table / inline-size;
 
@@ -11,8 +11,13 @@
   box-shadow: var(--erp-shadow-card);
 }
 
+.toolbar:empty {
+  display: none;
+}
+
 .progress {
-  height: 3px;
+  height: 2px;
+  margin-top: -2px;
 }
 
 table {
@@ -30,20 +35,26 @@ thead th {
   position: sticky;
   top: var(--erp-topbar-height);
   z-index: var(--erp-z-sticky);
-  height: 44px;
+  height: 40px;
   padding: 0 var(--erp-space-4);
+  border-top: var(--erp-border-width) solid var(--erp-border);
   border-bottom: var(--erp-border-width) solid var(--erp-border);
   background: var(--erp-surface-muted);
-  color: var(--erp-text-subtle);
+  color: var(--erp-text-muted);
   font-size: var(--erp-font-size-xs);
-  font-weight: var(--erp-font-weight-semibold);
+  font-weight: var(--erp-font-weight-medium);
   letter-spacing: var(--erp-letter-spacing-caps);
   text-transform: uppercase;
   white-space: nowrap;
 }
 
+// Sem filtros no cartão, o cabeçalho é a primeira linha: sem borda dupla em cima.
+.toolbar:empty + .progress + table thead th {
+  border-top: 0;
+}
+
 td {
-  height: 56px;
+  height: var(--erp-row-height);
   padding: var(--erp-space-2) var(--erp-space-4);
   border-bottom: var(--erp-border-width) solid var(--erp-border);
   color: var(--erp-text);
@@ -55,8 +66,6 @@ tbody tr:last-child td {
 }
 
 tr.row {
-  transition: background var(--erp-duration-fast) var(--erp-easing);
-
   &:hover td {
     background: var(--erp-surface-hover);
   }
@@ -65,6 +74,29 @@ tr.row {
     border-bottom-color: transparent;
     background: var(--erp-primary-softer);
   }
+
+  // Registro inativo: texto esmaecido, ações continuam disponíveis.
+  &.muted td:not(.role-actions) {
+    color: var(--erp-text-subtle);
+  }
+
+  // Ações aparecem no hover e no foco do teclado; em telas de toque, sempre.
+  td .actions-slot {
+    opacity: 0;
+    transition: opacity var(--erp-duration-fast) var(--erp-easing);
+  }
+
+  &:hover td .actions-slot,
+  &:focus-within td .actions-slot,
+  &.expanded td .actions-slot {
+    opacity: 1;
+  }
+}
+
+@media (hover: none) {
+  tr.row td .actions-slot {
+    opacity: 1;
+  }
 }
 
 .align-start {
@@ -72,8 +104,13 @@ tr.row {
 }
 
 .align-end {
-  text-align: right;
   font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+// Números em monoespaçada só nas células (o cabeçalho segue a fonte do texto).
+td.align-end {
+  font-family: var(--erp-font-mono);
 }
 
 .align-center {
@@ -81,8 +118,42 @@ tr.row {
 }
 
 .expander {
-  width: var(--erp-nav-item-size);
+  width: 44px;
   padding-right: 0;
+}
+
+.expand {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--erp-radius-sm);
+  background: none;
+  color: var(--erp-text-muted);
+  cursor: pointer;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    transition: transform var(--erp-duration-fast) var(--erp-easing);
+  }
+
+  &[aria-expanded='true'] mat-icon {
+    transform: rotate(90deg);
+  }
+
+  &:hover {
+    background: var(--erp-surface-sunken);
+    color: var(--erp-text);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--erp-focus-ring);
+  }
 }
 
 .sort {
@@ -101,19 +172,14 @@ tr.row {
   cursor: pointer;
 
   mat-icon {
-    width: 16px;
-    height: 16px;
-    font-size: 16px;
-    opacity: 0.5;
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
   }
 
   &:hover,
   &.sorted {
     color: var(--erp-primary);
-
-    mat-icon {
-      opacity: 1;
-    }
   }
 
   &:focus-visible {
@@ -144,11 +210,11 @@ tr.state td {
 .state-icon {
   display: inline-grid;
   place-items: center;
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background: var(--erp-primary-soft);
-  color: var(--erp-primary);
+  background: var(--erp-surface-sunken);
+  color: var(--erp-text-muted);
 
   &.danger {
     background: var(--erp-danger-soft);
@@ -156,9 +222,9 @@ tr.state td {
   }
 
   mat-icon {
-    width: 28px;
-    height: 28px;
-    font-size: 28px;
+    width: 26px;
+    height: 26px;
+    font-size: 26px;
   }
 }
 
@@ -174,40 +240,26 @@ tr.skeleton-row {
     vertical-align: middle;
   }
 
-  .w-70 {
-    width: 70%;
-  }
-
-  .w-55 {
-    width: 55%;
-  }
-
-  .w-45 {
-    width: 45%;
-  }
-
-  .w-35 {
-    width: 35%;
-  }
-
   .dot {
     width: var(--erp-space-4);
     height: var(--erp-space-4);
   }
 }
 
-.sr-only {
-  position: absolute;
-  overflow: hidden;
-  width: 1px;
-  height: 1px;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-mat-paginator {
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--erp-space-3);
+  padding: var(--erp-space-3) var(--erp-space-4);
   border-top: var(--erp-border-width) solid var(--erp-border);
-  background: transparent;
+  color: var(--erp-text-muted);
+
+  .pages {
+    display: flex;
+    gap: var(--erp-space-2);
+  }
 }
 
 // Colunas secundárias somem antes de a tabela apertar o conteúdo principal.
@@ -238,6 +290,10 @@ mat-paginator {
     &:hover td {
       background: none;
     }
+
+    td .actions-slot {
+      opacity: 1;
+    }
   }
 
   tr.row td,
@@ -255,6 +311,7 @@ mat-paginator {
     &::before {
       content: attr(data-label);
       color: var(--erp-text-subtle);
+      font-family: var(--erp-font-family);
       font-size: var(--erp-font-size-sm);
       font-weight: var(--erp-font-weight-medium);
       text-align: left;

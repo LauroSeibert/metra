@@ -1,0 +1,106 @@
+:host {
+  position: relative;
+  display: block;
+  width: min(440px, 100%);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: var(--erp-space-2);
+  height: 38px;
+  padding: 0 var(--erp-space-2) 0 var(--erp-space-3);
+  border: var(--erp-border-width) solid var(--erp-border);
+  border-radius: var(--erp-radius-md);
+  background: var(--erp-surface);
+  color: var(--erp-text-muted);
+  transition:
+    border-color var(--erp-duration-fast) var(--erp-easing),
+    box-shadow var(--erp-duration-fast) var(--erp-easing);
+
+  &:focus-within {
+    border-color: var(--erp-primary);
+    box-shadow: var(--erp-focus-ring);
+  }
+
+  mat-icon {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--erp-text);
+    font: inherit;
+
+    &::placeholder {
+      color: var(--erp-text-subtle);
+    }
+  }
+}
+
+.results {
+  position: absolute;
+  top: calc(100% + var(--erp-space-1));
+  right: 0;
+  left: 0;
+  z-index: var(--erp-z-topbar);
+  margin: 0;
+  padding: var(--erp-space-1);
+  border: var(--erp-border-width) solid var(--erp-border);
+  border-radius: var(--erp-radius-md);
+  background: var(--erp-surface);
+  box-shadow: var(--erp-shadow-raised);
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--erp-space-3);
+    padding: var(--erp-space-2) var(--erp-space-3);
+    border-radius: var(--erp-radius-sm);
+    color: var(--erp-text);
+    cursor: pointer;
+
+    mat-icon {
+      width: 18px;
+      height: 18px;
+      color: var(--erp-text-muted);
+      font-size: 18px;
+    }
+
+    &.active {
+      background: var(--erp-primary-softer);
+
+      mat-icon {
+        color: var(--erp-primary);
+      }
+    }
+  }
+
+  .label {
+    flex: 1;
+  }
+
+  .hint {
+    color: var(--erp-text-subtle);
+    font-size: var(--erp-font-size-sm);
+  }
+
+  .empty {
+    color: var(--erp-text-muted);
+    cursor: default;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .shortcut {
+    display: none;
+  }
+}

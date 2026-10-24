@@ -1,94 +1,73 @@
 @use 'breakpoints' as bp;
 
+// Barra superior branca sobre o conteúdo: trilha, busca global, ambiente, ajuda e conta.
 :host {
-  --mat-icon-button-icon-color: var(--erp-on-primary);
-  --mat-icon-button-state-layer-color: var(--erp-on-primary);
+  --mat-icon-button-icon-color: var(--erp-text-muted);
 
   display: flex;
   align-items: center;
-  gap: var(--erp-space-4);
-  height: 100%;
-  padding: 0 var(--erp-space-5) 0 var(--erp-space-4);
-  background: linear-gradient(90deg, var(--erp-primary-strong), var(--erp-primary) 45%);
-  color: var(--erp-on-primary);
-  box-shadow: var(--erp-shadow-xs);
-}
-
-.brand {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: var(--erp-space-3);
-  width: calc(var(--erp-sidenav-width-expanded) - var(--erp-space-6));
-  color: inherit;
-  text-decoration: none;
-}
-
-.mark {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: var(--erp-avatar-size);
-  height: var(--erp-avatar-size);
-  border-radius: var(--erp-radius-sm);
-  background: var(--erp-on-primary);
-  color: var(--erp-primary);
-  font-weight: var(--erp-font-weight-bold);
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  line-height: var(--erp-line-height-tight);
-
-  strong {
-    font-size: var(--erp-font-size-lg);
-    font-weight: var(--erp-font-weight-bold);
-    letter-spacing: var(--erp-letter-spacing-tight);
-  }
-
-  small {
-    color: var(--erp-on-primary-muted);
-    font-size: var(--erp-font-size-xs);
-  }
+  gap: var(--erp-space-5);
+  height: var(--erp-topbar-height);
+  padding: 0 var(--erp-page-padding);
+  border-bottom: var(--erp-border-width) solid var(--erp-border);
+  background: var(--erp-surface);
+  color: var(--erp-text);
 }
 
 .breadcrumb {
+  flex: 0 1 auto;
   min-width: 0;
 
   ol {
     display: flex;
+    align-items: center;
     gap: var(--erp-space-2);
     margin: 0;
     padding: 0;
     list-style: none;
-    font-size: var(--erp-font-size-md);
     white-space: nowrap;
   }
 
   li {
-    color: var(--erp-on-primary-muted);
+    color: var(--erp-text-muted);
 
     &[aria-current='page'] {
       overflow: hidden;
-      color: var(--erp-on-primary);
-      font-weight: var(--erp-font-weight-semibold);
+      color: var(--erp-text);
+      font-weight: var(--erp-font-weight-medium);
       text-overflow: ellipsis;
     }
   }
 
   li + li::before {
-    content: '/';
+    content: '›';
     margin-right: var(--erp-space-2);
-    color: var(--erp-on-primary-muted);
+    color: var(--erp-text-subtle);
   }
+}
+
+.search {
+  flex: 0 1 440px;
+  margin-left: auto;
 }
 
 .actions {
   display: flex;
+  flex: none;
   align-items: center;
   gap: var(--erp-space-1);
   margin-left: auto;
+}
+
+.demo {
+  margin-right: var(--erp-space-3);
+  padding: 2px var(--erp-space-2);
+  border-radius: var(--erp-radius-xs);
+  background: var(--erp-warning-soft);
+  color: var(--erp-warning-text);
+  font-size: var(--erp-font-size-sm);
+  font-weight: var(--erp-font-weight-medium);
+  white-space: nowrap;
 }
 
 .profile {
@@ -96,17 +75,17 @@
   align-items: center;
   gap: var(--erp-space-2);
   margin-left: var(--erp-space-2);
-  padding: var(--erp-space-1) var(--erp-space-3) var(--erp-space-1) var(--erp-space-1);
+  padding: var(--erp-space-1) var(--erp-space-2);
   border: 0;
-  border-radius: var(--erp-radius-pill);
-  background: var(--erp-on-primary-subtle);
+  border-radius: var(--erp-radius-md);
+  background: none;
   color: inherit;
   font: inherit;
+  text-align: left;
   cursor: pointer;
-  transition: background var(--erp-duration-fast) var(--erp-easing);
 
   &:hover {
-    background: rgb(255 255 255 / 22%);
+    background: var(--erp-surface-muted);
   }
 
   &:focus-visible {
@@ -117,86 +96,29 @@
 
 .avatar {
   display: grid;
+  flex: none;
   place-items: center;
   width: var(--erp-avatar-size);
   height: var(--erp-avatar-size);
   border-radius: 50%;
-  background: var(--erp-on-primary);
+  background: var(--erp-primary-soft);
   color: var(--erp-primary);
   font-size: var(--erp-font-size-sm);
-  font-weight: var(--erp-font-weight-bold);
+  font-weight: var(--erp-font-weight-semibold);
 }
 
 .who {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   line-height: var(--erp-line-height-tight);
 
   strong {
-    font-size: var(--erp-font-size-md);
-    font-weight: var(--erp-font-weight-semibold);
+    font-weight: var(--erp-font-weight-medium);
   }
 
   small {
-    color: var(--erp-on-primary-muted);
-    font-size: var(--erp-font-size-xs);
-  }
-}
-
-@include bp.tablet-down {
-  .brand {
-    width: auto;
-  }
-
-  .who {
-    display: none;
-  }
-
-  .profile {
-    padding: var(--erp-space-1);
-  }
-}
-
-@include bp.mobile {
-  :host {
-    gap: var(--erp-space-2);
-    padding: 0 var(--erp-space-2);
-  }
-
-  .brand-text small,
-  .help,
-  .breadcrumb li:not([aria-current='page']) {
-    display: none;
-  }
-
-  .breadcrumb {
-    flex: 1;
-    overflow: hidden;
-  }
-
-  .brand-text {
-    display: none;
-  }
-}
-
-.chevron {
-  width: 18px;
-  height: 18px;
-  font-size: 18px;
-  opacity: 0.7;
-}
-
-// Cabeçalho do menu da conta (o painel do mat-menu vai para o overlay, mas o conteúdo é deste template).
-.menu-header {
-  display: flex;
-  flex-direction: column;
-  min-width: 220px;
-  padding: var(--erp-space-3) var(--erp-space-4);
-  border-bottom: var(--erp-border-width) solid var(--erp-border);
-
-  small {
-    color: var(--erp-text-subtle);
+    color: var(--erp-text-muted);
+    font-size: var(--erp-font-size-sm);
   }
 }
 
@@ -212,6 +134,18 @@
   background: var(--erp-surface);
   box-shadow: var(--erp-shadow-raised);
   color: var(--erp-text);
+}
+
+.menu-header {
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  padding: var(--erp-space-3) var(--erp-space-4);
+  border-bottom: var(--erp-border-width) solid var(--erp-border);
+
+  small {
+    color: var(--erp-text-subtle);
+  }
 }
 
 .menu-item {
@@ -236,5 +170,24 @@
   &:focus-visible {
     outline: none;
     background: var(--erp-surface-hover);
+  }
+}
+
+@include bp.tablet-down {
+  :host {
+    gap: var(--erp-space-3);
+  }
+
+  .demo,
+  .help,
+  .who {
+    display: none;
+  }
+}
+
+@include bp.mobile {
+  .search,
+  .breadcrumb li:not([aria-current='page']) {
+    display: none;
   }
 }

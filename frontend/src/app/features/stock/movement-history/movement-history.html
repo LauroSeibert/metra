@@ -5,42 +5,6 @@
   </a>
 </erp-page-header>
 
-<section class="erp-toolbar filters" [attr.aria-label]="strings.history.title">
-  <erp-product-picker
-    class="grow"
-    subscriptSizing="dynamic"
-    [label]="strings.history.product"
-    [(selected)]="product"
-  />
-
-  <mat-form-field subscriptSizing="dynamic">
-    <mat-label>{{ strings.history.typeFilter }}</mat-label>
-    <mat-select [value]="type()" (valueChange)="type.set($event)">
-      <mat-option [value]="null">{{ strings.history.allTypes }}</mat-option>
-      @for (option of types; track option) {
-        <mat-option [value]="option">{{ strings.types[option] }}</mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-
-  <mat-form-field subscriptSizing="dynamic" class="date">
-    <mat-label>{{ strings.history.from }}</mat-label>
-    <input matInput type="date" [value]="from()" (change)="onDate('from', $event)" />
-  </mat-form-field>
-
-  <mat-form-field subscriptSizing="dynamic" class="date">
-    <mat-label>{{ strings.history.to }}</mat-label>
-    <input matInput type="date" [value]="to()" (change)="onDate('to', $event)" />
-  </mat-form-field>
-
-  @if (hasFilters()) {
-    <button matButton type="button" (click)="clearFilters()">
-      <mat-icon>filter_alt_off</mat-icon>
-      {{ strings.history.clearFilters }}
-    </button>
-  }
-</section>
-
 <erp-data-table
   [columns]="columns"
   [rows]="rows()"
@@ -50,6 +14,58 @@
   [emptyMessage]="strings.history.empty"
   (retry)="firstPage.reload()"
 >
+  <section tableToolbar class="erp-toolbar" [attr.aria-label]="strings.history.title">
+    <erp-product-picker
+      class="grow"
+      subscriptSizing="dynamic"
+      [label]="strings.history.product"
+      [(selected)]="product"
+    />
+
+    <mat-form-field subscriptSizing="dynamic">
+      <span matTextPrefix class="erp-filter-label">{{ strings.history.typeFilter }}</span>
+      <mat-select
+        [value]="type() ?? 'all'"
+        [aria-label]="strings.history.typeFilter"
+        (valueChange)="type.set($event === 'all' ? null : $event)"
+      >
+        <mat-option value="all">{{ strings.history.allTypes }}</mat-option>
+        @for (option of types; track option) {
+          <mat-option [value]="option">{{ strings.types[option] }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field subscriptSizing="dynamic" class="date">
+      <span matTextPrefix class="erp-filter-label">{{ strings.history.from }}</span>
+      <input
+        matInput
+        type="date"
+        [attr.aria-label]="strings.history.from"
+        [value]="from()"
+        (change)="onDate('from', $event)"
+      />
+    </mat-form-field>
+
+    <mat-form-field subscriptSizing="dynamic" class="date">
+      <span matTextPrefix class="erp-filter-label">{{ strings.history.to }}</span>
+      <input
+        matInput
+        type="date"
+        [attr.aria-label]="strings.history.to"
+        [value]="to()"
+        (change)="onDate('to', $event)"
+      />
+    </mat-form-field>
+
+    @if (hasFilters()) {
+      <button matButton type="button" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        {{ strings.history.clearFilters }}
+      </button>
+    }
+  </section>
+
   <ng-template erpCell="occurredAt" [erpCellOf]="rows()" let-movement>
     <span class="date">{{ movement.occurredAt | date: 'short' }}</span>
   </ng-template>

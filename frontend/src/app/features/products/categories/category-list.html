@@ -1,5 +1,5 @@
 <erp-page-header [title]="strings.title" [subtitle]="strings.subtitle">
-  <a matButton="outlined" routerLink="/products">
+  <a matButton="outlined" class="erp-secondary-action" routerLink="/products">
     <mat-icon>arrow_back</mat-icon>
     {{ common.back }}
   </a>
@@ -10,12 +10,6 @@
     </button>
   }
 </erp-page-header>
-
-<mat-form-field class="erp-list-search" subscriptSizing="dynamic">
-  <mat-label>{{ strings.searchLabel }}</mat-label>
-  <mat-icon matPrefix>search</mat-icon>
-  <input matInput type="search" [value]="search()" (input)="onSearchInput($event)" />
-</mat-form-field>
 
 <erp-data-table
   [columns]="columns"
@@ -31,6 +25,22 @@
   (retry)="categories.reload()"
   (rowActivate)="canWrite() && open($event)"
 >
+  <section tableToolbar class="erp-toolbar" [attr.aria-label]="strings.searchLabel">
+    <mat-form-field class="grow" subscriptSizing="dynamic">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        erpSlashFocus
+        type="search"
+        [attr.aria-label]="strings.searchLabel"
+        [placeholder]="strings.searchLabel"
+        [value]="search()"
+        (input)="onSearchInput($event)"
+      />
+      <span matSuffix class="erp-kbd" aria-hidden="true">/</span>
+    </mat-form-field>
+  </section>
+
   <ng-template erpCell="productCount" [erpCellOf]="rows()" let-category>
     {{ category.productCount | number }}
   </ng-template>

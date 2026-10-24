@@ -32,6 +32,7 @@ import {
 } from '../../../shared/ui/data-table/data-table';
 import { DataTableCell } from '../../../shared/ui/data-table/data-table-templates';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
+import { SlashFocus } from '../../../shared/ui/slash-focus';
 import { StatusChip } from '../../../shared/ui/status-chip/status-chip';
 import { PRODUCTS_STRINGS } from '../products.strings';
 import { UnitDialog } from './unit-dialog';

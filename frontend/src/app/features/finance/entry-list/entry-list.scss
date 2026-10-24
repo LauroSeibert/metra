@@ -1,37 +1,15 @@
-.filters {
-  flex-wrap: wrap;
-
-  .date {
-    width: 170px;
-  }
-}
-
-.results {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--erp-space-3);
-  min-height: 36px;
-  margin-bottom: var(--erp-space-3);
-  padding: 0 var(--erp-space-1);
-  color: var(--erp-text-muted);
-  font-size: var(--erp-font-size-sm);
-  font-weight: var(--erp-font-weight-medium);
-
-  .count {
-    margin-left: auto;
-  }
+.date {
+  flex: 0 1 200px;
 }
 
 .due {
   white-space: nowrap;
-  font-variant-numeric: tabular-nums;
 }
 
 .description {
   margin-right: var(--erp-space-2);
-  color: var(--erp-text);
-  font-weight: var(--erp-font-weight-semibold);
+  color: inherit;
+  font-weight: var(--erp-font-weight-medium);
   text-decoration: none;
 
   &:hover {
@@ -40,11 +18,8 @@
   }
 }
 
-.amount {
-  font-variant-numeric: tabular-nums;
-}
-
 .paid {
   display: block;
   color: var(--erp-text-subtle);
+  font-size: var(--erp-font-size-sm);
 }

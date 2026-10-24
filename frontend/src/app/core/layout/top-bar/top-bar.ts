@@ -10,17 +10,18 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { ACCESS_STRINGS } from '../../../features/access/access.strings';
 import { AuthService } from '../../auth/auth.service';
+import { CommandSearch } from '../command-search/command-search';
 import { LAYOUT_STRINGS } from '../layout.strings';
+import { navGroupOf } from '../nav-items';
 
 @Component({
   selector: 'erp-top-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule, MatTooltipModule, RouterLink],
+  imports: [CommandSearch, MatButtonModule, MatIconModule, RouterLink],
   templateUrl: './top-bar.html',
   styleUrl: './top-bar.scss',
 })
@@ -66,8 +67,10 @@ export class TopBar {
     { initialValue: [] as string[] },
   );
 
+  /** Trilha: o grupo do menu ("Cadastros") e os data.breadcrumb das rotas ativas. */
   private collectBreadcrumb(): string[] {
-    const labels: string[] = [];
+    const group = navGroupOf(this.router.url);
+    const labels: string[] = group ? [group] : [];
     let current: ActivatedRouteSnapshot | null = this.router.routerState.snapshot.root;
     while (current) {
       // Só o data declarado na própria rota: filhas de caminho vazio herdam o data do pai.
@@ -77,6 +80,7 @@ export class TopBar {
       }
       current = current.firstChild;
     }
-    return labels;
+    // Grupo com o mesmo nome do item (Financeiro › Financeiro) aparece uma vez só.
+    return labels.length > 1 && labels[0] === labels[1] ? labels.slice(1) : labels;
   }
 }

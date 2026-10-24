@@ -1,4 +1,4 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,7 +12,6 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { delayedFlag } from '../../data/delayed-flag';
 import { UI_STRINGS } from '../ui.strings';
@@ -48,7 +47,7 @@ type RowKey = string | number;
 
 const MAX_SKELETON_ROWS = 10;
 /** Larguras das barras do skeleton, alternadas por coluna para não parecer um bloco só. */
-const SKELETON_WIDTHS = ['w-70', 'w-45', 'w-55', 'w-35'] as const;
+const SKELETON_WIDTHS = [70, 45, 55, 35] as const;
 /** Duplo clique nesses elementos é deles, não da linha. */
 const INTERACTIVE = 'a, button, input, select, textarea, [role="button"]';
 
@@ -59,13 +58,7 @@ const INTERACTIVE = 'a, button, input, select, textarea, [role="button"]';
 @Component({
   selector: 'erp-data-table',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    NgTemplateOutlet,
-    MatButtonModule,
-    MatIconModule,
-    MatPaginatorModule,
-    MatProgressBarModule,
-  ],
+  imports: [DecimalPipe, NgTemplateOutlet, MatButtonModule, MatIconModule, MatProgressBarModule],
   templateUrl: './data-table.html',
   styleUrl: './data-table.scss',
 })
@@ -80,7 +73,8 @@ export class DataTable<T> {
   readonly total = input(0);
   readonly page = input(1);
   readonly pageSize = input(20);
-  readonly pageSizeOptions = input<readonly number[]>([10, 20, 50, 100]);
+  /** Linha esmaecida (ex.: registro inativo). */
+  readonly rowMuted = input<(row: T) => boolean>(() => false);
 
   readonly pageChange = output<DataTablePage>();
   readonly retry = output<void>();
@@ -154,7 +148,7 @@ export class DataTable<T> {
     this.expandedKeys.set(next);
   }
 
-  protected skeletonWidth(index: number): string {
+  protected skeletonWidth(index: number): number {
     return SKELETON_WIDTHS[index % SKELETON_WIDTHS.length];
   }
 
@@ -167,7 +161,21 @@ export class DataTable<T> {
     this.rowActivate.emit(row);
   }
 
-  protected onPage(event: PageEvent): void {
-    this.pageChange.emit({ page: event.pageIndex + 1, pageSize: event.pageSize });
+  protected readonly pageCount = computed(() =>
+    Math.max(1, Math.ceil(this.total() / this.pageSize())),
+  );
+  protected readonly firstShown = computed(() =>
+    this.total() === 0 ? 0 : (this.page() - 1) * this.pageSize() + 1,
+  );
+  protected readonly lastShown = computed(() =>
+    Math.min(this.total(), this.page() * this.pageSize()),
+  );
+
+  protected isMuted(row: T): boolean {
+    return this.rowMuted()(row);
+  }
+
+  protected goTo(page: number): void {
+    this.pageChange.emit({ page, pageSize: this.pageSize() });
   }
 }

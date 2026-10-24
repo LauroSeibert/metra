@@ -51,8 +51,9 @@ import {
   DataTableSort,
 } from '../../../shared/ui/data-table/data-table';
 import { DataTableCell } from '../../../shared/ui/data-table/data-table-templates';
-import { KpiCard } from '../../../shared/ui/kpi-card/kpi-card';
+import { KpiItem, KpiStrip } from '../../../shared/ui/kpi-strip/kpi-strip';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
+import { SlashFocus } from '../../../shared/ui/slash-focus';
 import {
   SegmentedControl,
   SegmentedOption,
@@ -94,8 +95,9 @@ const DEFAULT_SORT: DataTableSort = { field: 'dueDate', direction: 'asc' };
     MatTooltipModule,
     DataTable,
     DataTableCell,
-    KpiCard,
+    KpiStrip,
     PageHeader,
+    SlashFocus,
     SegmentedControl,
     StatusChip,
   ],
@@ -195,6 +197,44 @@ export class EntryList {
   protected readonly totals = computed(() =>
     this.summary.hasValue() ? this.summary.value() : null,
   );
+  /** Resumo em reais: em aberto, vencido, a vencer em 7 dias e baixado no mês. */
+  protected readonly kpiItems = computed<readonly KpiItem[]>(() => {
+    const totals = this.totals();
+    const summary = FINANCE_STRINGS.summary;
+    const count = (value: number | undefined) =>
+      value === undefined ? undefined : summary.count(value);
+    return [
+      {
+        key: 'open',
+        label: summary.open,
+        value: totals?.openAmount ?? null,
+        hint: count(totals?.openCount),
+        format: 'currency',
+      },
+      {
+        key: 'overdue',
+        label: summary.overdue,
+        value: totals?.overdueAmount ?? null,
+        hint: count(totals?.overdueCount),
+        format: 'currency',
+      },
+      {
+        key: 'soon',
+        label: summary.dueSoon,
+        value: totals?.dueNext7DaysAmount ?? null,
+        hint: count(totals?.dueNext7DaysCount),
+        format: 'currency',
+      },
+      {
+        key: 'paid',
+        label: this.texts().paidThisMonth,
+        value: totals?.paidThisMonthAmount ?? null,
+        hint: count(totals?.paidThisMonthCount),
+        format: 'currency',
+      },
+    ];
+  });
+  protected readonly cancelled = (entry: FinancialEntryDto) => entry.status === 'Cancelled';
   protected readonly rows = linkedSignal<
     readonly FinancialEntryDto[] | null,
     readonly FinancialEntryDto[]

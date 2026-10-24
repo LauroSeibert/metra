@@ -2,10 +2,10 @@
   display: inline-flex;
   align-items: center;
   gap: var(--erp-space-2);
-  padding: var(--erp-space-1) var(--erp-space-3);
-  border-radius: var(--erp-radius-pill);
+  padding: 2px var(--erp-space-2);
+  border-radius: var(--erp-radius-xs);
   font-size: var(--erp-font-size-sm);
-  font-weight: var(--erp-font-weight-semibold);
+  font-weight: var(--erp-font-weight-medium);
   line-height: var(--erp-line-height-tight);
   white-space: nowrap;
 

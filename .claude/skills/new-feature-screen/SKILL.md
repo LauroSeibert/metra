@@ -30,8 +30,12 @@ Registre a rota em `app.routes.ts` com `loadChildren` e `data: { breadcrumb }`, 
 - `rows`/`total` com `linkedSignal` para manter a página anterior durante o carregamento.
 - Perfil: `canWrite = inject(AuthService).canWrite`; sem ele, esconda criar/inativar e troque o ícone de
   editar por `visibility`. Itens por página padrão: `auth.pageSize()` (preferência do usuário).
-- `<erp-page-header>` com ações à direita (principal com `class="erp-primary-action"`), `<erp-segmented-control>`
-  para filtros rápidos e `<erp-data-table>` com `erpCell` e `erpExpandedRow` tipados por `[erpCellOf]="rows()"`.
+- Visual: `docs/design/listagem.png` e `docs/design-system.md` (Padrões de tela > Listagem).
+- `<erp-page-header>` com ações à direita (principal com `class="erp-primary-action"`) → `<erp-kpi-strip>` com as
+  contagens (as que filtram são `selectable`) → `<erp-data-table>` com os filtros em
+  `<section tableToolbar class="erp-toolbar">` (busca com `erpSlashFocus`, selects com `erp-filter-label` e opção
+  "Todas" de valor sentinela, contagem em `erp-count`), `erpCell`/`erpExpandedRow` tipados por `[erpCellOf]="rows()"`,
+  situação com `erp-dot` e `[rowMuted]` para inativos.
 
 ## Cadastro (copie `product-form/`)
 

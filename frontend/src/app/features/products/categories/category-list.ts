@@ -32,6 +32,7 @@ import {
 } from '../../../shared/ui/data-table/data-table';
 import { DataTableCell } from '../../../shared/ui/data-table/data-table-templates';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
+import { SlashFocus } from '../../../shared/ui/slash-focus';
 import { PRODUCTS_STRINGS } from '../products.strings';
 import { CategoryDialog } from './category-dialog';
 
@@ -49,6 +50,7 @@ import { CategoryDialog } from './category-dialog';
     DataTable,
     DataTableCell,
     PageHeader,
+    SlashFocus,
   ],
   templateUrl: './category-list.html',
 })

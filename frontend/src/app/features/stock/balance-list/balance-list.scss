@@ -1,40 +1,32 @@
-.results {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--erp-space-3);
-  min-height: 36px;
-  margin-bottom: var(--erp-space-3);
-  padding: 0 var(--erp-space-1);
-  color: var(--erp-text-muted);
-  font-size: var(--erp-font-size-sm);
+.product-name {
+  display: block;
   font-weight: var(--erp-font-weight-medium);
 }
 
-.product-name {
-  margin-right: var(--erp-space-2);
-  font-weight: var(--erp-font-weight-semibold);
-
-  &.inactive {
-    color: var(--erp-text-muted);
-  }
+.secondary {
+  display: block;
+  color: var(--erp-text-muted);
+  font-size: var(--erp-font-size-sm);
 }
 
 .sku {
   color: var(--erp-text-muted);
-  font-family: ui-monospace, 'Cascadia Mono', 'SFMono-Regular', monospace;
+  font-family: var(--erp-font-mono);
   font-size: var(--erp-font-size-sm);
   white-space: nowrap;
 }
 
-.quantity {
-  font-variant-numeric: tabular-nums;
-
-  &.negative {
-    color: var(--erp-danger);
-  }
+// Saldo abaixo do mínimo (âmbar) e zerado ou negativo (vermelho), com a palavra antes do número.
+.flag {
+  margin-right: var(--erp-space-2);
+  font-family: var(--erp-font-family);
+  font-size: var(--erp-font-size-sm);
 }
 
-.missing {
-  color: var(--erp-text-subtle);
+.low {
+  color: var(--erp-warning-text);
+}
+
+.zero {
+  color: var(--erp-danger);
 }

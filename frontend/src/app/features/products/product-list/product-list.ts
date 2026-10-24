@@ -44,13 +44,9 @@ import {
   DataTableCell,
   DataTableExpandedRow,
 } from '../../../shared/ui/data-table/data-table-templates';
-import { KpiCard } from '../../../shared/ui/kpi-card/kpi-card';
+import { KpiItem, KpiStrip } from '../../../shared/ui/kpi-strip/kpi-strip';
+import { SlashFocus } from '../../../shared/ui/slash-focus';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
-import {
-  SegmentedControl,
-  SegmentedOption,
-} from '../../../shared/ui/segmented-control/segmented-control';
-import { StatusChip } from '../../../shared/ui/status-chip/status-chip';
 import { PRODUCTS_STRINGS } from '../products.strings';
 
 type StatusFilter = 'all' | 'active' | 'inactive';
@@ -86,10 +82,9 @@ const DEFAULT_SORT: DataTableSort = { field: 'name', direction: 'asc' };
     DataTable,
     DataTableCell,
     DataTableExpandedRow,
-    KpiCard,
+    KpiStrip,
+    SlashFocus,
     PageHeader,
-    SegmentedControl,
-    StatusChip,
   ],
   templateUrl: './product-list.html',
   styleUrl: './product-list.scss',
@@ -106,25 +101,26 @@ export class ProductList {
 
   protected readonly strings = PRODUCTS_STRINGS;
   protected readonly canWrite = this.auth.canWrite;
-  protected readonly statusOptions: readonly SegmentedOption<StatusFilter>[] = [
-    { value: 'all', label: PRODUCTS_STRINGS.status.all },
-    { value: 'active', label: PRODUCTS_STRINGS.status.active },
-    { value: 'inactive', label: PRODUCTS_STRINGS.status.inactive },
-  ];
   protected readonly columns: readonly DataTableColumn[] = [
     { key: 'name', header: PRODUCTS_STRINGS.columns.product, sortable: true, role: 'title' },
     { key: 'sku', header: PRODUCTS_STRINGS.columns.sku, sortable: true, role: 'subtitle' },
-    { key: 'categoryName', header: PRODUCTS_STRINGS.columns.category },
-    { key: 'unitCode', header: PRODUCTS_STRINGS.columns.unit, align: 'center', optional: true },
+    { key: 'unitCode', header: PRODUCTS_STRINGS.columns.unitShort, optional: true },
     { key: 'salePrice', header: PRODUCTS_STRINGS.columns.salePrice, align: 'end', sortable: true },
-    { key: 'stockQuantity', header: PRODUCTS_STRINGS.columns.stock, align: 'end', optional: true },
-    { key: 'active', header: PRODUCTS_STRINGS.columns.status, align: 'center' },
+    { key: 'stockQuantity', header: PRODUCTS_STRINGS.columns.stock, align: 'end' },
+    { key: 'active', header: PRODUCTS_STRINGS.columns.status },
     { key: 'actions', header: PRODUCTS_STRINGS.columns.actions, align: 'end', role: 'actions' },
   ];
 
   // Filtros, iniciados a partir da URL.
   protected readonly search = signal(readText(this.initial, 'search'));
-  protected readonly status = signal<StatusFilter>(readStatus(this.initial.get('status')));
+  protected readonly status = signal<StatusFilter | 'categories'>(
+    readStatus(this.initial.get('status')),
+  );
+  /** A célula de categorias não é filtro: vale como "todos". */
+  private readonly statusFilter = computed<StatusFilter>(() => {
+    const status = this.status();
+    return status === 'categories' ? 'all' : status;
+  });
   protected readonly categoryId = signal<number | null>(
     readOptionalInt(this.initial, 'categoryId'),
   );
@@ -140,7 +136,7 @@ export class ProductList {
   protected readonly page = linkedSignal<unknown, number>({
     source: () => [
       this.searchTerm(),
-      this.status(),
+      this.statusFilter(),
       this.categoryId(),
       this.lowStock(),
       this.sort(),
@@ -152,7 +148,7 @@ export class ProductList {
   private readonly query = computed<ListProducts$Params>(() => ({
     search: this.searchTerm() || undefined,
     categoryId: this.categoryId() ?? undefined,
-    active: ACTIVE_BY_STATUS[this.status()],
+    active: ACTIVE_BY_STATUS[this.statusFilter()],
     lowStock: this.lowStock() || undefined,
     sort: toSortParam(this.sort()),
     page: this.page(),
@@ -191,6 +187,45 @@ export class ProductList {
     return kpis && kpis.total > 0 ? kpis.active / kpis.total : null;
   });
 
+  /** Faixa de indicadores: Todos, Ativos e Inativos filtram pela situação. */
+  protected readonly kpiItems = computed<readonly KpiItem<StatusFilter | 'categories'>[]>(() => {
+    const kpis = this.kpis();
+    const share = this.activeShare();
+    return [
+      {
+        key: 'all',
+        label: PRODUCTS_STRINGS.status.all,
+        value: kpis?.total ?? null,
+        hint: PRODUCTS_STRINGS.kpis.totalHint,
+        selectable: true,
+      },
+      {
+        key: 'active',
+        label: PRODUCTS_STRINGS.status.active,
+        value: kpis?.active ?? null,
+        hint:
+          share === null
+            ? undefined
+            : PRODUCTS_STRINGS.kpis.activeShare(Math.round(share * 100) + '%'),
+        selectable: true,
+      },
+      {
+        key: 'inactive',
+        label: PRODUCTS_STRINGS.status.inactive,
+        value: kpis?.inactive ?? null,
+        hint: PRODUCTS_STRINGS.kpis.inactiveHint,
+        selectable: true,
+      },
+      {
+        key: 'categories',
+        label: PRODUCTS_STRINGS.kpis.categories,
+        value: kpis?.categories ?? null,
+        hint: PRODUCTS_STRINGS.kpis.categoriesHint,
+      },
+    ];
+  });
+  protected readonly inactive = (product: ProductListItemDto) => !product.active;
+
   /** Mantém as linhas anteriores (esmaecidas) enquanto a próxima página carrega. */
   protected readonly rows = linkedSignal<
     readonly ProductListItemDto[] | null,
@@ -220,7 +255,7 @@ export class ProductList {
         queryParams: compactParams(
           {
             search: this.searchTerm(),
-            status: this.status(),
+            status: this.statusFilter(),
             categoryId: this.categoryId(),
             stock: this.lowStock() ? 'low' : null,
             sort: toSortParam(this.sort()),
@@ -252,7 +287,7 @@ export class ProductList {
   protected readonly hasFilters = computed(
     () =>
       this.search().trim() !== '' ||
-      this.status() !== 'all' ||
+      this.statusFilter() !== 'all' ||
       this.categoryId() !== null ||
       this.lowStock(),
   );
