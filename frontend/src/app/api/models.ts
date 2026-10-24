@@ -4,6 +4,7 @@
 export type { CancelFinancialEntryRequest } from './models/cancel-financial-entry-request';
 export type { CancelSaleRequest } from './models/cancel-sale-request';
 export type { ChangePasswordRequest } from './models/change-password-request';
+export type { CompanySettingsDto } from './models/company-settings-dto';
 export type { ConfirmSaleRequest } from './models/confirm-sale-request';
 export type { CreateFinancialEntryRequest } from './models/create-financial-entry-request';
 export type { CreatePartnerRequest } from './models/create-partner-request';

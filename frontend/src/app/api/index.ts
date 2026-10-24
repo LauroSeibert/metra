@@ -10,6 +10,7 @@ export { Api } from './api';
 export type { CancelFinancialEntryRequest } from './models/cancel-financial-entry-request';
 export type { CancelSaleRequest } from './models/cancel-sale-request';
 export type { ChangePasswordRequest } from './models/change-password-request';
+export type { CompanySettingsDto } from './models/company-settings-dto';
 export type { ConfirmSaleRequest } from './models/confirm-sale-request';
 export type { CreateFinancialEntryRequest } from './models/create-financial-entry-request';
 export type { CreatePartnerRequest } from './models/create-partner-request';
@@ -196,3 +197,7 @@ export type { ConfirmSale$Params as ConfirmSale$Params } from './fn/sales/confir
 export { confirmSale as confirmSale } from './fn/sales/confirm-sale';
 export type { CancelSale$Params as CancelSale$Params } from './fn/sales/cancel-sale';
 export { cancelSale as cancelSale } from './fn/sales/cancel-sale';
+export type { GetCompanySettings$Params as GetCompanySettings$Params } from './fn/settings/get-company-settings';
+export { getCompanySettings as getCompanySettings } from './fn/settings/get-company-settings';
+export type { UpdateCompanySettings$Params as UpdateCompanySettings$Params } from './fn/settings/update-company-settings';
+export { updateCompanySettings as updateCompanySettings } from './fn/settings/update-company-settings';

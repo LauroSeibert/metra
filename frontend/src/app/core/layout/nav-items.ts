@@ -41,7 +41,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
 
 /** Itens do rodapé do menu, separados dos módulos. */
 export const NAV_FOOTER: readonly NavItem[] = [
-  { label: 'Configurações', icon: 'tune', path: '/settings', available: false },
+  { label: 'Configurações', icon: 'tune', path: '/settings', available: true },
 ];
 
 export const NAV_ITEMS: readonly NavItem[] = [

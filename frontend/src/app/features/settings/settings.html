@@ -1,0 +1,133 @@
+<erp-page-header
+  [title]="strings.title"
+  [subtitle]="isAdmin() ? strings.subtitle : strings.readOnly"
+/>
+
+@if (settings.status() === 'error') {
+  <erp-card class="state" role="alert">
+    <mat-icon>cloud_off</mat-icon>
+    <p>{{ strings.loadError }}</p>
+    <button matButton="outlined" type="button" (click)="settings.reload()">
+      <mat-icon>refresh</mat-icon>
+      {{ strings.retry }}
+    </button>
+  </erp-card>
+} @else {
+  <form novalidate (submit)="save($event)">
+    @if (formErrors().length > 0) {
+      <div class="banner" role="alert">
+        <mat-icon>warning</mat-icon>
+        <div>
+          @for (error of formErrors(); track $index) {
+            <p>{{ error.message }}</p>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="sections">
+      <erp-card class="section">
+        <header>
+          <h2>{{ strings.company }}</h2>
+          <p>{{ strings.companyHint }}</p>
+        </header>
+        <div class="fields">
+          <mat-form-field>
+            <mat-label>{{ strings.companyName }}</mat-label>
+            <input matInput [formField]="settingsForm.companyName" />
+            @if (settingsForm.companyName().errors()[0]; as error) {
+              <mat-error>{{ error.message }}</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>{{ strings.companyDocument }}</mat-label>
+            <input matInput class="erp-mono" [formField]="settingsForm.companyDocument" />
+            @if (settingsForm.companyDocument().errors()[0]; as error) {
+              <mat-error>{{ error.message }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </erp-card>
+
+      <erp-card class="section">
+        <header>
+          <h2>{{ strings.rules }}</h2>
+          <p>{{ strings.rulesHint }}</p>
+        </header>
+        <div class="fields">
+          <mat-form-field>
+            <mat-label>{{ strings.maxDiscount }}</mat-label>
+            <input matInput type="number" [formField]="settingsForm.maxDiscountPercent" />
+            @if (settingsForm.maxDiscountPercent().errors()[0]; as error) {
+              <mat-error>{{ error.message }}</mat-error>
+            }
+          </mat-form-field>
+          <div class="toggle">
+            <mat-slide-toggle
+              [checked]="model().allowNegativeStock"
+              [disabled]="!isAdmin()"
+              (change)="setAllowNegative($event.checked)"
+            >
+              {{ strings.allowNegative }}
+            </mat-slide-toggle>
+            <small>{{ strings.allowNegativeHint }}</small>
+          </div>
+        </div>
+      </erp-card>
+    </div>
+
+    @if (isAdmin()) {
+      <div class="actions">
+        <button
+          matButton="filled"
+          class="erp-primary-action"
+          type="submit"
+          [disabled]="settingsForm().submitting()"
+        >
+          <mat-icon>check</mat-icon>
+          {{ settingsForm().submitting() ? strings.saving : strings.save }}
+        </button>
+      </div>
+    }
+  </form>
+}
+
+<section class="users">
+  <h2>{{ strings.users }}</h2>
+  <p>{{ isAdmin() ? strings.usersHint : strings.usersAdminOnly }}</p>
+</section>
+
+@if (isAdmin()) {
+  <erp-data-table
+    [columns]="columns"
+    [rows]="userRows()"
+    [rowKey]="userKey"
+    [rowMuted]="inactive"
+    [loading]="users.isLoading()"
+    [error]="usersError()"
+    [emptyMessage]="strings.usersEmpty"
+    [total]="userTotal()"
+    [page]="1"
+    [pageSize]="100"
+    (retry)="users.reload()"
+  >
+    <ng-template erpCell="fullName" [erpCellOf]="userRows()" let-user>
+      <span class="name">{{ user.fullName }}</span>
+    </ng-template>
+    <ng-template erpCell="email" [erpCellOf]="userRows()" let-user>
+      <span class="erp-mono email">{{ user.email }}</span>
+    </ng-template>
+    <ng-template erpCell="role" [erpCellOf]="userRows()" let-user>
+      {{ strings.roles[user.role] ?? user.role }}
+    </ng-template>
+    <ng-template erpCell="status" [erpCellOf]="userRows()" let-user>
+      @if (user.lockedOut) {
+        <span class="erp-dot danger">{{ strings.locked }}</span>
+      } @else {
+        <span class="erp-dot" [class.off]="!user.active">{{
+          user.active ? strings.active : strings.inactive
+        }}</span>
+      }
+    </ng-template>
+  </erp-data-table>
+}

@@ -37,6 +37,8 @@ public sealed class AppSetting : Entity
 public static class SettingKeys
 {
     /// <summary>Permite saldo de estoque negativo (padrão: não).</summary>
+    public const string CompanyName = "company.name";
+    public const string CompanyDocument = "company.document";
     public const string StockAllowNegative = "stock.allowNegative";
 
     /// <summary>Desconto máximo de uma venda, em % do valor bruto (padrão: 10).</summary>

@@ -1,0 +1,38 @@
+/** Textos das configurações. */
+export const SETTINGS_STRINGS = {
+  title: 'Configurações',
+  subtitle: 'Dados da empresa, regras de venda e estoque, e usuários.',
+  company: 'Empresa',
+  companyHint: 'Aparecem nos documentos e na barra superior.',
+  companyName: 'Razão social',
+  companyDocument: 'CNPJ',
+  rules: 'Regras',
+  rulesHint: 'Valem para todas as vendas e movimentações.',
+  maxDiscount: 'Desconto máximo na venda (%)',
+  allowNegative: 'Permitir estoque negativo',
+  allowNegativeHint: 'Se ligado, a venda é confirmada mesmo sem saldo suficiente.',
+  save: 'Salvar',
+  saving: 'Salvando...',
+  saved: 'Configurações salvas.',
+  readOnly: 'Só o administrador altera as configurações.',
+  loadError: 'Não foi possível carregar as configurações.',
+  retry: 'Tentar de novo',
+  users: 'Usuários',
+  usersHint: 'Quem acessa o sistema e com qual perfil.',
+  usersAdminOnly: 'Só o administrador vê a lista de usuários.',
+  usersEmpty: 'Nenhum usuário.',
+  usersError: 'Não foi possível carregar os usuários.',
+  columns: { name: 'Nome', email: 'E-mail', role: 'Perfil', status: 'Situação' },
+  roles: { Admin: 'Administrador', Operator: 'Operador', Viewer: 'Leitura' } as Record<
+    string,
+    string
+  >,
+  active: 'Ativo',
+  inactive: 'Inativo',
+  locked: 'Bloqueado',
+  validation: {
+    required: 'Campo obrigatório.',
+    maxLength: (max: number) => `Use no máximo ${max} caracteres.`,
+    discount: 'Use de 0 a 100%.',
+  },
+} as const;

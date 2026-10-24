@@ -49,6 +49,12 @@ export const routes: Routes = [
           import('./features/finance/finance.routes').then((m) => m.FINANCE_ROUTES),
       },
       {
+        path: 'settings',
+        data: { breadcrumb: LAYOUT_STRINGS.breadcrumbs.settings },
+        loadChildren: () =>
+          import('./features/settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
+      },
+      {
         path: 'profile',
         data: { breadcrumb: LAYOUT_STRINGS.breadcrumbs.profile },
         loadChildren: () => import('./features/access/access.routes').then((m) => m.PROFILE_ROUTES),

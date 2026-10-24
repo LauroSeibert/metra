@@ -119,3 +119,7 @@ export type { ConfirmSale$Params as ConfirmSale$Params } from './fn/sales/confir
 export { confirmSale as confirmSale } from './fn/sales/confirm-sale';
 export type { CancelSale$Params as CancelSale$Params } from './fn/sales/cancel-sale';
 export { cancelSale as cancelSale } from './fn/sales/cancel-sale';
+export type { GetCompanySettings$Params as GetCompanySettings$Params } from './fn/settings/get-company-settings';
+export { getCompanySettings as getCompanySettings } from './fn/settings/get-company-settings';
+export type { UpdateCompanySettings$Params as UpdateCompanySettings$Params } from './fn/settings/update-company-settings';
+export { updateCompanySettings as updateCompanySettings } from './fn/settings/update-company-settings';
