@@ -13,7 +13,7 @@ Erp.Api ──► Erp.Application ──► Erp.Domain
 3. `Infrastructure` implementa as interfaces definidas em `Application`.
 4. `Api` é a única camada que conhece todas as outras e monta a injeção de dependência.
 
-As regras 1 a 3 são verificadas por `backend/tests/Erp.UnitTests/LayerDependencyTests.cs`.
+As regras 1 a 3 são verificadas por `backend/tests/Erp.UnitTests/LayerDependencyTests.cs`. A `Application` usa as abstrações do EF Core (`IErpDbContext`), nunca o provider (ADR 0002).
 
 ## Fluxo de execução
 

@@ -1,3 +1,4 @@
+using Erp.Application.Abstractions;
 using Erp.Infrastructure.HealthChecks;
 using Erp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,12 @@ public static class DependencyInjection
             ?? throw new InvalidOperationException("Connection string 'Erp' não configurada.");
 
         services.AddDbContext<ErpDbContext>(options => options.UseMySQL(connectionString));
+        services.AddScoped<IErpDbContext>(provider => provider.GetRequiredService<ErpDbContext>());
+
+        if (configuration.GetValue<bool>("Database:MigrateOnStartup"))
+        {
+            services.AddHostedService<DatabaseMigrator>();
+        }
 
         services.AddHealthChecks()
             .AddCheck<DatabaseHealthCheck>("database", tags: [ReadyTag]);

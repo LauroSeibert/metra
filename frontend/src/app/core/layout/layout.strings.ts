@@ -1,11 +1,18 @@
 export const LAYOUT_STRINGS = {
   appName: 'ERP Demo',
+  appTagline: 'Gestão comercial',
   home: 'Início',
   comingSoon: 'Em breve',
   notifications: 'Notificações',
   help: 'Ajuda',
   profile: 'Perfil do usuário',
   userName: 'Usuário demo',
+  userRole: 'Administrador',
+  userInitials: 'UD',
   mainNav: 'Navegação principal',
   breadcrumb: 'Você está em',
+  openMenu: 'Abrir menu',
+  closeMenu: 'Fechar menu',
+  collapseMenu: 'Recolher menu',
+  expandMenu: 'Expandir menu',
 } as const;

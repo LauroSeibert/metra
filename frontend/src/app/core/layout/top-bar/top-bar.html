@@ -1,15 +1,40 @@
-<div class="brand">{{ strings.appName }}</div>
+@if (showMenuButton()) {
+  <button
+    matIconButton
+    type="button"
+    class="menu"
+    [attr.aria-label]="menuOpen() ? strings.closeMenu : strings.openMenu"
+    [attr.aria-expanded]="menuOpen()"
+    (click)="toggleMenu.emit()"
+  >
+    <mat-icon>{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
+  </button>
+}
+
+<a class="brand" routerLink="/">
+  <span class="mark" aria-hidden="true">E</span>
+  <span class="brand-text">
+    <strong>{{ strings.appName }}</strong>
+    <small>{{ strings.appTagline }}</small>
+  </span>
+</a>
 
 <nav class="breadcrumb" [attr.aria-label]="strings.breadcrumb">
   <ol>
-    @for (label of breadcrumb(); track $index) {
-      <li>{{ label }}</li>
+    @for (label of breadcrumb(); track $index; let last = $last) {
+      <li [attr.aria-current]="last ? 'page' : null">{{ label }}</li>
     }
   </ol>
 </nav>
 
 <div class="actions">
-  <button matIconButton type="button" [matTooltip]="strings.help" [attr.aria-label]="strings.help">
+  <button
+    matIconButton
+    type="button"
+    class="help"
+    [matTooltip]="strings.help"
+    [attr.aria-label]="strings.help"
+  >
     <mat-icon>help</mat-icon>
   </button>
   <button
@@ -20,8 +45,11 @@
   >
     <mat-icon>notifications</mat-icon>
   </button>
-  <div class="profile" [attr.aria-label]="strings.profile">
-    <mat-icon>account_circle</mat-icon>
-    <span>{{ strings.userName }}</span>
-  </div>
+  <button type="button" class="profile" [attr.aria-label]="strings.profile">
+    <span class="avatar" aria-hidden="true">{{ strings.userInitials }}</span>
+    <span class="who">
+      <strong>{{ strings.userName }}</strong>
+      <small>{{ strings.userRole }}</small>
+    </span>
+  </button>
 </div>

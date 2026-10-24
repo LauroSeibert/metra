@@ -1,0 +1,134 @@
+<div class="progress">
+  @if (showLoading()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+</div>
+
+<table [class.dimmed]="showLoading() && rows().length > 0" [attr.aria-busy]="loading()">
+  <thead>
+    <tr>
+      @if (expandedRow()) {
+        <th class="expander" scope="col">
+          <span class="sr-only">{{ strings.expand }}</span>
+        </th>
+      }
+      @for (column of columns(); track column.key) {
+        <th
+          scope="col"
+          [class]="cellClass(column)"
+          [attr.aria-sort]="column.sortable ? sortDirection(column) : null"
+        >
+          @if (column.sortable) {
+            <button
+              type="button"
+              class="sort"
+              [class.sorted]="sortDirection(column) !== 'none'"
+              [attr.aria-label]="strings.sortBy + ' ' + column.header"
+              (click)="toggleSort(column)"
+            >
+              {{ column.header }}
+              <mat-icon aria-hidden="true">
+                @switch (sortDirection(column)) {
+                  @case ('ascending') {
+                    arrow_upward
+                  }
+                  @case ('descending') {
+                    arrow_downward
+                  }
+                  @default {
+                    unfold_more
+                  }
+                }
+              </mat-icon>
+            </button>
+          } @else {
+            {{ column.header }}
+          }
+        </th>
+      }
+    </tr>
+  </thead>
+
+  <tbody>
+    @if (showSkeleton()) {
+      <!-- Enquanto o atraso não vence, as linhas ocupam o espaço mas ficam invisíveis. -->
+      @for (line of skeletonRows(); track line) {
+        <tr class="skeleton-row" [class.pending]="!showLoading()" aria-hidden="true">
+          @if (expandedRow()) {
+            <td class="expander"><span class="erp-skeleton dot"></span></td>
+          }
+          @for (column of columns(); track column.key; let index = $index) {
+            <td [class]="cellClass(column)">
+              <span class="erp-skeleton" [class]="skeletonWidth(index + line)"></span>
+            </td>
+          }
+        </tr>
+      }
+    } @else if (error(); as error) {
+      <tr class="state">
+        <td [attr.colspan]="columnCount()">
+          <span class="state-icon danger"><mat-icon>cloud_off</mat-icon></span>
+          <strong>{{ error }}</strong>
+          <button matButton="outlined" type="button" (click)="retry.emit()">
+            <mat-icon>refresh</mat-icon>
+            {{ strings.retry }}
+          </button>
+        </td>
+      </tr>
+    } @else if (showEmpty()) {
+      <tr class="state">
+        <td [attr.colspan]="columnCount()">
+          <span class="state-icon"><mat-icon>search_off</mat-icon></span>
+          <strong>{{ emptyMessage() }}</strong>
+        </td>
+      </tr>
+    } @else {
+      @for (row of rows(); track rowKey()(row)) {
+        <tr class="row" [class.expanded]="isExpanded(row)" (dblclick)="onRowDblClick($event, row)">
+          @if (expandedRow()) {
+            <td class="expander">
+              <button
+                matIconButton
+                type="button"
+                [attr.aria-expanded]="isExpanded(row)"
+                [attr.aria-label]="isExpanded(row) ? strings.collapse : strings.expand"
+                (click)="toggleExpanded(row)"
+              >
+                <mat-icon>{{ isExpanded(row) ? 'expand_less' : 'expand_more' }}</mat-icon>
+              </button>
+            </td>
+          }
+          @for (column of columns(); track column.key) {
+            <td [class]="cellClass(column)" [attr.data-label]="column.header">
+              @if (cellTemplates().get(column.key); as template) {
+                <ng-container *ngTemplateOutlet="template; context: { $implicit: row }" />
+              } @else {
+                {{ value(row, column.key) }}
+              }
+            </td>
+          }
+        </tr>
+        @if (isExpanded(row)) {
+          @if (expandedRow(); as expanded) {
+            <tr class="detail">
+              <td [attr.colspan]="columnCount()">
+                <ng-container *ngTemplateOutlet="expanded.template; context: { $implicit: row }" />
+              </td>
+            </tr>
+          }
+        }
+      }
+    }
+  </tbody>
+</table>
+
+@if (total() > 0) {
+  <mat-paginator
+    [length]="total()"
+    [pageIndex]="page() - 1"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="pageSizeOptions()"
+    [showFirstLastButtons]="true"
+    (page)="onPage($event)"
+  />
+}

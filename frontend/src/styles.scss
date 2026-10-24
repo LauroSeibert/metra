@@ -9,9 +9,224 @@ html {
 body {
   color-scheme: light;
   margin: 0;
-  height: 100%;
+  min-height: 100%;
   background-color: var(--erp-bg);
   color: var(--erp-text);
   font-family: var(--erp-font-family);
   font-size: var(--erp-font-size-md);
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// ---------- Botões ----------
+// Texto dos botões do Material em semibold, como no protótipo.
+.mat-mdc-button-base {
+  --mat-button-filled-label-text-weight: var(--erp-font-weight-semibold);
+  --mat-button-outlined-label-text-weight: var(--erp-font-weight-semibold);
+  --mat-button-text-label-text-weight: var(--erp-font-weight-semibold);
+  --mat-button-outlined-outline-color: var(--erp-border-strong);
+}
+
+// Ação principal da página: verde, em pílula (padrão do protótipo).
+.erp-primary-action {
+  --mat-button-filled-container-color: var(--erp-success);
+  --mat-button-filled-label-text-color: var(--erp-on-primary);
+
+  box-shadow:
+    0 1px 2px rgb(8 122 58 / 24%),
+    0 4px 12px rgb(8 122 58 / 18%);
+}
+
+// Ação secundária: contorno sobre superfície branca.
+.erp-secondary-action {
+  --mat-button-outlined-container-color: var(--erp-surface);
+  --mat-button-outlined-label-text-color: var(--erp-text);
+
+  background: var(--erp-surface);
+}
+
+// Ação destrutiva confirmada em diálogo.
+.erp-danger-action {
+  --mat-button-filled-container-color: var(--erp-danger);
+  --mat-button-filled-label-text-color: var(--erp-on-primary);
+}
+
+// Ação de linha em tabela: botão quadrado com contorno, que ganha a cor do tom no hover.
+// Tons: primary (editar), danger (inativar/excluir), success (ativar).
+.erp-row-action {
+  --erp-row-action-color: var(--erp-primary);
+  --erp-row-action-bg: var(--erp-primary-softer);
+
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: var(--erp-border-width) solid var(--erp-border);
+  border-radius: var(--erp-radius-sm);
+  background: var(--erp-surface);
+  color: var(--erp-text-muted);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background var(--erp-duration-fast) var(--erp-easing),
+    border-color var(--erp-duration-fast) var(--erp-easing),
+    color var(--erp-duration-fast) var(--erp-easing);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+
+  &.danger {
+    --erp-row-action-color: var(--erp-danger);
+    --erp-row-action-bg: var(--erp-danger-soft);
+  }
+
+  &.success {
+    --erp-row-action-color: var(--erp-success);
+    --erp-row-action-bg: var(--erp-success-soft);
+  }
+
+  &:hover:not(:disabled) {
+    border-color: transparent;
+    background: var(--erp-row-action-bg);
+    color: var(--erp-row-action-color);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--erp-focus-ring);
+  }
+
+  &:disabled {
+    opacity: var(--erp-opacity-disabled);
+    cursor: default;
+  }
+}
+
+.erp-row-actions {
+  display: inline-flex;
+  gap: var(--erp-space-2);
+}
+
+// ---------- Retorno ----------
+.erp-snack-success {
+  --mat-snack-bar-container-color: var(--erp-success);
+  --mat-snack-bar-supporting-text-color: var(--erp-on-primary);
+}
+
+.erp-snack-error {
+  --mat-snack-bar-container-color: var(--erp-danger);
+  --mat-snack-bar-supporting-text-color: var(--erp-on-primary);
+  --mat-snack-bar-button-color: var(--erp-on-primary);
+}
+
+// ---------- Diálogos ----------
+.mat-mdc-dialog-container {
+  --mat-dialog-container-shape: var(--erp-radius-card);
+  --mat-dialog-subhead-weight: var(--erp-font-weight-bold);
+}
+
+// ---------- Utilitários ----------
+// Valores monetários e quantidades alinham pelos dígitos.
+.erp-number {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+// Bloco cinza animado enquanto o conteúdo carrega.
+.erp-skeleton {
+  display: block;
+  border-radius: var(--erp-radius-xs);
+  background: linear-gradient(
+      90deg,
+      var(--erp-surface-sunken) 0%,
+      var(--erp-surface-muted) 50%,
+      var(--erp-surface-sunken) 100%
+    )
+    0 0 / 200% 100%;
+  animation: erp-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes erp-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+// Grade de indicadores que se adapta à largura.
+.erp-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--erp-kpi-min-width), 1fr));
+  gap: var(--erp-space-4);
+  margin-bottom: var(--erp-space-5);
+}
+
+// Barra de filtros em cartão, acima das tabelas.
+.erp-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--erp-space-3);
+  margin-bottom: var(--erp-space-4);
+  padding: var(--erp-space-3);
+  border: var(--erp-border-width) solid var(--erp-border);
+  border-radius: var(--erp-radius-card);
+  background: var(--erp-surface);
+  box-shadow: var(--erp-shadow-xs);
+
+  .mat-mdc-form-field {
+    flex: 1 1 var(--erp-field-min-width);
+    min-width: 0;
+  }
+
+  .grow {
+    flex: 3 1 280px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  // Indicadores em duas colunas compactas.
+  .erp-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--erp-space-3);
+    margin-bottom: var(--erp-space-4);
+  }
+
+  // Filtros ocupam a linha inteira.
+  .erp-toolbar > * {
+    flex: 1 1 100%;
+  }
+
+  // Ação principal primeiro e em largura total; as demais dividem a linha de baixo.
+  erp-page-header .erp-primary-action {
+    flex: 1 1 100%;
+    order: -1;
+  }
+
+  erp-page-header .erp-secondary-action {
+    flex: 1 1 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

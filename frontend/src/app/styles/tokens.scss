@@ -1,18 +1,37 @@
-// Tokens de design do ERP. Toda cor, raio, espaçamento e sombra vem daqui.
+// Tokens de design do ERP. Toda cor, raio, espaçamento, sombra e medida de layout vem daqui.
 // Origem dos valores e regras de uso: docs/design-system.md.
 :root {
-  // Cores (medidas no protótipo do Painel do Parceiro)
+  // Marca (medida no protótipo do Painel do Parceiro)
   --erp-primary: #2f4fd8;
+  --erp-primary-hover: #2541bd;
+  --erp-primary-strong: #1d34a3;
   --erp-primary-soft: #e0e6ff;
+  --erp-primary-softer: #f1f4ff;
   --erp-on-primary: #ffffff;
+  --erp-on-primary-muted: rgb(255 255 255 / 72%);
+  --erp-on-primary-subtle: rgb(255 255 255 / 14%);
+
+  // Superfícies
   --erp-bg: #eef1f7;
   --erp-surface: #ffffff;
-  --erp-surface-muted: #eef3fb;
-  --erp-border: #dde3ef;
+  --erp-surface-muted: #f5f7fc;
+  --erp-surface-sunken: #eef3fb;
+  --erp-surface-hover: #f7f9ff;
+  --erp-border: #e3e8f2;
+  --erp-border-strong: #cfd6e4;
+  --erp-backdrop: rgb(20 26 58 / 40%);
+
+  // Texto
   --erp-text: #141a3a;
   --erp-text-muted: #4a5272;
+  --erp-text-subtle: #7a819c;
+
+  // Estados
   --erp-success: #087a3a;
+  --erp-success-hover: #066530;
+  --erp-success-soft: #dcf3e5;
   --erp-danger: #b3361a;
+  --erp-danger-soft: #fbe3dc;
   --erp-info: #5be0f7;
   --erp-info-soft: #ddf6fc;
   --erp-info-text: #0e5368;
@@ -21,16 +40,21 @@
   --erp-warning-text: #7a4a0e;
 
   // Tipografia
-  --erp-font-family: 'Inter', system-ui, sans-serif;
+  --erp-font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --erp-font-size-xs: 0.6875rem;
   --erp-font-size-sm: 0.75rem;
   --erp-font-size-md: 0.875rem;
   --erp-font-size-lg: 1rem;
-  --erp-font-size-xl: 1.5rem;
+  --erp-font-size-xl: 1.25rem;
+  --erp-font-size-2xl: 1.75rem;
   --erp-font-size-display: 2rem;
   --erp-font-weight-regular: 400;
   --erp-font-weight-medium: 500;
+  --erp-font-weight-semibold: 600;
   --erp-font-weight-bold: 700;
+  --erp-line-height-tight: 1.2;
   --erp-line-height-body: 1.5;
+  --erp-letter-spacing-tight: -0.02em;
   --erp-letter-spacing-caps: 0.06em;
 
   // Espaçamento (escala de 4 px)
@@ -41,18 +65,51 @@
   --erp-space-5: 24px;
   --erp-space-6: 32px;
   --erp-space-7: 48px;
+  --erp-space-8: 64px;
 
   // Forma
-  --erp-radius-sm: 8px;
+  --erp-radius-xs: 6px;
+  --erp-radius-sm: 10px;
+  --erp-radius-md: 12px;
   --erp-radius-card: 16px;
   --erp-radius-pill: 999px;
   --erp-border-width: 1px;
-  --erp-shadow-card: 0 1px 2px rgb(20 26 58 / 6%), 0 4px 16px rgb(20 26 58 / 6%);
-  --erp-opacity-disabled: 0.4;
+  --erp-shadow-xs: 0 1px 2px rgb(20 26 58 / 6%);
+  --erp-shadow-card: 0 1px 2px rgb(20 26 58 / 5%), 0 6px 20px rgb(20 26 58 / 5%);
+  --erp-shadow-raised: 0 4px 12px rgb(20 26 58 / 8%), 0 16px 40px rgb(20 26 58 / 10%);
+  --erp-focus-ring: 0 0 0 3px rgb(47 79 216 / 28%);
+  --erp-opacity-disabled: 0.45;
+
+  // Movimento
+  --erp-duration-fast: 120ms;
+  --erp-duration-base: 200ms;
+  --erp-easing: cubic-bezier(0.2, 0, 0, 1);
 
   // Estrutura da página
   --erp-topbar-height: 64px;
-  --erp-sidenav-width: 72px;
+  --erp-sidenav-width: 76px;
+  --erp-sidenav-width-expanded: 256px;
   --erp-nav-item-size: 44px;
-  --erp-content-max-width: 1440px;
+  --erp-icon-size: 20px;
+  --erp-avatar-size: 34px;
+  --erp-page-padding: var(--erp-space-6);
+  --erp-form-max-width: 1280px;
+  --erp-field-min-width: 220px;
+  --erp-kpi-min-width: 240px;
+  --erp-z-sticky: 10;
+  --erp-z-nav: 30;
+  --erp-z-topbar: 40;
+}
+
+@media (max-width: 1279.98px) {
+  :root {
+    --erp-page-padding: var(--erp-space-5);
+  }
+}
+
+@media (max-width: 767.98px) {
+  :root {
+    --erp-page-padding: var(--erp-space-4);
+    --erp-topbar-height: 56px;
+  }
 }

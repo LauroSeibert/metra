@@ -1,30 +1,83 @@
 :host {
+  --shell-nav-width: var(--erp-sidenav-width-expanded);
+
   display: grid;
-  grid-template-columns: var(--erp-sidenav-width) 1fr;
-  grid-template-rows: var(--erp-topbar-height) 1fr;
+  grid-template-columns: var(--shell-nav-width) minmax(0, 1fr);
+  grid-template-rows: var(--erp-topbar-height) minmax(0, 1fr);
   grid-template-areas:
     'top top'
     'side content';
-  min-height: 100vh;
+  min-height: 100dvh;
+  transition: grid-template-columns var(--erp-duration-base) var(--erp-easing);
+}
+
+:host(.compact) {
+  --shell-nav-width: var(--erp-sidenav-width);
 }
 
 .top {
   grid-area: top;
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: var(--erp-z-topbar);
 }
 
 .side {
   grid-area: side;
+  position: sticky;
+  top: var(--erp-topbar-height);
+  height: calc(100dvh - var(--erp-topbar-height));
+  overflow: hidden auto;
   background: var(--erp-surface);
   border-right: var(--erp-border-width) solid var(--erp-border);
 }
 
 .content {
   grid-area: content;
-  box-sizing: border-box;
-  width: 100%;
-  max-width: var(--erp-content-max-width);
-  padding: var(--erp-space-6);
+  min-width: 0;
+  padding: var(--erp-page-padding);
+}
+
+// Mobile: o menu sai da grade e vira gaveta sobre o conteúdo.
+:host(.mobile) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'top'
+    'content';
+
+  .side {
+    position: fixed;
+    top: var(--erp-topbar-height);
+    bottom: 0;
+    left: 0;
+    z-index: var(--erp-z-nav);
+    width: min(var(--erp-sidenav-width-expanded), 85vw);
+    height: auto;
+    box-shadow: var(--erp-shadow-raised);
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition:
+      transform var(--erp-duration-base) var(--erp-easing),
+      visibility 0s linear var(--erp-duration-base);
+  }
+}
+
+:host(.mobile.nav-open) .side {
+  transform: none;
+  visibility: visible;
+  transition: transform var(--erp-duration-base) var(--erp-easing);
+}
+
+.backdrop {
+  position: fixed;
+  inset: var(--erp-topbar-height) 0 0;
+  z-index: calc(var(--erp-z-nav) - 1);
+  background: var(--erp-backdrop);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host,
+  .side {
+    transition: none !important;
+  }
 }

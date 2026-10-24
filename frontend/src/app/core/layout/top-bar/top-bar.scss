@@ -1,38 +1,93 @@
+@use 'breakpoints' as bp;
+
 :host {
   --mat-icon-button-icon-color: var(--erp-on-primary);
+  --mat-icon-button-state-layer-color: var(--erp-on-primary);
 
   display: flex;
   align-items: center;
-  gap: var(--erp-space-5);
+  gap: var(--erp-space-4);
   height: 100%;
-  padding: 0 var(--erp-space-5);
-  background: var(--erp-primary);
+  padding: 0 var(--erp-space-5) 0 var(--erp-space-4);
+  background: linear-gradient(90deg, var(--erp-primary-strong), var(--erp-primary) 45%);
   color: var(--erp-on-primary);
+  box-shadow: var(--erp-shadow-xs);
 }
 
 .brand {
-  font-size: var(--erp-font-size-lg);
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--erp-space-3);
+  width: calc(var(--erp-sidenav-width-expanded) - var(--erp-space-6));
+  color: inherit;
+  text-decoration: none;
+}
+
+.mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--erp-avatar-size);
+  height: var(--erp-avatar-size);
+  border-radius: var(--erp-radius-sm);
+  background: var(--erp-on-primary);
+  color: var(--erp-primary);
   font-weight: var(--erp-font-weight-bold);
 }
 
-.breadcrumb ol {
+.brand-text {
   display: flex;
-  gap: var(--erp-space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: var(--erp-font-size-md);
+  flex-direction: column;
+  line-height: var(--erp-line-height-tight);
+
+  strong {
+    font-size: var(--erp-font-size-lg);
+    font-weight: var(--erp-font-weight-bold);
+    letter-spacing: var(--erp-letter-spacing-tight);
+  }
+
+  small {
+    color: var(--erp-on-primary-muted);
+    font-size: var(--erp-font-size-xs);
+  }
+}
+
+.breadcrumb {
+  min-width: 0;
+
+  ol {
+    display: flex;
+    gap: var(--erp-space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--erp-font-size-md);
+    white-space: nowrap;
+  }
+
+  li {
+    color: var(--erp-on-primary-muted);
+
+    &[aria-current='page'] {
+      overflow: hidden;
+      color: var(--erp-on-primary);
+      font-weight: var(--erp-font-weight-semibold);
+      text-overflow: ellipsis;
+    }
+  }
 
   li + li::before {
     content: '/';
     margin-right: var(--erp-space-2);
+    color: var(--erp-on-primary-muted);
   }
 }
 
 .actions {
   display: flex;
   align-items: center;
-  gap: var(--erp-space-2);
+  gap: var(--erp-space-1);
   margin-left: auto;
 }
 
@@ -40,9 +95,87 @@
   display: flex;
   align-items: center;
   gap: var(--erp-space-2);
-  padding: var(--erp-space-1) var(--erp-space-3);
+  margin-left: var(--erp-space-2);
+  padding: var(--erp-space-1) var(--erp-space-3) var(--erp-space-1) var(--erp-space-1);
+  border: 0;
   border-radius: var(--erp-radius-pill);
-  background: var(--erp-primary-soft);
+  background: var(--erp-on-primary-subtle);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background var(--erp-duration-fast) var(--erp-easing);
+
+  &:hover {
+    background: rgb(255 255 255 / 22%);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--erp-focus-ring);
+  }
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: var(--erp-avatar-size);
+  height: var(--erp-avatar-size);
+  border-radius: 50%;
+  background: var(--erp-on-primary);
   color: var(--erp-primary);
-  font-weight: var(--erp-font-weight-medium);
+  font-size: var(--erp-font-size-sm);
+  font-weight: var(--erp-font-weight-bold);
+}
+
+.who {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: var(--erp-line-height-tight);
+
+  strong {
+    font-size: var(--erp-font-size-md);
+    font-weight: var(--erp-font-weight-semibold);
+  }
+
+  small {
+    color: var(--erp-on-primary-muted);
+    font-size: var(--erp-font-size-xs);
+  }
+}
+
+@include bp.tablet-down {
+  .brand {
+    width: auto;
+  }
+
+  .who {
+    display: none;
+  }
+
+  .profile {
+    padding: var(--erp-space-1);
+  }
+}
+
+@include bp.mobile {
+  :host {
+    gap: var(--erp-space-2);
+    padding: 0 var(--erp-space-2);
+  }
+
+  .brand-text small,
+  .help,
+  .breadcrumb li:not([aria-current='page']) {
+    display: none;
+  }
+
+  .breadcrumb {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .brand-text {
+    display: none;
+  }
 }

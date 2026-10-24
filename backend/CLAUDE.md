@@ -1,20 +1,25 @@
 # Backend (.NET 10)
 
 ## Camadas (dependência em uma só direção)
-- `Erp.Domain`: sem referência a outros projetos nem a pacotes de infraestrutura.
-- `Erp.Application`: depende só de `Domain`; define as interfaces que a infraestrutura implementa.
-- `Erp.Infrastructure`: EF Core (`MySql.EntityFrameworkCore`, `UseMySQL`), health check do banco.
-- `Erp.Api`: Minimal APIs sob `/api/v1`, DI, OpenAPI, ProblemDetails, CORS.
-- `tests/Erp.UnitTests/LayerDependencyTests.cs` quebra o build de testes se uma regra for violada.
+- `Erp.Domain`: entidades e regras, sem referência a outros projetos nem a pacotes de infraestrutura.
+- `Erp.Application`: casos de uso (`XxxService`) e DTOs; depende de `Domain` e só das abstrações do EF Core (`IErpDbContext`).
+- `Erp.Infrastructure`: `ErpDbContext` (MySQL via `UseMySQL`), configurações, migrations, health check.
+- `Erp.Api`: Minimal APIs sob `/api/v1`, ProblemDetails, OpenAPI, CORS.
+- `Erp.Seed`: seed com Bogus (`seed --profile small|full`) e medição de p95 (`measure`).
+- `tests/Erp.UnitTests/LayerDependencyTests.cs` falha se uma regra de camada for violada.
 
 ## Padrões
-- Warnings são erros (`Directory.Build.props`); versões de pacote só em `Directory.Packages.props`.
+- Siga `Products/` em cada camada (skill `new-endpoint`). Convenções HTTP: `docs/api-conventions.md`.
+- Warnings são erros; versões de pacote só em `Directory.Packages.props`.
 - Async de ponta a ponta com `CancellationToken`; relógio via `TimeProvider`.
-- Nunca expor entidade do EF; sempre DTO.
+- Testes de integração: `MySqlApiFixture` (Testcontainers, MySQL 9.7) + `ApiClient`; dados com `Unique(...)`.
 
 ## Armadilhas
-- Testes usam Microsoft.Testing.Platform (configurado em `global.json` na raiz):
+- Testes usam Microsoft.Testing.Platform (`global.json` na raiz):
   rode `dotnet test --solution backend/Erp.slnx`, não `dotnet test backend`.
 - Connection string local: `dotnet user-secrets set ConnectionStrings:Erp "<valor>" --project backend/src/Erp.Api`.
   Nunca grave senha em `appsettings*.json`.
-- `/health` não toca o banco; `/health/ready` testa a conexão.
+- `dotnet build` regenera `backend/openapi/erp-api.json`; commite junto com o cliente do front.
+- Migration: `dotnet ef migrations add <Nome> --project backend/src/Erp.Infrastructure --startup-project backend/src/Erp.Infrastructure --output-dir Persistence/Migrations`.
+- `LIKE` com escape `\` quebra no provider da Oracle; use `SearchPattern` (escape `!`).
+- `OR` entre duas colunas com `ORDER BY ... LIMIT` engana o otimizador; veja a busca em `ProductService.ListAsync`.

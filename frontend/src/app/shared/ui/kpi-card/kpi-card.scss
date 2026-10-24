@@ -1,0 +1,108 @@
+@use 'breakpoints' as bp;
+
+:host {
+  --kpi-accent: var(--erp-primary);
+  --kpi-accent-soft: var(--erp-primary-soft);
+
+  display: flex;
+  align-items: center;
+  gap: var(--erp-space-4);
+  min-width: 0;
+  padding: var(--erp-space-5);
+  border: var(--erp-border-width) solid var(--erp-border);
+  border-radius: var(--erp-radius-card);
+  background: var(--erp-surface);
+  box-shadow: var(--erp-shadow-card);
+}
+
+:host(.tone-success) {
+  --kpi-accent: var(--erp-success);
+  --kpi-accent-soft: var(--erp-success-soft);
+}
+
+:host(.tone-danger) {
+  --kpi-accent: var(--erp-danger);
+  --kpi-accent-soft: var(--erp-danger-soft);
+}
+
+:host(.tone-info) {
+  --kpi-accent: var(--erp-info-text);
+  --kpi-accent-soft: var(--erp-info-soft);
+}
+
+:host(.tone-warning) {
+  --kpi-accent: var(--erp-warning-text);
+  --kpi-accent-soft: var(--erp-warning-soft);
+}
+
+:host(.tone-neutral) {
+  --kpi-accent: var(--erp-text-muted);
+  --kpi-accent-soft: var(--erp-surface-sunken);
+}
+
+.icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--erp-radius-md);
+  background: var(--kpi-accent-soft);
+  color: var(--kpi-accent);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--erp-space-1);
+  min-width: 0;
+}
+
+.label {
+  color: var(--erp-text-muted);
+  font-size: var(--erp-font-size-xs);
+  font-weight: var(--erp-font-weight-semibold);
+  letter-spacing: var(--erp-letter-spacing-caps);
+  text-transform: uppercase;
+}
+
+.value {
+  color: var(--erp-text);
+  font-size: var(--erp-font-size-2xl);
+  font-weight: var(--erp-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--erp-letter-spacing-tight);
+  line-height: var(--erp-line-height-tight);
+}
+
+.value.erp-skeleton {
+  width: 96px;
+  height: var(--erp-font-size-2xl);
+}
+
+.hint {
+  color: var(--erp-text-subtle);
+  font-size: var(--erp-font-size-sm);
+}
+
+@include bp.mobile {
+  :host {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--erp-space-2);
+    padding: var(--erp-space-4);
+  }
+
+  .icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .value {
+    font-size: var(--erp-font-size-xl);
+  }
+
+  .hint {
+    display: none;
+  }
+}

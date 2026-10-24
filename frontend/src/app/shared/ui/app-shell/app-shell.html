@@ -1,3 +1,8 @@
 <header class="top"><ng-content select="[shellTopBar]" /></header>
-<nav class="side"><ng-content select="[shellNav]" /></nav>
+@if (mobile() && navOpen()) {
+  <div class="backdrop" aria-hidden="true" (click)="closeNav.emit()"></div>
+}
+<aside class="side" [attr.aria-hidden]="mobile() && !navOpen() ? true : null">
+  <ng-content select="[shellNav]" />
+</aside>
 <main class="content"><ng-content /></main>

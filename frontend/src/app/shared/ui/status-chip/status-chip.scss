@@ -1,0 +1,54 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--erp-space-2);
+  padding: var(--erp-space-1) var(--erp-space-3);
+  border-radius: var(--erp-radius-pill);
+  font-size: var(--erp-font-size-sm);
+  font-weight: var(--erp-font-weight-semibold);
+  line-height: var(--erp-line-height-tight);
+  white-space: nowrap;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+}
+
+:host(.tone-primary) {
+  background: var(--erp-primary-soft);
+  color: var(--erp-primary);
+}
+
+:host(.tone-success) {
+  background: var(--erp-success-soft);
+  color: var(--erp-success);
+}
+
+:host(.tone-danger) {
+  background: var(--erp-danger-soft);
+  color: var(--erp-danger);
+}
+
+:host(.tone-info) {
+  background: var(--erp-info-soft);
+  color: var(--erp-info-text);
+}
+
+:host(.tone-warning) {
+  background: var(--erp-warning-soft);
+  color: var(--erp-warning-text);
+}
+
+:host(.tone-neutral) {
+  background: var(--erp-surface-sunken);
+  color: var(--erp-text-muted);
+}
+
+// Etiqueta de código (UN, KG): sem indicador.
+:host(.plain)::before {
+  display: none;
+}

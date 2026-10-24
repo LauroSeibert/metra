@@ -1,0 +1,50 @@
+---
+name: new-feature-screen
+description: Criar tela de listagem e de cadastro no front (Angular) seguindo o módulo de produtos, com DataTable, Signal Forms e cliente OpenAPI.
+---
+
+# Nova tela (padrão do módulo de produtos)
+
+Referência viva: `frontend/src/app/features/products/`. Pré-requisito: endpoint pronto e `npm run api:generate` rodado.
+
+## Estrutura da funcionalidade
+
+```text
+features/<modulo>/
+├── <modulo>.routes.ts      # providers: [provideMaterialFormDefaults()] + rotas lazy
+├── <modulo>.strings.ts     # todos os textos pt-BR, inclusive mensagens de validação
+├── <modulo>-rules.ts       # limites espelhados do domínio (.NET)
+├── <x>-list/               # listagem
+├── <x>-form/               # cadastro/edição (+ <x>-form.schema.ts)
+└── testing/fake-api.ts     # FakeApi para os specs
+```
+
+Registre a rota em `app.routes.ts` com `loadChildren` e `data: { breadcrumb }`, e libere o item em
+`core/layout/nav-items.ts`.
+
+## Listagem (copie `product-list/`)
+
+- Filtros em signals iniciados pela URL (`shared/data/list-url-state.ts`) e gravados de volta num `effect`.
+- Busca com `debounced(...)`; `page` como `linkedSignal` que volta a 1 quando um filtro muda.
+- `resource({ params: query, loader: ({ params }) => api.invoke(listX, params) })`.
+- `rows`/`total` com `linkedSignal` para manter a página anterior durante o carregamento.
+- `<erp-page-header>` com ações à direita (principal com `class="erp-primary-action"`), `<erp-segmented-control>`
+  para filtros rápidos e `<erp-data-table>` com `erpCell` e `erpExpandedRow` tipados por `[erpCellOf]="rows()"`.
+
+## Cadastro (copie `product-form/`)
+
+- Modelo e `schema(...)` em `<x>-form.schema.ts`, com as mesmas regras do domínio e mensagens de `strings`.
+- `model = linkedSignal(() => carregado ? toModel(valor) : vazio)`; `form(model, schema)`.
+- `submit(form, async () => { ... return toServerErrors(form, toApiProblem(e), { 'x.code_duplicate': 'code' }) })`.
+- Edição envia `version`; em `concurrency_conflict` mostre o banner com "Recarregar dados".
+- Campos: `<mat-form-field>` + `[formField]` + `<mat-error>` com `campo().errors()[0]`.
+
+## Testes (copie os `*.spec.ts` de produtos)
+
+`FakeApi` com `.on(fn, resposta)` e `callsTo(fn)`. Cubra: parâmetros da primeira carga, filtro, busca com debounce,
+vazio, erro, validação que bloqueia o envio, erro do servidor no campo e envio da versão na edição.
+
+## Antes de entregar
+
+`npm run lint`, `npm run build` (orçamento de bundle) e `npm test` dentro de `frontend/`. Confira no navegador
+os três estados e um fluxo de cadastro completo.
