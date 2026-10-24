@@ -1,19 +1,90 @@
-<header class="page-header">
-  <h1>{{ strings.title }}</h1>
-  <p>{{ strings.subtitle }}</p>
-</header>
+<erp-page-header [title]="strings.title" [subtitle]="strings.subtitle">
+  @if (canWrite()) {
+    <a matButton="filled" class="erp-primary-action" routerLink="/sales/edit">
+      <mat-icon>add</mat-icon>
+      {{ strings.newSale }}
+    </a>
+  }
+</erp-page-header>
 
-<section class="grid">
-  <erp-card class="wide">
-    <h2>{{ strings.welcomeTitle }}</h2>
-    <p>{{ strings.welcomeBody }}</p>
+@if (dashboard.status() === 'error') {
+  <erp-card class="state" role="alert">
+    <mat-icon>cloud_off</mat-icon>
+    <p>{{ strings.loadError }}</p>
+    <button matButton="outlined" type="button" (click)="dashboard.reload()">
+      <mat-icon>refresh</mat-icon>
+      {{ strings.retry }}
+    </button>
   </erp-card>
-  <erp-card>
-    <h2>{{ strings.modulesTitle }}</h2>
-    <p>{{ strings.modulesBody }}</p>
-  </erp-card>
-  <erp-card>
-    <h2>{{ strings.environmentTitle }}</h2>
-    <p>{{ strings.environmentBody }}</p>
-  </erp-card>
-</section>
+} @else {
+  <erp-kpi-strip [items]="kpiItems()" [label]="strings.kpis" />
+
+  <div class="grid">
+    <erp-card class="panel wide">
+      <header>
+        <h2>{{ strings.dailyTitle }}</h2>
+        <p>{{ strings.dailyHint }}</p>
+      </header>
+      <div class="chart" role="list">
+        @for (day of daily(); track day.date) {
+          <div
+            class="bar"
+            role="listitem"
+            [title]="barLabel(day.date, day.total, day.count)"
+            [attr.aria-label]="barLabel(day.date, day.total, day.count)"
+          >
+            <span [style.height.%]="day.height"></span>
+          </div>
+        }
+      </div>
+      @if (daily().length > 0) {
+        <div class="axis erp-mono">
+          <span>{{ daily()[0].date | date: 'dd/MM' }}</span>
+          <span>{{ daily()[daily().length - 1].date | date: 'dd/MM' }}</span>
+        </div>
+      }
+    </erp-card>
+
+    <erp-card class="panel">
+      <header>
+        <h2>{{ strings.topTitle }}</h2>
+        <p>{{ strings.topHint }}</p>
+      </header>
+      @if (top().length === 0) {
+        <p class="empty">{{ strings.empty }}</p>
+      } @else {
+        <ol class="top">
+          @for (product of top(); track product.productId) {
+            <li>
+              <div class="row">
+                <span class="name">{{ product.name }}</span>
+                <span class="erp-mono">{{ product.total | currency }}</span>
+              </div>
+              <div class="track"><span [style.width.%]="product.width"></span></div>
+              <small>{{ product.quantity | number: '1.0-3' }} un.</small>
+            </li>
+          }
+        </ol>
+      }
+    </erp-card>
+
+    <erp-card class="panel">
+      <header class="with-action">
+        <h2>{{ strings.recentTitle }}</h2>
+        <a matButton routerLink="/sales">{{ strings.seeAll }}</a>
+      </header>
+      <ul class="recent">
+        @for (sale of data()?.recentSales ?? []; track sale.id) {
+          <li>
+            <a [routerLink]="['/sales/edit', sale.id]">
+              <span class="erp-mono number">#{{ sale.number }}</span>
+              <span class="name">{{ sale.partnerName }}</span>
+              <erp-status-chip [label]="strings.status[sale.status]" [tone]="tone(sale.status)" />
+              <span class="erp-mono total">{{ sale.total | currency }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </erp-card>
+  </div>
+}

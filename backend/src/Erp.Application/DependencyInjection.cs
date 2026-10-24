@@ -1,3 +1,4 @@
+using Erp.Application.Dashboard;
 using Erp.Application.Common;
 using Erp.Application.Finance;
 using Erp.Application.Partners;
@@ -23,6 +24,7 @@ public static class DependencyInjection
         services.AddScoped<FinancialCategoryService>();
         services.AddScoped<FinancialEntryService>();
         services.AddScoped<SaleService>();
+        services.AddScoped<DashboardService>();
         return services;
     }
 }
