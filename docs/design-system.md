@@ -48,6 +48,8 @@ Classes globais (`src/styles.scss`): `erp-primary-action` (botão verde da açã
   `<modulo>/edit/:id`; ao salvar a tela continua aberta (cadastro novo passa para `edit/:id`).
 - **Histórico longo** (paginação por chave): `DataTable` sem paginador e botão "Carregar mais" abaixo, que acrescenta
   a página seguinte; no fim, "Fim do histórico.". Referência: `features/stock/movement-history`.
+- **Resumo + tabela** (financeiro): `erp-kpi-grid` com `<erp-kpi-card format="currency">` acima dos filtros e da tabela.
+- **Escolher parceiro**: `<erp-partner-picker [type] [(selected)]>` (`features/partners/partner-picker`).
 - **Escolher produto**: `<erp-product-picker [(selected)]>` (`features/products/product-picker`), busca por SKU ou nome.
 - **Estados**: toda tela trata carregando (barra + linhas fantasma), vazio (ícone + mensagem) e erro (mensagem + "Tentar de novo").
   O carregando só aparece se passar de `LOADING_DELAY_MS` (250 ms, `delayedFlag`); antes disso as linhas

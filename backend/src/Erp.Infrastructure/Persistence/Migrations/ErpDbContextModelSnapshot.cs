@@ -19,6 +19,161 @@ namespace Erp.Infrastructure.Persistence.Migrations
                 .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
+            modelBuilder.Entity("Erp.Domain.Finance.FinancialCategory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("name");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("int")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_financial_category");
+
+                    b.HasIndex("Kind", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ux_financial_category_kind_name");
+
+                    b.ToTable("financial_category");
+                });
+
+            modelBuilder.Entity("Erp.Domain.Finance.FinancialEntry", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTime?>("CancelledAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("cancelled_at");
+
+                    b.Property<long>("CategoryId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("category_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("description");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("date")
+                        .HasColumnName("due_date");
+
+                    b.Property<int>("InstallmentNo")
+                        .HasColumnType("int")
+                        .HasColumnName("installment_no");
+
+                    b.Property<int>("InstallmentTotal")
+                        .HasColumnType("int")
+                        .HasColumnName("installment_total");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("varchar(12)")
+                        .HasColumnName("kind");
+
+                    b.Property<decimal?>("PaidAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("paid_amount");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("date")
+                        .HasColumnName("paid_at");
+
+                    b.Property<long?>("PartnerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("partner_id");
+
+                    b.Property<string>("ReversalReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)")
+                        .HasColumnName("reversal_reason");
+
+                    b.Property<DateTime?>("ReversedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("reversed_at");
+
+                    b.Property<long?>("SaleId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("sale_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("int")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_financial_entry");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_financial_entry_category_id");
+
+                    b.HasIndex("PartnerId")
+                        .HasDatabaseName("ix_financial_entry_partner_id");
+
+                    b.HasIndex("SaleId")
+                        .HasDatabaseName("ix_financial_entry_sale_id");
+
+                    b.HasIndex("Kind", "PaidAt")
+                        .HasDatabaseName("ix_financial_entry_kind_paid_at");
+
+                    b.HasIndex("Kind", "DueDate", "Id")
+                        .HasDatabaseName("ix_financial_entry_kind_due_date_id");
+
+                    b.HasIndex("Kind", "Status", "DueDate", "Id")
+                        .HasDatabaseName("ix_financial_entry_kind_status_due_date_id");
+
+                    b.ToTable("financial_entry");
+                });
+
             modelBuilder.Entity("Erp.Domain.Partners.Partner", b =>
                 {
                     b.Property<long>("Id")
@@ -718,6 +873,22 @@ namespace Erp.Infrastructure.Persistence.Migrations
                         .HasName("pk_user_token");
 
                     b.ToTable("user_token", (string)null);
+                });
+
+            modelBuilder.Entity("Erp.Domain.Finance.FinancialEntry", b =>
+                {
+                    b.HasOne("Erp.Domain.Finance.FinancialCategory", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_financial_entry_category_id");
+
+                    b.HasOne("Erp.Domain.Partners.Partner", null)
+                        .WithMany()
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_financial_entry_partner_id");
                 });
 
             modelBuilder.Entity("Erp.Domain.Products.Product", b =>

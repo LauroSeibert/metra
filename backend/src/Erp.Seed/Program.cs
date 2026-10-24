@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 
 // Uso:
 //   dotnet run --project backend/src/Erp.Seed -- seed --profile small|full
-//   dotnet run --project backend/src/Erp.Seed -- measure --url http://localhost:5080 --requests 300 --target products|stock|all
+//   dotnet run --project backend/src/Erp.Seed -- measure --url http://localhost:5080 --requests 300 --target products|stock|finance|all
 // O measure entra na API com ERP_EMAIL e ERP_PASSWORD (variáveis de ambiente; o Admin do .env serve).
 // Connection string: ConnectionStrings__Erp (variável de ambiente) ou user-secrets da API.
 var command = args.Length > 0 ? args[0] : "seed";

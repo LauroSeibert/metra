@@ -76,4 +76,10 @@ export const PARTNERS_STRINGS = {
     document: 'CPF ou CNPJ inválido.',
     email: 'E-mail inválido.',
   },
+  picker: {
+    label: 'Parceiro',
+    placeholder: 'Digite o nome ou o CPF/CNPJ',
+    noResults: 'Nenhum parceiro ativo encontrado.',
+    clear: 'Limpar parceiro',
+  },
 } as const;

@@ -1,5 +1,6 @@
 using Erp.Application.Abstractions;
 using Erp.Domain.Common;
+using Erp.Domain.Finance;
 using Erp.Domain.Partners;
 using Erp.Domain.Products;
 using Erp.Domain.Settings;
@@ -27,6 +28,10 @@ public sealed class ErpDbContext(DbContextOptions<ErpDbContext> options, TimePro
 
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
 
+    public DbSet<FinancialCategory> FinancialCategories => Set<FinancialCategory>();
+
+    public DbSet<FinancialEntry> FinancialEntries => Set<FinancialEntry>();
+
     public IQueryable<UserName> UserNames => Users.Select(u => new UserName { Id = u.Id, FullName = u.FullName });
 
     public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
@@ -49,6 +54,11 @@ public sealed class ErpDbContext(DbContextOptions<ErpDbContext> options, TimePro
         configurationBuilder.Properties<DateTime>()
             .HaveColumnType("datetime(6)")
             .HaveConversion<UtcDateTimeConverter>();
+
+        // Datas de calendário (DateOnly) em DATE; o provider precisa do conversor para ler.
+        configurationBuilder.Properties<DateOnly>()
+            .HaveColumnType("date")
+            .HaveConversion<DateOnlyConverter>();
 
         // Texto em utf8mb4 é o padrão do servidor; strings sem tamanho explícito viram VARCHAR(255).
         configurationBuilder.Properties<string>().HaveMaxLength(255);

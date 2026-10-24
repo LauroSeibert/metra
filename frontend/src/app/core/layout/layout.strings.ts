@@ -7,6 +7,7 @@ export const LAYOUT_STRINGS = {
     products: 'Produtos',
     partners: 'Parceiros',
     stock: 'Estoque',
+    finance: 'Financeiro',
     profile: 'Meu perfil',
   },
   comingSoon: 'Em breve',

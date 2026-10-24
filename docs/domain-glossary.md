@@ -37,6 +37,18 @@ Termo de negócio (como aparece na tela) → nome no código e no banco. Termo n
 | Estoque baixo / abaixo do mínimo | `LowStock` | — | Saldo < estoque mínimo |
 | Parâmetro da empresa | `AppSetting`, `SettingKeys` | `app_setting` | `stock.allowNegative` (padrão: não) |
 
+## Financeiro
+
+| Termo (pt-BR) | Código (C# / TS) | Banco | Observação |
+| --- | --- | --- | --- |
+| Lançamento (parcela) | `FinancialEntry` | `financial_entry` | Nunca excluído; cancelado ou com baixa estornada |
+| Conta a receber / a pagar | `FinancialEntryKind.Receivable` / `Payable` | `financial_entry.kind` | |
+| Aberto / Pago (baixado) / Cancelado | `FinancialEntryStatus.Open` / `Paid` / `Cancelled` | `financial_entry.status` | |
+| Vencido | `Overdue` (calculado) | — | Aberto com vencimento antes de hoje (Brasília) |
+| Baixa / Estorno da baixa | `Pay` / `ReversePayment` | `paid_at`, `paid_amount`, `reversed_at` | Estorno volta a aberto |
+| Parcela | `InstallmentNo` / `InstallmentTotal` | | Resto dos centavos na primeira |
+| Categoria financeira (receita, despesa) | `FinancialCategory`, `FinancialCategoryKind.Revenue` / `Expense` | `financial_category` | Nome único por tipo |
+
 ## Acesso
 
 | Termo (pt-BR) | Código (C# / TS) | Banco | Observação |
@@ -58,5 +70,3 @@ Termo de negócio (como aparece na tela) → nome no código e no banco. Termo n
 | Termo | Código |
 | --- | --- |
 | Venda / item da venda | `Sale` / `SaleItem` |
-| Lançamento financeiro | `FinancialEntry` |
-| Categoria financeira | `FinancialCategory` |

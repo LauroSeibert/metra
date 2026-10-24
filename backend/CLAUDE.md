@@ -20,6 +20,8 @@
 - `ErpDbContext` herda de `IdentityDbContext`: `OnModelCreating(builder)` chama `base` antes da convenção de nomes.
 - Sem sessão, rota inexistente responde 401 (política padrão), não 404.
 - Filtro do EF sobre projeção: use tipo anônimo ou classe com `init`; record posicional não é traduzido.
+- Listagem com joins em tabela grande: conte e pagine só na tabela principal e junte depois (ver `FinancialEntryService`).
+- `DateOnly` precisa do `DateOnlyConverter` (já nas convenções do `ErpDbContext`); "hoje" vem do `BusinessCalendar`.
 - Movimento de estoque só por `StockService` (saldo na mesma transação, nova tentativa em conflito de versão).
 - Backend roda com `InvariantGlobalization`: nada de `CultureInfo("pt-BR")` nem `string.Normalize` para tirar acento.
 - Testes usam Microsoft.Testing.Platform (`global.json` na raiz):

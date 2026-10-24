@@ -51,6 +51,7 @@ Todo erro sai como `application/problem+json` com o campo `code` estável:
 | 409 | versão desatualizada (concorrência otimista) | `concurrency_conflict` | |
 | 409 | exclusão de registro em uso | `entidade.in_use` | |
 | 409 | ação que só vale uma vez (ex.: estorno repetido) | `entidade.already_<ação>` | |
+| 409 | ação que o estado não permite (editar lançamento pago) | `invalid_state` | |
 | 409 | índice único violado numa corrida | `duplicate_key` | |
 | 401 | credenciais, conta bloqueada, refresh inválido | `auth.invalid_credentials`, `auth.locked_out`, `auth.invalid_refresh_token` | |
 | 401 / 403 | sem sessão / perfil sem permissão | (sem `code`) | |
@@ -68,7 +69,8 @@ Todo erro sai como `application/problem+json` com o campo `code` estável:
 
 ## Tipos
 
-- Ids `int64`; dinheiro e quantidade `number` (no banco, DECIMAL 18,2 e 18,3); datas ISO 8601 em UTC.
+- Ids `int64`; dinheiro e quantidade `number` (no banco, DECIMAL 18,2 e 18,3); instantes ISO 8601 em UTC.
+- Datas de calendário (vencimento, baixa) são `DateOnly` (`aaaa-mm-dd`, coluna DATE); "hoje" é a data em Brasília.
 - Campos não anuláveis no C# saem como `required` no OpenAPI (`RequiredPropertiesSchemaTransformer`).
 - Números nunca como string (`JsonNumberHandling.Strict`).
 - Enums como texto (`JsonStringEnumConverter`): `"Customer"`, `"Dark"`; o cliente gerado tipa como união de strings.

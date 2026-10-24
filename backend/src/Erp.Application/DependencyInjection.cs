@@ -1,3 +1,5 @@
+using Erp.Application.Common;
+using Erp.Application.Finance;
 using Erp.Application.Partners;
 using Erp.Application.Products;
 using Erp.Application.Settings;
@@ -16,6 +18,9 @@ public static class DependencyInjection
         services.AddScoped<PartnerService>();
         services.AddScoped<SettingsReader>();
         services.AddScoped<StockService>();
+        services.AddScoped<BusinessCalendar>();
+        services.AddScoped<FinancialCategoryService>();
+        services.AddScoped<FinancialEntryService>();
         return services;
     }
 }

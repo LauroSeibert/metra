@@ -41,12 +41,14 @@ internal sealed class SeedRunner(string connectionString, SeedProfile profile)
         bool hasProducts;
         bool hasPartners;
         bool hasMovements;
+        bool hasEntries;
         await using (var db = CreateContext())
         {
             await db.Database.MigrateAsync(cancellationToken).ConfigureAwait(false);
             hasProducts = await db.Products.AnyAsync(cancellationToken).ConfigureAwait(false);
             hasPartners = await db.Partners.AnyAsync(cancellationToken).ConfigureAwait(false);
             hasMovements = await db.StockMovements.AnyAsync(cancellationToken).ConfigureAwait(false);
+            hasEntries = await db.FinancialEntries.AnyAsync(cancellationToken).ConfigureAwait(false);
         }
 
         if (hasProducts)
@@ -75,6 +77,15 @@ internal sealed class SeedRunner(string connectionString, SeedProfile profile)
         else
         {
             await new StockSeeder(CreateContext, profile.StockMovements, RandomSeed + 2).RunAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        if (hasEntries)
+        {
+            Console.WriteLine("Financeiro: a base já tem lançamentos, pulando.");
+        }
+        else
+        {
+            await new FinanceSeeder(CreateContext, profile.FinancialEntries, RandomSeed + 3).RunAsync(cancellationToken).ConfigureAwait(false);
         }
 
         Console.WriteLine($"Seed '{profile.Name}' concluído em {stopwatch.Elapsed:mm\\:ss}.");

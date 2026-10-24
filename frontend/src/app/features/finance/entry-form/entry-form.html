@@ -1,0 +1,193 @@
+<erp-page-header
+  [title]="isEdit() ? strings.form.editTitle : texts().newEntry"
+  [subtitle]="
+    !canWrite()
+      ? strings.form.readOnly
+      : isEdit() && !editable()
+        ? strings.form.notOpen
+        : strings.form.subtitle
+  "
+>
+  <a matButton="outlined" class="erp-secondary-action" [routerLink]="isEdit() ? '../..' : '..'">
+    <mat-icon>arrow_back</mat-icon>
+    {{ strings.form.back }}
+  </a>
+</erp-page-header>
+
+@if (loadError()) {
+  <erp-card class="state" role="alert">
+    <span class="state-icon"><mat-icon>cloud_off</mat-icon></span>
+    <p>{{ strings.form.loadError }}</p>
+    <button matButton="outlined" type="button" (click)="reload()">
+      <mat-icon>refresh</mat-icon>
+      {{ strings.form.reload }}
+    </button>
+  </erp-card>
+} @else if (loading()) {
+  <div class="layout" aria-busy="true">
+    @if (showSkeleton()) {
+      <erp-card class="loading">
+        <span class="erp-skeleton title"></span>
+        <span class="erp-skeleton"></span>
+        <span class="erp-skeleton short"></span>
+      </erp-card>
+    }
+  </div>
+} @else {
+  <form novalidate (submit)="save($event)">
+    @if (formErrors().length > 0) {
+      <div class="banner" role="alert">
+        <mat-icon>warning</mat-icon>
+        <div>
+          @for (error of formErrors(); track $index) {
+            <p>{{ error.message }}</p>
+          }
+        </div>
+        @if (conflict()) {
+          <button matButton="outlined" type="button" (click)="reload()">
+            {{ strings.form.reload }}
+          </button>
+        }
+      </div>
+    }
+
+    @if (loaded(); as entry) {
+      <div class="info">
+        @if (entry.installmentTotal > 1) {
+          <erp-status-chip
+            [label]="strings.form.installmentOf(entry.installmentNo, entry.installmentTotal)"
+            tone="neutral"
+          />
+        }
+        @if (entry.status === 'Paid' && entry.paidAt) {
+          <span>
+            {{
+              strings.form.paidInfo(
+                (entry.paidAt | date: 'dd/MM/yyyy') ?? '',
+                (entry.paidAmount | currency) ?? ''
+              )
+            }}
+          </span>
+        }
+        @if (entry.reversedAt) {
+          <span>
+            {{
+              strings.form.reversedInfo(
+                (entry.reversedAt | date: 'short') ?? '',
+                entry.reversalReason ?? ''
+              )
+            }}
+          </span>
+        }
+      </div>
+    }
+
+    <div class="sections">
+      <erp-card class="section">
+        <header>
+          <span class="section-icon"><mat-icon>receipt_long</mat-icon></span>
+          <div>
+            <h2>{{ strings.form.data }}</h2>
+            <p>{{ strings.form.dataHint }}</p>
+          </div>
+        </header>
+        <div class="fields">
+          <mat-form-field class="span-2">
+            <mat-label>{{ strings.form.description }}</mat-label>
+            <input matInput [formField]="entryForm.description" />
+            @if (entryForm.description().errors()[0]; as error) {
+              <mat-error>{{ error.message }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>{{ strings.form.category }}</mat-label>
+            <mat-select [formField]="entryForm.categoryId">
+              @for (category of categoryOptions(); track category.id) {
+                <mat-option [value]="category.id">{{ category.name }}</mat-option>
+              }
+            </mat-select>
+            @if (entryForm.categoryId().errors()[0]; as error) {
+              <mat-error>{{ error.message }}</mat-error>
+            }
+          </mat-form-field>
+
+          <erp-partner-picker
+            class="span-3"
+            [label]="texts().partner"
+            [type]="kind() === 'Receivable' ? 'Customer' : 'Supplier'"
+            [disabled]="!editable()"
+            [(selected)]="partner"
+          />
+        </div>
+      </erp-card>
+
+      <erp-card class="section">
+        <header>
+          <span class="section-icon success"><mat-icon>payments</mat-icon></span>
+          <div>
+            <h2>{{ strings.form.values }}</h2>
+            <p>{{ strings.form.valuesHint }}</p>
+          </div>
+        </header>
+        <div class="fields">
+          <mat-form-field>
+            <mat-label>{{ isEdit() ? strings.form.amountEdit : strings.form.amount }}</mat-label>
+            <erp-money-input [formField]="entryForm.amount" />
+            @if (entryForm.amount().errors()[0]; as error) {
+              <mat-error>{{ error.message }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>{{ isEdit() ? strings.form.dueDateEdit : strings.form.dueDate }}</mat-label>
+            <input matInput type="date" [formField]="entryForm.dueDate" />
+            @if (entryForm.dueDate().errors()[0]; as error) {
+              <mat-error>{{ error.message }}</mat-error>
+            }
+          </mat-form-field>
+
+          @if (!entryForm.installments().hidden()) {
+            <mat-form-field>
+              <mat-label>{{ strings.form.installments }}</mat-label>
+              <input matInput type="number" [formField]="entryForm.installments" />
+              @if (entryForm.installments().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            </mat-form-field>
+          }
+        </div>
+
+        @if (preview().length > 0) {
+          <div class="preview">
+            <span class="label">{{ strings.form.preview }}</span>
+            <ol>
+              @for (installment of preview(); track installment.number) {
+                <li>
+                  <span>{{ installment.number }}/{{ preview().length }}</span>
+                  <span>{{ installment.dueDate | date: 'dd/MM/yyyy' }}</span>
+                  <strong>{{ installment.amount | currency }}</strong>
+                </li>
+              }
+            </ol>
+          </div>
+        }
+      </erp-card>
+    </div>
+
+    @if (editable()) {
+      <div class="actions">
+        <a matButton [routerLink]="isEdit() ? '../..' : '..'">{{ strings.categories.cancel }}</a>
+        <button
+          matButton="filled"
+          class="erp-primary-action"
+          type="submit"
+          [disabled]="entryForm().submitting()"
+        >
+          <mat-icon>check</mat-icon>
+          {{ entryForm().submitting() ? strings.form.saving : strings.form.save }}
+        </button>
+      </div>
+    }
+  </form>
+}
