@@ -3,3 +3,5 @@ node_modules/
 .angular/
 coverage/
 package-lock.json
+# Cliente gerado pelo ng-openapi-gen: nunca editar nem formatar à mão.
+src/app/api/

@@ -1,0 +1,4 @@
+# Código gerado pelo dotnet ef: analisadores não se aplicam e o arquivo não é editado à mão.
+[*.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none

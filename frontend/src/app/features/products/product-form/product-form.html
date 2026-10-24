@@ -1,0 +1,225 @@
+<erp-page-header
+  [title]="isEdit() ? strings.form.editTitle : strings.form.newTitle"
+  [subtitle]="strings.form.subtitle"
+>
+  <a matButton="outlined" class="erp-secondary-action" routerLink="/products">
+    <mat-icon>arrow_back</mat-icon>
+    {{ strings.back }}
+  </a>
+</erp-page-header>
+
+@if (loadError()) {
+  <erp-card class="state" role="alert">
+    <span class="state-icon"><mat-icon>cloud_off</mat-icon></span>
+    <p>{{ strings.form.loadError }}</p>
+    <button matButton="outlined" type="button" (click)="reload()">
+      <mat-icon>refresh</mat-icon>
+      {{ strings.form.reload }}
+    </button>
+  </erp-card>
+} @else if (loadingProduct()) {
+  <!-- Skeleton só se a carga demorar; resposta rápida vai direto ao formulário, sem piscar. -->
+  <div class="layout" aria-busy="true">
+    @if (showSkeleton()) {
+      <erp-card class="loading">
+        <span class="erp-skeleton title"></span>
+        <span class="erp-skeleton"></span>
+        <span class="erp-skeleton"></span>
+        <span class="erp-skeleton short"></span>
+      </erp-card>
+    }
+  </div>
+} @else {
+  <form novalidate (submit)="save($event)">
+    @if (formErrors().length > 0) {
+      <div class="banner" role="alert">
+        <mat-icon>warning</mat-icon>
+        <div>
+          @for (error of formErrors(); track $index) {
+            <p>{{ error.message }}</p>
+          }
+        </div>
+        @if (conflict()) {
+          <button matButton="outlined" type="button" (click)="reload()">
+            {{ strings.form.reload }}
+          </button>
+        }
+      </div>
+    }
+
+    <div class="layout">
+      <div class="main">
+        <erp-card class="section">
+          <header>
+            <span class="section-icon"><mat-icon>badge</mat-icon></span>
+            <div>
+              <h2>{{ strings.form.identification }}</h2>
+              <p>{{ strings.form.identificationHint }}</p>
+            </div>
+          </header>
+
+          <div class="fields">
+            <mat-form-field>
+              <mat-label>{{ strings.form.sku }}</mat-label>
+              <input matInput [formField]="productForm.sku" autocomplete="off" />
+              @if (productForm.sku().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="span-2">
+              <mat-label>{{ strings.form.name }}</mat-label>
+              <input matInput [formField]="productForm.name" />
+              @if (productForm.name().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>{{ strings.form.category }}</mat-label>
+              <mat-select [formField]="productForm.categoryId">
+                <mat-option [value]="null">{{ strings.form.none }}</mat-option>
+                @for (category of categoryOptions(); track category.id) {
+                  <mat-option [value]="category.id">{{ category.name }}</mat-option>
+                }
+              </mat-select>
+              @if (productForm.categoryId().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>{{ strings.form.unit }}</mat-label>
+              <mat-select [formField]="productForm.unitId">
+                <mat-option [value]="null">{{ strings.form.none }}</mat-option>
+                @for (unit of unitOptions(); track unit.id) {
+                  <mat-option [value]="unit.id">{{ unit.code }} · {{ unit.name }}</mat-option>
+                }
+              </mat-select>
+              @if (productForm.unitId().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="full">
+              <mat-label>{{ strings.form.description }}</mat-label>
+              <textarea matInput rows="4" [formField]="productForm.description"></textarea>
+              @if (productForm.description().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </erp-card>
+
+        <erp-card class="section">
+          <header>
+            <span class="section-icon success"><mat-icon>payments</mat-icon></span>
+            <div>
+              <h2>{{ strings.form.pricing }}</h2>
+              <p>{{ strings.form.pricingHint }}</p>
+            </div>
+          </header>
+
+          <div class="fields">
+            <mat-form-field>
+              <mat-label>{{ strings.form.costPrice }}</mat-label>
+              <erp-money-input [formField]="productForm.costPrice" />
+              @if (productForm.costPrice().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>{{ strings.form.salePrice }}</mat-label>
+              <erp-money-input [formField]="productForm.salePrice" />
+              @if (productForm.salePrice().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>{{ strings.form.minStock }}</mat-label>
+              <input matInput type="number" step="0.001" [formField]="productForm.minStock" />
+              @if (productForm.minStock().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </erp-card>
+      </div>
+
+      <aside class="summary" [attr.aria-label]="strings.form.summary">
+        <erp-card>
+          <span class="eyebrow">{{ strings.form.summary }}</span>
+          <h3>{{ model().name.trim() || strings.form.unnamed }}</h3>
+          <div class="chips">
+            <erp-status-chip
+              [label]="model().sku.trim().toUpperCase() || strings.form.noSku"
+              tone="primary"
+              [plain]="true"
+            />
+            @if (product.hasValue()) {
+              <erp-status-chip
+                [label]="
+                  product.value().active ? strings.status.activeChip : strings.status.inactiveChip
+                "
+                [tone]="product.value().active ? 'success' : 'neutral'"
+              />
+            }
+          </div>
+
+          <div class="margin" [class.negative]="(margin() ?? 0) < 0">
+            <div class="margin-head">
+              <span>{{ strings.form.margin }}</span>
+              <strong>{{ margin() === null ? '—' : (margin() | percent: '1.0-1') }}</strong>
+            </div>
+            <div class="bar" aria-hidden="true">
+              <span [style.width.%]="marginBar()"></span>
+            </div>
+            @if ((margin() ?? 0) < 0) {
+              <small>{{ strings.form.negativeMargin }}</small>
+            }
+          </div>
+
+          <dl>
+            <div>
+              <dt>{{ strings.form.profit }}</dt>
+              <dd>{{ profit() === null ? '—' : (profit() | currency) }}</dd>
+            </div>
+            <div>
+              <dt>{{ strings.form.category }}</dt>
+              <dd>{{ selectedCategory() ?? strings.form.notSelected }}</dd>
+            </div>
+            <div>
+              <dt>{{ strings.form.unit }}</dt>
+              <dd>{{ selectedUnit() ?? strings.form.notSelected }}</dd>
+            </div>
+            @if (product.hasValue()) {
+              <div>
+                <dt>{{ strings.form.createdAt }}</dt>
+                <dd>{{ product.value().createdAt | date: 'short' }}</dd>
+              </div>
+              <div>
+                <dt>{{ strings.form.updatedAt }}</dt>
+                <dd>{{ product.value().updatedAt | date: 'short' }}</dd>
+              </div>
+            }
+          </dl>
+        </erp-card>
+      </aside>
+    </div>
+
+    <div class="actions">
+      <a matButton routerLink="/products">{{ strings.form.cancel }}</a>
+      <button
+        matButton="filled"
+        class="erp-primary-action"
+        type="submit"
+        [disabled]="productForm().submitting()"
+      >
+        <mat-icon>check</mat-icon>
+        {{ productForm().submitting() ? strings.form.saving : strings.form.save }}
+      </button>
+    </div>
+  </form>
+}

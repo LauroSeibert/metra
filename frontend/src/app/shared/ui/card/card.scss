@@ -1,7 +1,8 @@
 :host {
   display: block;
   padding: var(--erp-space-5);
-  background: var(--erp-surface);
+  border: var(--erp-border-width) solid var(--erp-border);
   border-radius: var(--erp-radius-card);
+  background: var(--erp-surface);
   box-shadow: var(--erp-shadow-card);
 }

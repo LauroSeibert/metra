@@ -6,12 +6,35 @@ export interface NavItem {
   readonly available: boolean;
 }
 
-export const NAV_ITEMS: readonly NavItem[] = [
-  { label: 'Início', icon: 'home', path: '/', available: true },
-  { label: 'Produtos', icon: 'inventory_2', path: '/products', available: false },
-  { label: 'Parceiros', icon: 'groups', path: '/partners', available: false },
-  { label: 'Vendas', icon: 'point_of_sale', path: '/sales', available: false },
-  { label: 'Estoque', icon: 'warehouse', path: '/stock', available: false },
-  { label: 'Financeiro', icon: 'account_balance_wallet', path: '/finance', available: false },
-  { label: 'Configurações', icon: 'settings', path: '/settings', available: false },
+export interface NavGroup {
+  readonly label: string;
+  readonly items: readonly NavItem[];
+}
+
+export const NAV_GROUPS: readonly NavGroup[] = [
+  {
+    label: 'Visão geral',
+    items: [{ label: 'Início', icon: 'space_dashboard', path: '/', available: true }],
+  },
+  {
+    label: 'Cadastros',
+    items: [
+      { label: 'Produtos', icon: 'inventory_2', path: '/products', available: true },
+      { label: 'Parceiros', icon: 'groups', path: '/partners', available: false },
+    ],
+  },
+  {
+    label: 'Operação',
+    items: [
+      { label: 'Vendas', icon: 'point_of_sale', path: '/sales', available: false },
+      { label: 'Estoque', icon: 'warehouse', path: '/stock', available: false },
+      { label: 'Financeiro', icon: 'account_balance_wallet', path: '/finance', available: false },
+    ],
+  },
+  {
+    label: 'Sistema',
+    items: [{ label: 'Configurações', icon: 'settings', path: '/settings', available: false }],
+  },
 ];
+
+export const NAV_ITEMS: readonly NavItem[] = NAV_GROUPS.flatMap((group) => group.items);

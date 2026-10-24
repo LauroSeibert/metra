@@ -1,0 +1,31 @@
+// Breakpoints do layout. Use nos componentes com `@use 'breakpoints' as bp;`.
+// CSS custom properties não funcionam dentro de @media, por isso ficam em Sass.
+//
+//   mobile  < 768 px   menu vira gaveta, tabelas viram cartões
+//   tablet  768–1279   menu só com ícones
+//   desktop >= 1280    menu com rótulos (recolhível)
+
+$tablet: 768px;
+$desktop: 1280px;
+
+@mixin mobile {
+  @media (max-width: ($tablet - 0.02px)) {
+    @content;
+  }
+}
+
+@mixin tablet-down {
+  @media (max-width: ($desktop - 0.02px)) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: $desktop) {
+    @content;
+  }
+}
+
+// Media queries usadas também em TypeScript (BreakpointObserver).
+$mobile-query: '(max-width: 767.98px)';
+$tablet-query: '(min-width: 768px) and (max-width: 1279.98px)';

@@ -1,0 +1,199 @@
+<erp-page-header [title]="strings.list.title" [subtitle]="strings.list.subtitle">
+  <a matButton="outlined" class="erp-secondary-action" routerLink="categories">
+    <mat-icon>category</mat-icon>
+    {{ strings.list.categories }}
+  </a>
+  <a matButton="outlined" class="erp-secondary-action" routerLink="units">
+    <mat-icon>straighten</mat-icon>
+    {{ strings.list.units }}
+  </a>
+  <a matButton="filled" class="erp-primary-action" routerLink="edit">
+    <mat-icon>add</mat-icon>
+    {{ strings.list.newProduct }}
+  </a>
+</erp-page-header>
+
+<section class="erp-kpi-grid" aria-label="Indicadores do catálogo">
+  <erp-kpi-card
+    icon="inventory_2"
+    tone="primary"
+    [label]="strings.kpis.total"
+    [value]="kpis()?.total ?? null"
+    [hint]="strings.kpis.totalHint"
+  />
+  <erp-kpi-card
+    icon="check_circle"
+    tone="success"
+    [label]="strings.kpis.active"
+    [value]="kpis()?.active ?? null"
+    [hint]="
+      activeShare() === null
+        ? undefined
+        : strings.kpis.activeShare((activeShare() | percent: '1.0-0') ?? '')
+    "
+  />
+  <erp-kpi-card
+    icon="pause_circle"
+    tone="neutral"
+    [label]="strings.kpis.inactive"
+    [value]="kpis()?.inactive ?? null"
+    [hint]="strings.kpis.inactiveHint"
+  />
+  <erp-kpi-card
+    icon="category"
+    tone="info"
+    [label]="strings.kpis.categories"
+    [value]="kpis()?.categories ?? null"
+    [hint]="strings.kpis.categoriesHint"
+  />
+</section>
+
+<section class="erp-toolbar" [attr.aria-label]="strings.list.searchLabel">
+  <mat-form-field class="grow" subscriptSizing="dynamic">
+    <mat-icon matPrefix>search</mat-icon>
+    <mat-label>{{ strings.list.searchLabel }}</mat-label>
+    <input
+      matInput
+      type="search"
+      [placeholder]="strings.list.searchPlaceholder"
+      [value]="search()"
+      (input)="onSearchInput($event)"
+    />
+  </mat-form-field>
+
+  <mat-form-field subscriptSizing="dynamic">
+    <mat-label>{{ strings.list.categoryFilter }}</mat-label>
+    <mat-select [value]="categoryId()" (valueChange)="categoryId.set($event)">
+      <mat-option [value]="null">{{ strings.list.allCategories }}</mat-option>
+      @for (category of categoryOptions(); track category.id) {
+        <mat-option [value]="category.id">{{ category.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <erp-segmented-control
+    [options]="statusOptions"
+    [(value)]="status"
+    [label]="strings.list.statusFilter"
+  />
+</section>
+
+<div class="results">
+  <span>{{ strings.list.results((total() | number) ?? '0') }}</span>
+  @if (hasFilters()) {
+    <button matButton type="button" (click)="clearFilters()">
+      <mat-icon>filter_alt_off</mat-icon>
+      {{ strings.list.clearFilters }}
+    </button>
+  }
+</div>
+
+<erp-data-table
+  [columns]="columns"
+  [rows]="rows()"
+  [rowKey]="rowKey"
+  [loading]="products.isLoading()"
+  [error]="loadError()"
+  [emptyMessage]="strings.list.empty"
+  [(sort)]="sort"
+  [total]="total()"
+  [page]="page()"
+  [pageSize]="pageSize()"
+  (pageChange)="onPage($event)"
+  (retry)="products.reload()"
+  (rowActivate)="openProduct($event)"
+>
+  <ng-template erpCell="name" [erpCellOf]="rows()" let-product>
+    <a class="product-name" [routerLink]="['edit', product.id]">{{ product.name }}</a>
+  </ng-template>
+
+  <ng-template erpCell="sku" [erpCellOf]="rows()" let-product>
+    <span class="sku">{{ product.sku }}</span>
+  </ng-template>
+
+  <ng-template erpCell="categoryName" [erpCellOf]="rows()" let-product>
+    @if (product.categoryName; as category) {
+      {{ category }}
+    } @else {
+      <span class="missing">{{ strings.list.noCategory }}</span>
+    }
+  </ng-template>
+
+  <ng-template erpCell="unitCode" [erpCellOf]="rows()" let-product>
+    @if (product.unitCode; as unitCode) {
+      <erp-status-chip [label]="unitCode" tone="neutral" [plain]="true" />
+    } @else {
+      <span class="missing">—</span>
+    }
+  </ng-template>
+
+  <ng-template erpCell="salePrice" [erpCellOf]="rows()" let-product>
+    <strong class="price">{{ product.salePrice | currency }}</strong>
+  </ng-template>
+
+  <ng-template erpCell="active" [erpCellOf]="rows()" let-product>
+    <erp-status-chip
+      [label]="product.active ? strings.status.activeChip : strings.status.inactiveChip"
+      [tone]="product.active ? 'success' : 'neutral'"
+    />
+  </ng-template>
+
+  <ng-template erpCell="actions" [erpCellOf]="rows()" let-product>
+    <div class="erp-row-actions">
+      <a
+        class="erp-row-action"
+        [routerLink]="['edit', product.id]"
+        [matTooltip]="strings.list.edit"
+        [attr.aria-label]="strings.list.edit + ' ' + product.sku"
+      >
+        <mat-icon>edit_square</mat-icon>
+      </a>
+      <button
+        class="erp-row-action"
+        type="button"
+        [class.danger]="product.active"
+        [class.success]="!product.active"
+        [matTooltip]="product.active ? strings.list.deactivate : strings.list.activate"
+        [attr.aria-label]="
+          (product.active ? strings.list.deactivate : strings.list.activate) + ' ' + product.sku
+        "
+        (click)="toggleActive(product)"
+      >
+        <mat-icon>{{ product.active ? 'pause_circle' : 'play_circle' }}</mat-icon>
+      </button>
+    </div>
+  </ng-template>
+
+  <ng-template erpExpandedRow [erpExpandedRowOf]="rows()" let-product>
+    <div class="detail">
+      <div class="description">
+        <span class="label">{{ strings.detail.description }}</span>
+        <p>{{ product.description ?? strings.detail.noDescription }}</p>
+      </div>
+      <dl class="metrics">
+        <div>
+          <dt>{{ strings.detail.costPrice }}</dt>
+          <dd>{{ product.costPrice | currency }}</dd>
+        </div>
+        <div>
+          <dt>{{ strings.detail.salePrice }}</dt>
+          <dd>{{ product.salePrice | currency }}</dd>
+        </div>
+        <div>
+          <dt>{{ strings.detail.margin }}</dt>
+          <dd [class.negative]="(margin(product) ?? 0) < 0">
+            {{ margin(product) === null ? '—' : (margin(product) | percent: '1.0-1') }}
+          </dd>
+        </div>
+        <div>
+          <dt>{{ strings.detail.minStock }}</dt>
+          <dd>{{ product.minStock | number: '1.0-3' }} {{ product.unitCode }}</dd>
+        </div>
+        <div>
+          <dt>{{ strings.detail.updatedAt }}</dt>
+          <dd>{{ product.updatedAt | date: 'short' }}</dd>
+        </div>
+      </dl>
+    </div>
+  </ng-template>
+</erp-data-table>

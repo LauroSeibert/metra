@@ -1,5 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <!-- Só as abstrações do EF Core; o provider MySQL fica na Infrastructure. Ver ADR 0002. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Erp.Domain\Erp.Domain.csproj" />
   </ItemGroup>
 </Project>

@@ -19,7 +19,11 @@ jobs:
         run: dotnet format backend/Erp.slnx --verify-no-changes --no-restore
       - name: Build
         run: dotnet build backend/Erp.slnx --no-restore -c Release
-      - name: Test
+      - name: Contrato OpenAPI commitado bate com a API
+        run: git diff --exit-code -- backend/openapi
+      - name: Migrations em dia com o modelo
+        run: dotnet tool restore && dotnet ef migrations has-pending-model-changes --project backend/src/Erp.Infrastructure --no-build --configuration Release
+      - name: Test (integração com MySQL real via Testcontainers)
         run: dotnet test --solution backend/Erp.slnx --no-build -c Release
 
   frontend:
@@ -35,6 +39,8 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
+      - name: Cliente OpenAPI commitado bate com o contrato
+        run: npm run api:check
       - name: Lint
         run: npm run lint
       - name: Build (com orçamento de bundle)
@@ -59,6 +65,7 @@ jobs:
           for i in $(seq 1 30); do curl -fs http://localhost:5080/health/ready && break; sleep 2; done
           curl -fs http://localhost:5080/health/ready
           curl -fs http://localhost:8080/ | grep -q "<app-root"
+          curl -fs "http://localhost:8080/api/v1/products?pageSize=1" | grep -q totalCount
       - name: Logs on failure
         if: failure()
         run: docker compose logs
