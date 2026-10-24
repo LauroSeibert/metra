@@ -8,6 +8,7 @@ import { updateProduct } from '../../../api/fn/products/update-product';
 import { listProductCategories } from '../../../api/fn/product-categories/list-product-categories';
 import { listUnits } from '../../../api/fn/units/list-units';
 import { ProductDto } from '../../../api/models/product-dto';
+import { signInAs } from '../../../core/auth/testing';
 import { PRODUCTS_STRINGS } from '../products.strings';
 import { CATEGORIES, FakeApi, UNITS } from '../testing/fake-api';
 import { ProductForm } from './product-form';
@@ -50,6 +51,7 @@ describe('ProductForm', () => {
 
   async function render(id?: string): Promise<void> {
     TestBed.configureTestingModule({ providers: [api.provide(), provideRouter([])] });
+    signInAs();
     vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     fixture = TestBed.createComponent(ProductForm);
     if (id) {

@@ -1,3 +1,4 @@
+using Erp.Domain.Access;
 using System.Net;
 using System.Net.Http.Json;
 using Erp.Application.Common;
@@ -12,7 +13,7 @@ namespace Erp.IntegrationTests.Products;
 
 public sealed class ProductEndpointsTests(MySqlApiFixture fixture)
 {
-    private readonly HttpClient _client = fixture.Factory.CreateClient();
+    private readonly HttpClient _client = fixture.ClientFor(Roles.Operator);
 
     [Fact]
     public async Task Create_NormalizesSku_AndStartsAtVersionOne()

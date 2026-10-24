@@ -113,3 +113,42 @@
     --erp-topbar-height: 56px;
   }
 }
+
+// Tema escuro (preferência do usuário em "Meu perfil"): só as cores mudam; medidas e tipografia
+// são as mesmas. Aplicado com data-theme="dark" no <html> (core/auth/theme.ts).
+:root[data-theme='dark'] {
+  --erp-primary: #6b84ff;
+  --erp-primary-hover: #8097ff;
+  --erp-primary-strong: #a8b7ff;
+  --erp-primary-soft: #232d5c;
+  --erp-primary-softer: #1a2245;
+  --erp-on-primary: #ffffff;
+
+  --erp-bg: #0e1322;
+  --erp-surface: #161c30;
+  --erp-surface-muted: #1b2238;
+  --erp-surface-sunken: #121829;
+  --erp-surface-hover: #1e2642;
+  --erp-border: #283150;
+  --erp-border-strong: #3a4566;
+  --erp-backdrop: rgb(0 0 0 / 55%);
+
+  --erp-text: #e6e9f5;
+  --erp-text-muted: #b0b7d1;
+  --erp-text-subtle: #8189a8;
+
+  --erp-success: #1f9a52;
+  --erp-success-hover: #26b061;
+  --erp-success-soft: #123322;
+  --erp-danger: #ff7d61;
+  --erp-danger-soft: #3b1c15;
+  --erp-info-soft: #0f2f3a;
+  --erp-info-text: #9fecfb;
+  --erp-warning-soft: #3a3115;
+  --erp-warning-text: #ffe08a;
+
+  --erp-shadow-xs: 0 1px 2px rgb(0 0 0 / 30%);
+  --erp-shadow-card: 0 1px 2px rgb(0 0 0 / 30%), 0 6px 20px rgb(0 0 0 / 25%);
+  --erp-shadow-raised: 0 4px 12px rgb(0 0 0 / 35%), 0 16px 40px rgb(0 0 0 / 40%);
+  --erp-focus-ring: 0 0 0 3px rgb(107 132 255 / 40%);
+}

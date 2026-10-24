@@ -20,6 +20,7 @@ import { Api } from '../../../api/api';
 import { deleteUnit } from '../../../api/fn/units/delete-unit';
 import { listUnits } from '../../../api/fn/units/list-units';
 import { UnitDto } from '../../../api/models/unit-dto';
+import { AuthService } from '../../../core/auth/auth.service';
 import { toApiProblem } from '../../../core/http/api-problem';
 import { Notifier } from '../../../core/notifications/notifier';
 import { debounced } from '../../../shared/data/debounced';
@@ -57,6 +58,7 @@ export class UnitList {
   private readonly api = inject(Api);
   private readonly dialog = inject(MatDialog);
   private readonly notifier = inject(Notifier);
+  private readonly auth = inject(AuthService);
 
   protected readonly strings = PRODUCTS_STRINGS.units;
   protected readonly common = PRODUCTS_STRINGS;
@@ -69,7 +71,8 @@ export class UnitList {
 
   protected readonly search = signal('');
   private readonly searchTerm = debounced(computed(() => this.search().trim()));
-  protected readonly pageSize = signal(20);
+  protected readonly canWrite = this.auth.canWrite;
+  protected readonly pageSize = signal(this.auth.pageSize());
   protected readonly page = linkedSignal({
     source: () => [this.searchTerm(), this.pageSize()],
     computation: () => 1,

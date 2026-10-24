@@ -1,0 +1,153 @@
+<erp-page-header [title]="strings.title" [subtitle]="strings.subtitle" />
+
+<div class="layout">
+  <form novalidate (submit)="save($event)">
+    <erp-card class="section">
+      <header>
+        <span class="section-icon"><mat-icon>person</mat-icon></span>
+        <div>
+          <h2>{{ strings.data }}</h2>
+          <p>{{ strings.dataHint }}</p>
+        </div>
+      </header>
+
+      @if (profileErrors().length > 0) {
+        <div class="banner" role="alert">
+          <mat-icon>warning</mat-icon>
+          <div>
+            @for (error of profileErrors(); track $index) {
+              <p>{{ error.message }}</p>
+            }
+          </div>
+          @if (conflict()) {
+            <button matButton="outlined" type="button" (click)="reload()">
+              {{ strings.reload }}
+            </button>
+          }
+        </div>
+      }
+
+      <div class="fields">
+        <mat-form-field class="span-2">
+          <mat-label>{{ strings.fullName }}</mat-label>
+          <input matInput autocomplete="name" [formField]="profileForm.fullName" />
+          @if (profileForm.fullName().errors()[0]; as error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="readonly">
+          <span>{{ strings.role }}</span>
+          <erp-status-chip [label]="roleName()" tone="primary" />
+        </div>
+
+        <div class="readonly span-3">
+          <span>{{ strings.email }}</span>
+          <strong>{{ profile()?.email }}</strong>
+        </div>
+      </div>
+
+      <header class="subheader">
+        <span class="section-icon info"><mat-icon>tune</mat-icon></span>
+        <div>
+          <h2>{{ strings.preferences }}</h2>
+          <p>{{ strings.preferencesHint }}</p>
+        </div>
+      </header>
+
+      <div class="fields">
+        <div class="readonly">
+          <span>{{ strings.theme }}</span>
+          <erp-segmented-control
+            [options]="themeOptions"
+            [value]="model().theme"
+            (valueChange)="previewTheme($event)"
+            [label]="strings.theme"
+          />
+        </div>
+
+        <mat-form-field class="span-2">
+          <mat-label>{{ strings.pageSize }}</mat-label>
+          <mat-select [formField]="profileForm.pageSize">
+            @for (size of pageSizes; track size) {
+              <mat-option [value]="size">{{ size }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <footer>
+        <button
+          matButton="filled"
+          class="erp-primary-action"
+          type="submit"
+          [disabled]="profileForm().submitting()"
+        >
+          <mat-icon>check</mat-icon>
+          {{ profileForm().submitting() ? strings.saving : strings.save }}
+        </button>
+      </footer>
+    </erp-card>
+  </form>
+
+  <form novalidate (submit)="changePassword($event)">
+    <erp-card class="section">
+      <header>
+        <span class="section-icon warning"><mat-icon>key</mat-icon></span>
+        <div>
+          <h2>{{ strings.password }}</h2>
+          <p>{{ strings.passwordHint }}</p>
+        </div>
+      </header>
+
+      <div class="fields single">
+        <mat-form-field>
+          <mat-label>{{ strings.currentPassword }}</mat-label>
+          <input
+            matInput
+            type="password"
+            autocomplete="current-password"
+            [formField]="passwordForm.currentPassword"
+          />
+          @if (passwordForm.currentPassword().errors()[0]; as error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>{{ strings.newPassword }}</mat-label>
+          <input
+            matInput
+            type="password"
+            autocomplete="new-password"
+            [formField]="passwordForm.newPassword"
+          />
+          <mat-hint>{{ strings.passwordRules }}</mat-hint>
+          @if (passwordForm.newPassword().errors()[0]; as error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>{{ strings.confirmPassword }}</mat-label>
+          <input
+            matInput
+            type="password"
+            autocomplete="new-password"
+            [formField]="passwordForm.confirmPassword"
+          />
+          @if (passwordForm.confirmPassword().errors()[0]; as error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <footer>
+        <button matButton="outlined" type="submit" [disabled]="passwordForm().submitting()">
+          <mat-icon>lock_reset</mat-icon>
+          {{ strings.changePassword }}
+        </button>
+      </footer>
+    </erp-card>
+  </form>
+</div>

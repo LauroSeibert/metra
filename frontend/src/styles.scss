@@ -3,11 +3,15 @@
 
 html {
   height: 100%;
+  color-scheme: light;
   @include theme.apply();
+
+  &[data-theme='dark'] {
+    color-scheme: dark;
+  }
 }
 
 body {
-  color-scheme: light;
   margin: 0;
   min-height: 100%;
   background-color: var(--erp-bg);

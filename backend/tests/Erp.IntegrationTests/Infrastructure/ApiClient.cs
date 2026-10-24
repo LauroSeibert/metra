@@ -1,14 +1,58 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using Erp.Application.Partners;
 using Erp.Application.Products;
+using Erp.Domain.Partners;
 
 namespace Erp.IntegrationTests.Infrastructure;
 
 /// <summary>Atalhos para os testes: criam o catálogo mínimo com nomes únicos e leem ProblemDetails.</summary>
 internal static class ApiClient
 {
+    /// <summary>Mesmas opções da API: enums como texto ("Customer").</summary>
+    public static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    {
+        Converters = { new JsonStringEnumConverter() },
+    };
+
     public static CancellationToken Ct => TestContext.Current.CancellationToken;
+
+    /// <summary>CPF válido e aleatório (dígitos verificadores calculados), nunca de uma pessoa real.</summary>
+    public static string NewCpf()
+    {
+        var digits = string.Concat(Enumerable.Range(0, 9).Select(_ => (char)('0' + Random.Shared.Next(10))));
+        digits += TaxDocument.CpfCheckDigit(digits);
+        return digits + TaxDocument.CpfCheckDigit(digits);
+    }
+
+    /// <summary>CNPJ válido e aleatório; com <paramref name="alphanumeric"/>, no formato com letras (2026).</summary>
+    public static string NewCnpj(bool alphanumeric = false)
+    {
+        const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        var root = string.Concat(Enumerable.Range(0, 8).Select(i => alphanumeric && i % 2 == 1
+            ? letters[Random.Shared.Next(letters.Length)]
+            : (char)('0' + Random.Shared.Next(10))));
+        var body = root + "0001";
+        body += TaxDocument.CnpjCheckDigit(body);
+        return body + TaxDocument.CnpjCheckDigit(body);
+    }
+
+    public static async Task<PartnerDto> CreatePartnerAsync(
+        this HttpClient client,
+        PartnerType type = PartnerType.Customer,
+        string? document = null,
+        string? name = null)
+    {
+        using var response = await client.PostAsJsonAsync(
+            new Uri("/api/v1/partners", UriKind.Relative),
+            new CreatePartnerRequest(type, name ?? Unique("Parceiro "), document ?? NewCpf(), null, null),
+            Json,
+            Ct);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        return (await response.Content.ReadFromJsonAsync<PartnerDto>(Json, Ct))!;
+    }
 
     public static string Unique(string prefix) => $"{prefix}{Guid.NewGuid():N}"[..Math.Min(prefix.Length + 12, 40)].ToUpperInvariant();
 

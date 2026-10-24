@@ -7,10 +7,12 @@
     <mat-icon>straighten</mat-icon>
     {{ strings.list.units }}
   </a>
-  <a matButton="filled" class="erp-primary-action" routerLink="edit">
-    <mat-icon>add</mat-icon>
-    {{ strings.list.newProduct }}
-  </a>
+  @if (canWrite()) {
+    <a matButton="filled" class="erp-primary-action" routerLink="edit">
+      <mat-icon>add</mat-icon>
+      {{ strings.list.newProduct }}
+    </a>
+  }
 </erp-page-header>
 
 <section class="erp-kpi-grid" aria-label="Indicadores do catálogo">
@@ -146,21 +148,23 @@
         [matTooltip]="strings.list.edit"
         [attr.aria-label]="strings.list.edit + ' ' + product.sku"
       >
-        <mat-icon>edit_square</mat-icon>
+        <mat-icon>{{ canWrite() ? 'edit_square' : 'visibility' }}</mat-icon>
       </a>
-      <button
-        class="erp-row-action"
-        type="button"
-        [class.danger]="product.active"
-        [class.success]="!product.active"
-        [matTooltip]="product.active ? strings.list.deactivate : strings.list.activate"
-        [attr.aria-label]="
-          (product.active ? strings.list.deactivate : strings.list.activate) + ' ' + product.sku
-        "
-        (click)="toggleActive(product)"
-      >
-        <mat-icon>{{ product.active ? 'pause_circle' : 'play_circle' }}</mat-icon>
-      </button>
+      @if (canWrite()) {
+        <button
+          class="erp-row-action"
+          type="button"
+          [class.danger]="product.active"
+          [class.success]="!product.active"
+          [matTooltip]="product.active ? strings.list.deactivate : strings.list.activate"
+          [attr.aria-label]="
+            (product.active ? strings.list.deactivate : strings.list.activate) + ' ' + product.sku
+          "
+          (click)="toggleActive(product)"
+        >
+          <mat-icon>{{ product.active ? 'pause_circle' : 'play_circle' }}</mat-icon>
+        </button>
+      }
     </div>
   </ng-template>
 

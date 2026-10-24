@@ -1,5 +1,8 @@
 using System.Diagnostics;
 using System.Globalization;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Erp.Seed;
 
@@ -7,7 +10,7 @@ namespace Erp.Seed;
 /// Mede o p95 da listagem de produtos contra a API em execução, com cenários de busca, filtro,
 /// ordenação e página profunda. Meta da Fase 2: p95 abaixo de 200 ms com o seed completo.
 /// </summary>
-internal sealed class ListingBenchmark(Uri baseUrl, int requestsPerScenario)
+internal sealed class ListingBenchmark(Uri baseUrl, int requestsPerScenario, string email, string password)
 {
     private const double TargetP95Milliseconds = 200;
 
@@ -29,6 +32,14 @@ internal sealed class ListingBenchmark(Uri baseUrl, int requestsPerScenario)
     public async Task<int> RunAsync(CancellationToken cancellationToken)
     {
         using var client = new HttpClient { BaseAddress = baseUrl, Timeout = TimeSpan.FromSeconds(30) };
+        // A API exige sessão desde a Fase 3: entra uma vez e usa o token de acesso (15 min bastam).
+        using (var login = await client.PostAsJsonAsync(new Uri("/api/v1/auth/login", UriKind.Relative), new { email, password }, cancellationToken).ConfigureAwait(false))
+        {
+            login.EnsureSuccessStatusCode();
+            using var body = await JsonDocument.ParseAsync(await login.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false), cancellationToken: cancellationToken).ConfigureAwait(false);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", body.RootElement.GetProperty("accessToken").GetString());
+        }
+
         var random = new Random(42);
         var all = new List<double>();
 

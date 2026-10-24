@@ -1,3 +1,4 @@
+using Erp.Api.Access;
 using Erp.Application.Common;
 using Erp.Application.Products;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -25,21 +26,25 @@ internal static class ProductEndpoints
 
         group.MapPost("/", CreateAsync)
             .WithName("CreateProduct")
+            .RequireWrite()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         group.MapPut("/{id:long}", UpdateAsync)
             .WithName("UpdateProduct")
+            .RequireWrite()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         group.MapPost("/{id:long}/activate", ActivateAsync)
             .WithName("ActivateProduct")
+            .RequireWrite()
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         group.MapPost("/{id:long}/deactivate", DeactivateAsync)
             .WithName("DeactivateProduct")
+            .RequireWrite()
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         return api;

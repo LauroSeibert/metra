@@ -179,3 +179,62 @@
     display: none;
   }
 }
+
+.chevron {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  opacity: 0.7;
+}
+
+// Cabeçalho do menu da conta (o painel do mat-menu vai para o overlay, mas o conteúdo é deste template).
+.menu-header {
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  padding: var(--erp-space-3) var(--erp-space-4);
+  border-bottom: var(--erp-border-width) solid var(--erp-border);
+
+  small {
+    color: var(--erp-text-subtle);
+  }
+}
+
+// Menu da conta (popover nativo, na camada do topo): ancorado no canto direito, sob a barra.
+.account-menu {
+  inset: auto;
+  top: calc(var(--erp-topbar-height) - var(--erp-space-1));
+  right: var(--erp-space-4);
+  margin: 0;
+  padding: var(--erp-space-1) 0;
+  border: var(--erp-border-width) solid var(--erp-border);
+  border-radius: var(--erp-radius-md);
+  background: var(--erp-surface);
+  box-shadow: var(--erp-shadow-raised);
+  color: var(--erp-text);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--erp-space-3);
+  width: 100%;
+  padding: var(--erp-space-3) var(--erp-space-4);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+
+  mat-icon {
+    color: var(--erp-text-muted);
+  }
+
+  &:hover,
+  &:focus-visible {
+    outline: none;
+    background: var(--erp-surface-hover);
+  }
+}

@@ -18,6 +18,13 @@ Vale para todo endpoint sob `/api/v1`. Referência de implementação: módulo d
 - `WithName("ListProducts")` define o `operationId`, que vira o nome da função no cliente do front.
 - Registro com histórico nunca tem `DELETE`: é inativado (produto) ou estornado (movimentos, lançamentos).
 
+## Autenticação e perfis
+
+- Toda rota sob `/api/v1` exige `Authorization: Bearer <accessToken>` (política padrão), exceto `/auth/login` e `/auth/refresh`.
+  Sem sessão → 401; perfil sem permissão → 403 (ProblemDetails sem `code`).
+- Endpoint que grava: `.RequireWrite()` (Admin ou Operator). Administração: `Policies.Admin`.
+- Dados do próprio usuário em `/api/v1/me` (sem id na rota). Detalhes no ADR 0003 e em `docs/modules/access.md`.
+
 ## Listagens
 
 | Parâmetro | Regra |
@@ -43,6 +50,9 @@ Todo erro sai como `application/problem+json` com o campo `code` estável:
 | 409 | versão desatualizada (concorrência otimista) | `concurrency_conflict` | |
 | 409 | exclusão de registro em uso | `entidade.in_use` | |
 | 409 | índice único violado numa corrida | `duplicate_key` | |
+| 401 | credenciais, conta bloqueada, refresh inválido | `auth.invalid_credentials`, `auth.locked_out`, `auth.invalid_refresh_token` | |
+| 401 / 403 | sem sessão / perfil sem permissão | (sem `code`) | |
+| 429 | muitas tentativas de login | (sem `code`) | |
 | 500 | erro inesperado (logado, sem detalhes na resposta) | `unexpected_error` | |
 
 - As chaves de `errors` são os nomes dos campos do contrato (camelCase), para o front marcar o campo certo.
@@ -59,6 +69,7 @@ Todo erro sai como `application/problem+json` com o campo `code` estável:
 - Ids `int64`; dinheiro e quantidade `number` (no banco, DECIMAL 18,2 e 18,3); datas ISO 8601 em UTC.
 - Campos não anuláveis no C# saem como `required` no OpenAPI (`RequiredPropertiesSchemaTransformer`).
 - Números nunca como string (`JsonNumberHandling.Strict`).
+- Enums como texto (`JsonStringEnumConverter`): `"Customer"`, `"Dark"`; o cliente gerado tipa como união de strings.
 
 ## Contrato e cliente
 

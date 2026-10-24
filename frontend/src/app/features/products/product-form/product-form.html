@@ -1,6 +1,6 @@
 <erp-page-header
   [title]="isEdit() ? strings.form.editTitle : strings.form.newTitle"
-  [subtitle]="strings.form.subtitle"
+  [subtitle]="canWrite() ? strings.form.subtitle : strings.form.readOnly"
 >
   <a matButton="outlined" class="erp-secondary-action" routerLink="/products">
     <mat-icon>arrow_back</mat-icon>
@@ -209,17 +209,19 @@
       </aside>
     </div>
 
-    <div class="actions">
-      <a matButton routerLink="/products">{{ strings.form.cancel }}</a>
-      <button
-        matButton="filled"
-        class="erp-primary-action"
-        type="submit"
-        [disabled]="productForm().submitting()"
-      >
-        <mat-icon>check</mat-icon>
-        {{ productForm().submitting() ? strings.form.saving : strings.form.save }}
-      </button>
-    </div>
+    @if (canWrite()) {
+      <div class="actions">
+        <a matButton routerLink="/products">{{ strings.form.cancel }}</a>
+        <button
+          matButton="filled"
+          class="erp-primary-action"
+          type="submit"
+          [disabled]="productForm().submitting()"
+        >
+          <mat-icon>check</mat-icon>
+          {{ productForm().submitting() ? strings.form.saving : strings.form.save }}
+        </button>
+      </div>
+    }
   </form>
 }

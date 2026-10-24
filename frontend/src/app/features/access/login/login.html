@@ -1,0 +1,71 @@
+<main class="page">
+  <section class="panel" aria-labelledby="login-title">
+    <div class="brand">
+      <span class="mark" aria-hidden="true">E</span>
+      <span>
+        <strong>{{ app.appName }}</strong>
+        <small>{{ app.appTagline }}</small>
+      </span>
+    </div>
+
+    <h1 id="login-title">{{ strings.title }}</h1>
+    <p class="subtitle">{{ strings.subtitle }}</p>
+
+    @if (expired() && !error()) {
+      <div class="notice" role="status">
+        <mat-icon>schedule</mat-icon>
+        <span>{{ strings.expired }}</span>
+      </div>
+    }
+
+    @if (error(); as message) {
+      <div class="notice error" role="alert">
+        <mat-icon>error</mat-icon>
+        <span>{{ message }}</span>
+      </div>
+    }
+
+    <form novalidate (submit)="signIn($event)">
+      <mat-form-field>
+        <mat-label>{{ strings.email }}</mat-label>
+        <mat-icon matPrefix>mail</mat-icon>
+        <input matInput type="email" autocomplete="username" [formField]="loginForm.email" />
+        @if (loginForm.email().errors()[0]; as fieldError) {
+          <mat-error>{{ fieldError.message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>{{ strings.password }}</mat-label>
+        <mat-icon matPrefix>lock</mat-icon>
+        <input
+          matInput
+          autocomplete="current-password"
+          [type]="showPassword() ? 'text' : 'password'"
+          [formField]="loginForm.password"
+        />
+        <button
+          matIconButton
+          matSuffix
+          type="button"
+          [attr.aria-label]="showPassword() ? strings.hidePassword : strings.showPassword"
+          (click)="showPassword.set(!showPassword())"
+        >
+          <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        @if (loginForm.password().errors()[0]; as fieldError) {
+          <mat-error>{{ fieldError.message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <button
+        matButton="filled"
+        class="erp-primary-action submit"
+        type="submit"
+        [disabled]="loginForm().submitting()"
+      >
+        {{ loginForm().submitting() ? strings.submitting : strings.submit }}
+      </button>
+    </form>
+  </section>
+</main>

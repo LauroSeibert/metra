@@ -1,3 +1,4 @@
+using Erp.Api.Access;
 using Erp.Application.Common;
 using Erp.Application.Products;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -14,15 +15,18 @@ internal static class ProductCategoryEndpoints
         group.MapGet("/{id:long}", GetAsync).WithName("GetProductCategory").ProducesProblem(StatusCodes.Status404NotFound);
         group.MapPost("/", CreateAsync)
             .WithName("CreateProductCategory")
+            .RequireWrite()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status409Conflict);
         group.MapPut("/{id:long}", UpdateAsync)
             .WithName("UpdateProductCategory")
+            .RequireWrite()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
         group.MapDelete("/{id:long}", DeleteAsync)
             .WithName("DeleteProductCategory")
+            .RequireWrite()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
 

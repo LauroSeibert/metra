@@ -1,0 +1,43 @@
+.results {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--erp-space-3);
+  min-height: 36px;
+  margin-bottom: var(--erp-space-3);
+  padding: 0 var(--erp-space-1);
+  color: var(--erp-text-muted);
+  font-size: var(--erp-font-size-sm);
+  font-weight: var(--erp-font-weight-medium);
+}
+
+.partner-name {
+  color: var(--erp-text);
+  font-weight: var(--erp-font-weight-semibold);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--erp-primary);
+    text-decoration: underline;
+  }
+}
+
+.document {
+  color: var(--erp-text-muted);
+  font-family: ui-monospace, 'Cascadia Mono', 'SFMono-Regular', monospace;
+  font-size: var(--erp-font-size-sm);
+  white-space: nowrap;
+}
+
+.contact {
+  display: flex;
+  flex-direction: column;
+
+  small {
+    color: var(--erp-text-subtle);
+  }
+}
+
+.missing {
+  color: var(--erp-text-subtle);
+}

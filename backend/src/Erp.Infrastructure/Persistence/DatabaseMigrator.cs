@@ -1,3 +1,4 @@
+using Erp.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -6,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace Erp.Infrastructure.Persistence;
 
 /// <summary>
-/// Aplica as migrations pendentes antes de a API aceitar requisições. Só é registrado quando
+/// Aplica as migrations pendentes e cria perfis e usuários iniciais antes de a API aceitar requisições. Só é registrado quando
 /// <c>Database:MigrateOnStartup</c> é true (desenvolvimento e docker compose).
 /// </summary>
 internal sealed partial class DatabaseMigrator(IServiceScopeFactory scopeFactory, ILogger<DatabaseMigrator> logger)
@@ -19,14 +20,15 @@ internal sealed partial class DatabaseMigrator(IServiceScopeFactory scopeFactory
         {
             var db = scope.ServiceProvider.GetRequiredService<ErpDbContext>();
             var pending = (await db.Database.GetPendingMigrationsAsync(cancellationToken).ConfigureAwait(false)).ToList();
-            if (pending.Count == 0)
+            if (pending.Count > 0)
             {
-                return;
+                var names = string.Join(", ", pending);
+                LogApplying(logger, pending.Count, names);
+                await db.Database.MigrateAsync(cancellationToken).ConfigureAwait(false);
             }
 
-            var names = string.Join(", ", pending);
-            LogApplying(logger, pending.Count, names);
-            await db.Database.MigrateAsync(cancellationToken).ConfigureAwait(false);
+            // Perfis de acesso e Admin inicial (ver IdentitySeeder).
+            await scope.ServiceProvider.GetRequiredService<IdentitySeeder>().SeedAsync().ConfigureAwait(false);
         }
     }
 

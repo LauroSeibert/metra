@@ -9,7 +9,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { form, FormField, submit } from '@angular/forms/signals';
+import { apply, disabled, form, FormField, submit } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,6 +24,7 @@ import { updateProduct } from '../../../api/fn/products/update-product';
 import { listProductCategories } from '../../../api/fn/product-categories/list-product-categories';
 import { listUnits } from '../../../api/fn/units/list-units';
 import { CreateProductRequest } from '../../../api/models/create-product-request';
+import { AuthService } from '../../../core/auth/auth.service';
 import { API_ERROR_CODES, toApiProblem } from '../../../core/http/api-problem';
 import { toServerErrors } from '../../../core/http/server-errors';
 import { Notifier } from '../../../core/notifications/notifier';
@@ -94,7 +95,12 @@ export class ProductForm {
   protected readonly model = linkedSignal<ProductFormModel>(() =>
     this.product.hasValue() ? toProductFormModel(this.product.value()) : { ...EMPTY_PRODUCT },
   );
-  protected readonly productForm = form(this.model, productSchema);
+  protected readonly canWrite = inject(AuthService).canWrite;
+  // Perfil Leitura vê o cadastro, mas não edita.
+  protected readonly productForm = form(this.model, (path) => {
+    apply(path, productSchema);
+    disabled(path, () => !this.canWrite());
+  });
 
   protected readonly conflict = signal(false);
   protected readonly categoryOptions = computed(() =>

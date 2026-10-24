@@ -21,13 +21,14 @@ public sealed class HealthEndpointTests : IClassFixture<HealthEndpointTests.ApiF
     }
 
     [Fact]
-    public async Task UnknownRoute_ReturnsProblemDetails()
+    public async Task UnknownRoute_WithoutSession_Returns401ProblemDetails()
     {
+        // Sem sessão, a API não revela quais rotas existem: tudo fora de health e login pede autenticação.
         using var client = _factory.CreateClient();
 
         using var response = await client.GetAsync(new Uri("/api/v1/does-not-exist", UriKind.Relative), TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
     }
 
