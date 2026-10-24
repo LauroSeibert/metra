@@ -10,6 +10,7 @@ export const LAYOUT_STRINGS = {
     sales: 'Vendas',
     finance: 'Financeiro',
     profile: 'Meu perfil',
+    settings: 'Configurações',
   },
   comingSoon: 'Em breve',
   notifications: 'Notificações',

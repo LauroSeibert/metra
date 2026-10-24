@@ -3122,6 +3122,64 @@
           }
         }
       }
+    },
+    "/api/v1/settings": {
+      "get": {
+        "tags": [
+          "Settings"
+        ],
+        "operationId": "GetCompanySettings",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanySettingsDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Settings"
+        ],
+        "operationId": "UpdateCompanySettings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanySettingsDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanySettingsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3167,6 +3225,31 @@
           },
           "newPassword": {
             "type": "string"
+          }
+        }
+      },
+      "CompanySettingsDto": {
+        "required": [
+          "companyName",
+          "companyDocument",
+          "maxDiscountPercent",
+          "allowNegativeStock"
+        ],
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "type": "string"
+          },
+          "companyDocument": {
+            "type": "string",
+            "nullable": true
+          },
+          "maxDiscountPercent": {
+            "type": "number",
+            "format": "double"
+          },
+          "allowNegativeStock": {
+            "type": "boolean"
           }
         }
       },
@@ -5414,6 +5497,9 @@
     },
     {
       "name": "Sales"
+    },
+    {
+      "name": "Settings"
     }
   ]
 }

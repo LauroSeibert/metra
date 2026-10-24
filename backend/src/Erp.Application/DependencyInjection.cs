@@ -19,6 +19,7 @@ public static class DependencyInjection
         services.AddScoped<UnitService>();
         services.AddScoped<PartnerService>();
         services.AddScoped<SettingsReader>();
+        services.AddScoped<SettingsService>();
         services.AddScoped<StockService>();
         services.AddScoped<BusinessCalendar>();
         services.AddScoped<FinancialCategoryService>();
