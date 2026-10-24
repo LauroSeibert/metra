@@ -104,6 +104,18 @@ public sealed class FinancialEntry : Entity
         })];
     }
 
+    /// <summary>Liga a parcela recém-criada à venda que a gerou.</summary>
+    public void AttachToSale(long saleId)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(saleId);
+        if (SaleId is not null || Id != 0)
+        {
+            throw new InvalidOperationException("Só uma parcela nova, ainda sem venda, é ligada a uma venda.");
+        }
+
+        SaleId = saleId;
+    }
+
     /// <summary>Edita um lançamento aberto (o tipo não muda).</summary>
     public void Update(FinancialEntryData data)
     {

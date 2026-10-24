@@ -3,6 +3,7 @@ using Erp.Domain.Common;
 using Erp.Domain.Finance;
 using Erp.Domain.Partners;
 using Erp.Domain.Products;
+using Erp.Domain.Sales;
 using Erp.Domain.Settings;
 using Erp.Domain.Stock;
 using Erp.Infrastructure.Identity;
@@ -31,6 +32,10 @@ public sealed class ErpDbContext(DbContextOptions<ErpDbContext> options, TimePro
     public DbSet<FinancialCategory> FinancialCategories => Set<FinancialCategory>();
 
     public DbSet<FinancialEntry> FinancialEntries => Set<FinancialEntry>();
+
+    public DbSet<Sale> Sales => Set<Sale>();
+
+    public DbSet<DocumentSequence> DocumentSequences => Set<DocumentSequence>();
 
     public IQueryable<UserName> UserNames => Users.Select(u => new UserName { Id = u.Id, FullName = u.FullName });
 

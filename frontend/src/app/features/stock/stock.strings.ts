@@ -8,6 +8,8 @@ export const STOCK_STRINGS = {
     Exit: 'Saída',
     Adjustment: 'Ajuste',
     Reversal: 'Estorno',
+    Sale: 'Venda',
+    SaleCancellation: 'Cancelamento de venda',
   } satisfies Record<StockMovementType, string>,
   balances: {
     title: 'Saldo de estoque',

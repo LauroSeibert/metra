@@ -239,6 +239,26 @@ public sealed class StockService(IErpDbContext db, SettingsReader settings, ICur
         }
     }
 
+    /// <summary>
+    /// Aplica um movimento dentro de uma transação aberta por outro caso de uso (confirmar ou cancelar
+    /// venda): atualiza o saldo e adiciona o movimento, sem gravar. Quem chama grava, faz commit e trata o
+    /// conflito de versão do saldo refazendo a operação inteira.
+    /// </summary>
+    public async Task ApplyWithinTransactionAsync(StockMovement movement, bool allowNegative, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(movement);
+        var balance = db.StockBalances.Local.FirstOrDefault(b => b.ProductId == movement.ProductId)
+            ?? await db.StockBalances.FirstOrDefaultAsync(b => b.ProductId == movement.ProductId, cancellationToken).ConfigureAwait(false);
+        if (balance is null)
+        {
+            balance = StockBalance.Empty(movement.ProductId);
+            db.StockBalances.Add(balance);
+        }
+
+        balance.Apply(movement, allowNegative);
+        db.StockMovements.Add(movement);
+    }
+
     private Task<bool> IsReversedAsync(long movementId, CancellationToken cancellationToken) =>
         db.StockMovements.AnyAsync(
             m => m.ReferenceType == StockMovement.MovementReference && m.ReferenceId == movementId,

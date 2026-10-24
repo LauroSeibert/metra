@@ -1,6 +1,8 @@
+using Erp.Domain.Common;
 using Erp.Domain.Finance;
 using Erp.Domain.Partners;
 using Erp.Domain.Products;
+using Erp.Domain.Sales;
 using Erp.Domain.Settings;
 using Erp.Domain.Stock;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +31,10 @@ public interface IErpDbContext
     DbSet<FinancialCategory> FinancialCategories { get; }
 
     DbSet<FinancialEntry> FinancialEntries { get; }
+
+    DbSet<Sale> Sales { get; }
+
+    DbSet<DocumentSequence> DocumentSequences { get; }
 
     /// <summary>Nomes dos usuários, para exibir quem registrou algo (o usuário em si fica no Identity).</summary>
     IQueryable<UserName> UserNames { get; }

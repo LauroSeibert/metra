@@ -2,6 +2,7 @@ using Erp.Application.Common;
 using Erp.Application.Finance;
 using Erp.Application.Partners;
 using Erp.Application.Products;
+using Erp.Application.Sales;
 using Erp.Application.Settings;
 using Erp.Application.Stock;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,7 @@ public static class DependencyInjection
         services.AddScoped<BusinessCalendar>();
         services.AddScoped<FinancialCategoryService>();
         services.AddScoped<FinancialEntryService>();
+        services.AddScoped<SaleService>();
         return services;
     }
 }

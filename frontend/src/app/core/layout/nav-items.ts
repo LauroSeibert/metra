@@ -28,7 +28,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
     label: 'Operação',
     items: [
       { label: 'Estoque', icon: 'stacks', path: '/stock', available: true },
-      { label: 'Vendas', icon: 'receipt_long', path: '/sales', available: false },
+      { label: 'Vendas', icon: 'receipt_long', path: '/sales', available: true },
     ],
   },
   {

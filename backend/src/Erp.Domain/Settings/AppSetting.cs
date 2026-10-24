@@ -38,4 +38,12 @@ public static class SettingKeys
 {
     /// <summary>Permite saldo de estoque negativo (padrão: não).</summary>
     public const string StockAllowNegative = "stock.allowNegative";
+
+    /// <summary>Desconto máximo de uma venda, em % do valor bruto (padrão: 10).</summary>
+    public const string SalesMaxDiscountPercent = "sales.maxDiscountPercent";
+
+    /// <summary>Categoria de receita das parcelas geradas por vendas (padrão: a categoria "Vendas").</summary>
+    public const string SalesRevenueCategoryId = "sales.revenueCategoryId";
+
+    public const decimal DefaultMaxDiscountPercent = 10m;
 }

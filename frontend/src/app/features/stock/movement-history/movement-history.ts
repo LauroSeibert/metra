@@ -45,6 +45,8 @@ const TONES: Record<StockMovementType, StatusTone> = {
   Exit: 'danger',
   Adjustment: 'info',
   Reversal: 'neutral',
+  Sale: 'primary',
+  SaleCancellation: 'warning',
 };
 const PAGE_SIZE = 50;
 

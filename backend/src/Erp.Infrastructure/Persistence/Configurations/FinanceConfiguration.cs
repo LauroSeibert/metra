@@ -1,6 +1,7 @@
 using Erp.Domain.Common;
 using Erp.Domain.Finance;
 using Erp.Domain.Partners;
+using Erp.Domain.Sales;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -37,6 +38,7 @@ internal sealed class FinancialEntryConfiguration : IEntityTypeConfiguration<Fin
 
         builder.HasOne<FinancialCategory>().WithMany().HasForeignKey(e => e.CategoryId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Partner>().WithMany().HasForeignKey(e => e.PartnerId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Sale>().WithMany().HasForeignKey(e => e.SaleId).OnDelete(DeleteBehavior.Restrict);
 
         // Índices justificados em docs/modules/finance.md (EXPLAIN com o seed completo).
         builder.HasIndex(e => new { e.Kind, e.Status, e.DueDate, e.Id });
