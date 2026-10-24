@@ -16,6 +16,12 @@ public enum StockMovementType
 
     /// <summary>Estorno de outra movimentação: quantidade oposta, referência ao movimento original.</summary>
     Reversal = 4,
+
+    /// <summary>Saída por venda confirmada (referência: a venda).</summary>
+    Sale = 5,
+
+    /// <summary>Devolução ao estoque por venda cancelada (referência: a venda).</summary>
+    SaleCancellation = 6,
 }
 
 /// <summary>
@@ -29,6 +35,9 @@ public sealed class StockMovement : Entity
 
     /// <summary>Tipo de referência de um estorno: o movimento original.</summary>
     public const string MovementReference = "StockMovement";
+
+    /// <summary>Tipo de referência dos movimentos de venda.</summary>
+    public const string SaleReference = "Sale";
 
     private StockMovement()
     {
@@ -92,6 +101,14 @@ public sealed class StockMovement : Entity
         return Create(productId, StockMovementType.Adjustment, errors, countedQuantity - currentBalance, null, occurredAt, userId, note);
     }
 
+    /// <summary>Saída de uma venda confirmada: <paramref name="quantity"/> positiva, gravada negativa.</summary>
+    public static StockMovement ForSale(long productId, decimal quantity, DateTime occurredAt, long userId, long saleId, int saleNumber) =>
+        Referenced(Create(productId, StockMovementType.Sale, Positive(quantity), -quantity, null, occurredAt, userId, $"Venda {saleNumber}"), saleId);
+
+    /// <summary>Devolução ao estoque quando a venda confirmada é cancelada.</summary>
+    public static StockMovement ForSaleCancellation(long productId, decimal quantity, DateTime occurredAt, long userId, long saleId, int saleNumber) =>
+        Referenced(Create(productId, StockMovementType.SaleCancellation, Positive(quantity), quantity, null, occurredAt, userId, $"Cancelamento da venda {saleNumber}"), saleId);
+
     /// <summary>Estorno: quantidade oposta à do original, que não pode ser outro estorno.</summary>
     public static StockMovement Reverse(StockMovement original, DateTime occurredAt, long userId, string? note)
     {
@@ -99,6 +116,11 @@ public sealed class StockMovement : Entity
         if (original.Type == StockMovementType.Reversal)
         {
             new ValidationErrors().Add("id", "Um estorno não pode ser estornado; registre um novo movimento.").ThrowIfAny();
+        }
+
+        if (original.Type is StockMovementType.Sale or StockMovementType.SaleCancellation)
+        {
+            new ValidationErrors().Add("id", "Movimento de venda não é estornado aqui; cancele a venda.").ThrowIfAny();
         }
 
         var movement = Create(
@@ -112,6 +134,13 @@ public sealed class StockMovement : Entity
             note);
         movement.ReferenceType = MovementReference;
         movement.ReferenceId = original.Id;
+        return movement;
+    }
+
+    private static StockMovement Referenced(StockMovement movement, long saleId)
+    {
+        movement.ReferenceType = SaleReference;
+        movement.ReferenceId = saleId;
         return movement;
     }
 

@@ -116,6 +116,7 @@ public static class ErrorCodes
     public const string FinancialCategoryNameDuplicate = "financial_category.name_duplicate";
     public const string FinancialCategoryInUse = "financial_category.in_use";
     public const string FinancialEntryNotFound = "financial_entry.not_found";
+    public const string SaleNotFound = "sale.not_found";
 
     public const string InvalidCredentials = "auth.invalid_credentials";
     public const string LockedOut = "auth.locked_out";

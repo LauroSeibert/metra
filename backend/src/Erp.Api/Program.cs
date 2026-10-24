@@ -5,6 +5,7 @@ using Erp.Api.Finance;
 using Erp.Api.OpenApi;
 using Erp.Api.Partners;
 using Erp.Api.Products;
+using Erp.Api.Sales;
 using Erp.Api.Stock;
 using Erp.Application;
 using Erp.Infrastructure;
@@ -87,7 +88,8 @@ app.MapGroup("/api/v1")
     .MapUnitEndpoints()
     .MapPartnerEndpoints()
     .MapStockEndpoints()
-    .MapFinanceEndpoints();
+    .MapFinanceEndpoints()
+    .MapSaleEndpoints();
 
 await app.RunAsync().ConfigureAwait(false);
 

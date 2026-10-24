@@ -14,7 +14,7 @@ internal sealed class StockMovementConfiguration : IEntityTypeConfiguration<Stoc
     {
         builder.ConfigureEntity();
 
-        builder.Property(m => m.Type).HasConversion<string>().HasMaxLength(12).IsRequired();
+        builder.Property(m => m.Type).HasConversion<string>().HasMaxLength(20).IsRequired();
         builder.Property(m => m.Quantity).HasPrecision(DecimalLimits.QuantityPrecision, DecimalLimits.QuantityScale).IsRequired();
         builder.Property(m => m.UnitCost).HasPrecision(DecimalLimits.MoneyPrecision, DecimalLimits.MoneyScale);
         builder.Property(m => m.OccurredAt).IsRequired();
