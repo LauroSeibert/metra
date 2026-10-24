@@ -45,11 +45,32 @@
   >
     <mat-icon>notifications</mat-icon>
   </button>
-  <button type="button" class="profile" [attr.aria-label]="strings.profile">
-    <span class="avatar" aria-hidden="true">{{ strings.userInitials }}</span>
+  <button
+    type="button"
+    class="profile"
+    [attr.aria-label]="strings.profile"
+    popovertarget="account-menu"
+  >
+    <span class="avatar" aria-hidden="true">{{ initials() }}</span>
     <span class="who">
-      <strong>{{ strings.userName }}</strong>
-      <small>{{ strings.userRole }}</small>
+      <strong>{{ profile()?.fullName }}</strong>
+      <small>{{ roleName() }}</small>
     </span>
+    <mat-icon class="chevron" aria-hidden="true">expand_more</mat-icon>
   </button>
+  <!-- Popover nativo do HTML: fecha com Esc e com clique fora, sem JavaScript extra no bundle. -->
+  <div id="account-menu" class="account-menu" popover role="menu">
+    <div class="menu-header" aria-hidden="true">
+      <strong>{{ profile()?.fullName }}</strong>
+      <small>{{ profile()?.email }}</small>
+    </div>
+    <a class="menu-item" role="menuitem" routerLink="/profile" (click)="closeMenu()">
+      <mat-icon>manage_accounts</mat-icon>
+      <span>{{ strings.myProfile }}</span>
+    </a>
+    <button class="menu-item" role="menuitem" type="button" (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      <span>{{ strings.logout }}</span>
+    </button>
+  </div>
 </div>

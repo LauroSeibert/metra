@@ -3,10 +3,12 @@
     <mat-icon>arrow_back</mat-icon>
     {{ common.back }}
   </a>
-  <button matButton="filled" class="erp-primary-action" type="button" (click)="open(null)">
-    <mat-icon>add</mat-icon>
-    {{ strings.newCategory }}
-  </button>
+  @if (canWrite()) {
+    <button matButton="filled" class="erp-primary-action" type="button" (click)="open(null)">
+      <mat-icon>add</mat-icon>
+      {{ strings.newCategory }}
+    </button>
+  }
 </erp-page-header>
 
 <mat-form-field class="erp-list-search" subscriptSizing="dynamic">
@@ -27,33 +29,35 @@
   [pageSize]="pageSize()"
   (pageChange)="onPage($event)"
   (retry)="categories.reload()"
-  (rowActivate)="open($event)"
+  (rowActivate)="canWrite() && open($event)"
 >
   <ng-template erpCell="productCount" [erpCellOf]="rows()" let-category>
     {{ category.productCount | number }}
   </ng-template>
 
   <ng-template erpCell="actions" [erpCellOf]="rows()" let-category>
-    <div class="erp-row-actions">
-      <button
-        class="erp-row-action"
-        type="button"
-        [matTooltip]="common.edit"
-        [attr.aria-label]="common.edit + ' ' + category.name"
-        (click)="open(category)"
-      >
-        <mat-icon>edit_square</mat-icon>
-      </button>
-      <button
-        class="erp-row-action danger"
-        type="button"
-        [disabled]="category.productCount > 0"
-        [matTooltip]="category.productCount > 0 ? strings.inUse : common.delete"
-        [attr.aria-label]="common.delete + ' ' + category.name"
-        (click)="remove(category)"
-      >
-        <mat-icon>delete</mat-icon>
-      </button>
-    </div>
+    @if (canWrite()) {
+      <div class="erp-row-actions">
+        <button
+          class="erp-row-action"
+          type="button"
+          [matTooltip]="common.edit"
+          [attr.aria-label]="common.edit + ' ' + category.name"
+          (click)="open(category)"
+        >
+          <mat-icon>edit_square</mat-icon>
+        </button>
+        <button
+          class="erp-row-action danger"
+          type="button"
+          [disabled]="category.productCount > 0"
+          [matTooltip]="category.productCount > 0 ? strings.inUse : common.delete"
+          [attr.aria-label]="common.delete + ' ' + category.name"
+          (click)="remove(category)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    }
   </ng-template>
 </erp-data-table>

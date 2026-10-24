@@ -20,6 +20,7 @@ import { Api } from '../../../api/api';
 import { deleteProductCategory } from '../../../api/fn/product-categories/delete-product-category';
 import { listProductCategories } from '../../../api/fn/product-categories/list-product-categories';
 import { ProductCategoryDto } from '../../../api/models/product-category-dto';
+import { AuthService } from '../../../core/auth/auth.service';
 import { toApiProblem } from '../../../core/http/api-problem';
 import { Notifier } from '../../../core/notifications/notifier';
 import { debounced } from '../../../shared/data/debounced';
@@ -55,6 +56,7 @@ export class CategoryList {
   private readonly api = inject(Api);
   private readonly dialog = inject(MatDialog);
   private readonly notifier = inject(Notifier);
+  private readonly auth = inject(AuthService);
 
   protected readonly strings = PRODUCTS_STRINGS.categories;
   protected readonly common = PRODUCTS_STRINGS;
@@ -66,7 +68,8 @@ export class CategoryList {
 
   protected readonly search = signal('');
   private readonly searchTerm = debounced(computed(() => this.search().trim()));
-  protected readonly pageSize = signal(20);
+  protected readonly canWrite = this.auth.canWrite;
+  protected readonly pageSize = signal(this.auth.pageSize());
   protected readonly page = linkedSignal({
     source: () => [this.searchTerm(), this.pageSize()],
     computation: () => 1,

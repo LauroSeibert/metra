@@ -18,6 +18,24 @@ Termo de negócio (como aparece na tela) → nome no código e no banco. Termo n
 | Estoque mínimo | `MinStock` | `product.min_stock` | DECIMAL(18,3); base do alerta de estoque baixo (Fase 4) |
 | Ativo / Inativo | `Active` | `product.active` | Inativo não aparece para venda (Fase 6) |
 
+## Parceiros
+
+| Termo (pt-BR) | Código (C# / TS) | Banco | Observação |
+| --- | --- | --- | --- |
+| Parceiro | `Partner` | `partner` | Cliente, fornecedor ou ambos; nunca excluído, inativado |
+| Cliente / Fornecedor / Ambos | `PartnerType.Customer` / `Supplier` / `Both` | `partner.type` (texto) | Filtro de cliente inclui `Both` |
+| CPF / CNPJ (documento) | `Document`, `TaxDocument` | `partner.document` | Normalizado (só dígitos e letras); CNPJ pode ser alfanumérico (2026) |
+| Tipo de documento | `TaxDocumentKind` (`Cpf`/`Cnpj`) | `partner.document_kind` | Deduzido do tamanho |
+
+## Acesso
+
+| Termo (pt-BR) | Código (C# / TS) | Banco | Observação |
+| --- | --- | --- | --- |
+| Usuário | `AppUser` (Infrastructure) | `app_user` | E-mail é o login; nunca excluído, inativado |
+| Perfil de acesso: Administrador / Operador / Leitura | `Roles.Admin` / `Operator` / `Viewer` | `app_role` | `canWrite` = Admin ou Operador |
+| Meu perfil | `/api/v1/me`, `UserProfileDto` | | Nome, tema (`ThemePreference`), itens por página |
+| Sessão | `SessionTokensDto` | | Token de acesso (15 min) + refresh (7 dias) |
+
 ## Termos transversais
 
 | Termo | Código | Observação |
@@ -29,7 +47,6 @@ Termo de negócio (como aparece na tela) → nome no código e no banco. Termo n
 
 | Termo | Código |
 | --- | --- |
-| Parceiro (cliente, fornecedor, ambos) | `Partner` |
 | Movimentação de estoque | `StockMovement` |
 | Saldo de estoque | `StockBalance` |
 | Venda / item da venda | `Sale` / `SaleItem` |

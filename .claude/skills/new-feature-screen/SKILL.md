@@ -16,7 +16,7 @@ features/<modulo>/
 ├── <modulo>-rules.ts       # limites espelhados do domínio (.NET)
 ├── <x>-list/               # listagem
 ├── <x>-form/               # cadastro/edição (+ <x>-form.schema.ts)
-└── testing/fake-api.ts     # FakeApi para os specs
+└── testing/               # dados de exemplo; FakeApi vem de shared/testing/fake-api.ts
 ```
 
 Registre a rota em `app.routes.ts` com `loadChildren` e `data: { breadcrumb }`, e libere o item em
@@ -28,6 +28,8 @@ Registre a rota em `app.routes.ts` com `loadChildren` e `data: { breadcrumb }`, 
 - Busca com `debounced(...)`; `page` como `linkedSignal` que volta a 1 quando um filtro muda.
 - `resource({ params: query, loader: ({ params }) => api.invoke(listX, params) })`.
 - `rows`/`total` com `linkedSignal` para manter a página anterior durante o carregamento.
+- Perfil: `canWrite = inject(AuthService).canWrite`; sem ele, esconda criar/inativar e troque o ícone de
+  editar por `visibility`. Itens por página padrão: `auth.pageSize()` (preferência do usuário).
 - `<erp-page-header>` com ações à direita (principal com `class="erp-primary-action"`), `<erp-segmented-control>`
   para filtros rápidos e `<erp-data-table>` com `erpCell` e `erpExpandedRow` tipados por `[erpCellOf]="rows()"`.
 
@@ -36,12 +38,14 @@ Registre a rota em `app.routes.ts` com `loadChildren` e `data: { breadcrumb }`, 
 - Modelo e `schema(...)` em `<x>-form.schema.ts`, com as mesmas regras do domínio e mensagens de `strings`.
 - `model = linkedSignal(() => carregado ? toModel(valor) : vazio)`; `form(model, schema)`.
 - `submit(form, async () => { ... return toServerErrors(form, toApiProblem(e), { 'x.code_duplicate': 'code' }) })`.
+- Perfil Leitura: `form(model, (path) => { apply(path, schema); disabled(path, () => !canWrite()); })` e sem
+  botão de salvar. Depois de salvar, a tela continua aberta (cadastro novo navega para `edit/:id`).
 - Edição envia `version`; em `concurrency_conflict` mostre o banner com "Recarregar dados".
 - Campos: `<mat-form-field>` + `[formField]` + `<mat-error>` com `campo().errors()[0]`.
 
 ## Testes (copie os `*.spec.ts` de produtos)
 
-`FakeApi` com `.on(fn, resposta)` e `callsTo(fn)`. Cubra: parâmetros da primeira carga, filtro, busca com debounce,
+`FakeApi` com `.on(fn, resposta)` e `callsTo(fn)`; `signInAs('Operator')` (`core/auth/testing.ts`) antes de criar o componente. Cubra: parâmetros da primeira carga, filtro, busca com debounce,
 vazio, erro, validação que bloqueia o envio, erro do servidor no campo e envio da versão na edição.
 
 ## Antes de entregar

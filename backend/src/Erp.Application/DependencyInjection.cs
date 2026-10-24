@@ -1,3 +1,4 @@
+using Erp.Application.Partners;
 using Erp.Application.Products;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,6 +11,7 @@ public static class DependencyInjection
         services.AddScoped<ProductService>();
         services.AddScoped<ProductCategoryService>();
         services.AddScoped<UnitService>();
+        services.AddScoped<PartnerService>();
         return services;
     }
 }

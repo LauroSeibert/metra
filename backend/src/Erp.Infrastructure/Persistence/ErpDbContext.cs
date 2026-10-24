@@ -1,18 +1,23 @@
 using Erp.Application.Abstractions;
 using Erp.Domain.Common;
+using Erp.Domain.Partners;
 using Erp.Domain.Products;
+using Erp.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Erp.Infrastructure.Persistence;
 
 public sealed class ErpDbContext(DbContextOptions<ErpDbContext> options, TimeProvider timeProvider)
-    : DbContext(options), IErpDbContext
+    : IdentityDbContext<AppUser, AppRole, long>(options), IErpDbContext
 {
     public DbSet<Product> Products => Set<Product>();
 
     public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
 
     public DbSet<Unit> Units => Set<Unit>();
+
+    public DbSet<Partner> Partners => Set<Partner>();
 
     public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
@@ -39,29 +44,32 @@ public sealed class ErpDbContext(DbContextOptions<ErpDbContext> options, TimePro
         configurationBuilder.Properties<string>().HaveMaxLength(255);
     }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        ArgumentNullException.ThrowIfNull(modelBuilder);
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ErpDbContext).Assembly);
-        modelBuilder.ApplySnakeCaseNames();
+        ArgumentNullException.ThrowIfNull(builder);
+        // Esquema do Identity primeiro; a convenção de nomes vale para as tabelas dele também.
+        base.OnModelCreating(builder);
+        builder.ApplyConfigurationsFromAssembly(typeof(ErpDbContext).Assembly);
+        builder.ApplySnakeCaseNames();
     }
 
     /// <summary>Preenche datas de criação e alteração e incrementa a versão (concorrência otimista).</summary>
     private void StampEntities()
     {
         var now = timeProvider.GetUtcNow().UtcDateTime;
-        foreach (var entry in ChangeTracker.Entries<Entity>())
+        foreach (var entry in ChangeTracker.Entries<IAuditable>())
         {
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Property(e => e.CreatedAt).CurrentValue = now;
-                    entry.Property(e => e.UpdatedAt).CurrentValue = now;
-                    entry.Property(e => e.Version).CurrentValue = 1;
+                    entry.Property(nameof(IAuditable.CreatedAt)).CurrentValue = now;
+                    entry.Property(nameof(IAuditable.UpdatedAt)).CurrentValue = now;
+                    entry.Property(nameof(IAuditable.Version)).CurrentValue = 1;
                     break;
                 case EntityState.Modified:
-                    entry.Property(e => e.UpdatedAt).CurrentValue = now;
-                    entry.Property(e => e.Version).CurrentValue = entry.Property(e => e.Version).OriginalValue + 1;
+                    entry.Property(nameof(IAuditable.UpdatedAt)).CurrentValue = now;
+                    var version = entry.Property(nameof(IAuditable.Version));
+                    version.CurrentValue = (int)version.OriginalValue! + 1;
                     break;
                 default:
                     break;

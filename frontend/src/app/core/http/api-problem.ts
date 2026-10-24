@@ -17,6 +17,11 @@ export const API_ERROR_CODES = {
 
 const FALLBACK_MESSAGE = 'Não foi possível concluir a operação. Tente de novo.';
 const OFFLINE_MESSAGE = 'Sem conexão com o servidor.';
+const STATUS_MESSAGES: Readonly<Record<number, string>> = {
+  401: 'Sua sessão expirou. Entre de novo.',
+  403: 'Seu perfil não tem permissão para esta ação.',
+  429: 'Muitas tentativas seguidas. Aguarde um minuto e tente de novo.',
+};
 
 interface ProblemBody {
   readonly code?: unknown;
@@ -57,7 +62,8 @@ export function toApiProblem(error: unknown): ApiProblem {
   return {
     status: error.status,
     code: typeof body.code === 'string' ? body.code : null,
-    message: detail ?? title ?? FALLBACK_MESSAGE,
+    // 403 e 429 vêm do ASP.NET sem `detail` e com título em inglês.
+    message: detail ?? STATUS_MESSAGES[error.status] ?? title ?? FALLBACK_MESSAGE,
     fieldErrors: readFieldErrors(body.errors),
   };
 }

@@ -3,10 +3,12 @@
     <mat-icon>arrow_back</mat-icon>
     {{ common.back }}
   </a>
-  <button matButton="filled" class="erp-primary-action" type="button" (click)="open(null)">
-    <mat-icon>add</mat-icon>
-    {{ strings.newUnit }}
-  </button>
+  @if (canWrite()) {
+    <button matButton="filled" class="erp-primary-action" type="button" (click)="open(null)">
+      <mat-icon>add</mat-icon>
+      {{ strings.newUnit }}
+    </button>
+  }
 </erp-page-header>
 
 <mat-form-field class="erp-list-search" subscriptSizing="dynamic">
@@ -27,7 +29,7 @@
   [pageSize]="pageSize()"
   (pageChange)="onPage($event)"
   (retry)="units.reload()"
-  (rowActivate)="open($event)"
+  (rowActivate)="canWrite() && open($event)"
 >
   <ng-template erpCell="code" [erpCellOf]="rows()" let-unit>
     <erp-status-chip [label]="unit.code" tone="primary" />
@@ -38,26 +40,28 @@
   </ng-template>
 
   <ng-template erpCell="actions" [erpCellOf]="rows()" let-unit>
-    <div class="erp-row-actions">
-      <button
-        class="erp-row-action"
-        type="button"
-        [matTooltip]="common.edit"
-        [attr.aria-label]="common.edit + ' ' + unit.code"
-        (click)="open(unit)"
-      >
-        <mat-icon>edit_square</mat-icon>
-      </button>
-      <button
-        class="erp-row-action danger"
-        type="button"
-        [disabled]="unit.productCount > 0"
-        [matTooltip]="unit.productCount > 0 ? strings.inUse : common.delete"
-        [attr.aria-label]="common.delete + ' ' + unit.code"
-        (click)="remove(unit)"
-      >
-        <mat-icon>delete</mat-icon>
-      </button>
-    </div>
+    @if (canWrite()) {
+      <div class="erp-row-actions">
+        <button
+          class="erp-row-action"
+          type="button"
+          [matTooltip]="common.edit"
+          [attr.aria-label]="common.edit + ' ' + unit.code"
+          (click)="open(unit)"
+        >
+          <mat-icon>edit_square</mat-icon>
+        </button>
+        <button
+          class="erp-row-action danger"
+          type="button"
+          [disabled]="unit.productCount > 0"
+          [matTooltip]="unit.productCount > 0 ? strings.inUse : common.delete"
+          [attr.aria-label]="common.delete + ' ' + unit.code"
+          (click)="remove(unit)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    }
   </ng-template>
 </erp-data-table>

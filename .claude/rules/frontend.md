@@ -16,3 +16,5 @@ paths:
 - Tokens do Material de formulário/paginador vão em `provideMaterialFormDefaults()` na rota lazy, nunca no `app.config`
   (arrasta ~250 kB para o bundle inicial).
 - Receita completa: skill `new-feature-screen`. Módulo de referência: `src/app/features/products`.
+- Sessão e perfil só via `AuthService` (`canWrite`, `isAdmin`, `pageSize`); o token entra pelo `authInterceptor`.
+  Esconder botão é conveniência: a API decide (403). Nos specs, `signInAs(role)` de `core/auth/testing.ts`.

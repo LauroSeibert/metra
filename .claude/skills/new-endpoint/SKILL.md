@@ -26,7 +26,9 @@ Copie a estrutura; não invente camada nova.
    (vira o nome da função no front), `TypedResults`, `ProducesValidationProblem`/`ProducesProblem` para 400/404/409.
    Mapeie em `Program.cs` dentro de `MapGroup("/api/v1")`.
 5. **Testes**: unitários das regras do domínio em `Erp.UnitTests`; integração em `Erp.IntegrationTests` usando
-   `MySqlApiFixture` e `ApiClient` (dados com `Unique(...)`, sem depender de ordem). Cubra 201, 400 com campos,
+   `MySqlApiFixture` e `ApiClient` (dados com `Unique(...)`, sem depender de ordem). Cliente autenticado:
+   `fixture.ClientFor(Roles.Operator)`; enums vêm como texto, então leia com `ReadFromJsonAsync<T>(Json, Ct)`.
+   Cubra também 403 para o Viewer nos endpoints de escrita. Cubra 201, 400 com campos,
    404, 409 de duplicidade e de versão, paginação e limite de 100.
 6. **Contrato e front**: `dotnet build backend/Erp.slnx` regenera `backend/openapi/erp-api.json`;
    depois `npm run api:generate` em `frontend/`. Commite os dois juntos.

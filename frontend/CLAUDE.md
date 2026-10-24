@@ -3,7 +3,8 @@
 ## Estrutura
 
 - `src/app/api`: cliente gerado pelo `ng-openapi-gen` (nunca editar; `npm run api:generate`).
-- `src/app/core`: layout, `http/` (ProblemDetails → `ApiProblem`, erros do servidor no Signal Forms), notificações.
+- `src/app/core`: layout, `auth/` (sessão, interceptor, guards, tema), `http/` (ProblemDetails → `ApiProblem`,
+  erros do servidor no Signal Forms), notificações.
 - `src/app/shared/ui`: `AppShell`, `PageHeader`, `Card`, `DataTable`, `StatusChip`, `SegmentedControl`, `ConfirmDialog`.
 - `src/app/shared/data`: `debounced()` e estado de listagem na URL.
 - `src/app/features/<funcionalidade>`: rotas lazy, telas, `*.strings.ts`, `*-rules.ts` e `testing/`.
@@ -19,6 +20,9 @@
 - Textos pt-BR em `<feature>.strings.ts`, nunca soltos no template.
 
 ## Armadilhas
+
+- `app.routes.ts` não pode importar `provideMaterialFormDefaults`: rota nova com formulário vai em `loadChildren`.
+- Orçamento inicial apertado (~548 de 550 kB): nada de `MatMenu` no layout (o menu da conta é `popover` nativo).
 
 - `MAT_FORM_FIELD_DEFAULT_OPTIONS`/`MatPaginatorIntl` no `app.config` arrastam ~250 kB para o bundle inicial:
   use `provideMaterialFormDefaults()` nos `providers` da rota lazy.

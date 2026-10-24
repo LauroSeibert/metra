@@ -20,7 +20,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
     label: 'Cadastros',
     items: [
       { label: 'Produtos', icon: 'inventory_2', path: '/products', available: true },
-      { label: 'Parceiros', icon: 'groups', path: '/partners', available: false },
+      { label: 'Parceiros', icon: 'groups', path: '/partners', available: true },
     ],
   },
   {

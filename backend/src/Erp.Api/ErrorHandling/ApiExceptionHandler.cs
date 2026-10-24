@@ -27,6 +27,7 @@ internal sealed partial class ApiExceptionHandler(IProblemDetailsService problem
                 Extensions = { ["code"] = ErrorCodes.ValidationFailed },
             },
             NotFoundException notFound => Problem(StatusCodes.Status404NotFound, "Não encontrado.", notFound.Message, notFound.Code),
+            UnauthorizedException unauthorized => Problem(StatusCodes.Status401Unauthorized, "Não autorizado.", unauthorized.Message, unauthorized.Code),
             ConflictException conflict => Problem(StatusCodes.Status409Conflict, "Conflito.", conflict.Message, conflict.Code),
             DbUpdateConcurrencyException => Problem(
                 StatusCodes.Status409Conflict,

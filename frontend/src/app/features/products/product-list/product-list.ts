@@ -22,6 +22,7 @@ import { deactivateProduct } from '../../../api/fn/products/deactivate-product';
 import { listProducts, ListProducts$Params } from '../../../api/fn/products/list-products';
 import { listProductCategories } from '../../../api/fn/product-categories/list-product-categories';
 import { ProductListItemDto } from '../../../api/models/product-list-item-dto';
+import { AuthService } from '../../../core/auth/auth.service';
 import { toApiProblem } from '../../../core/http/api-problem';
 import { Notifier } from '../../../core/notifications/notifier';
 import { debounced } from '../../../shared/data/debounced';
@@ -62,7 +63,6 @@ const ACTIVE_BY_STATUS: Record<StatusFilter, boolean | undefined> = {
 
 const SORTABLE_FIELDS = ['sku', 'name', 'salePrice'] as const;
 const DEFAULT_SORT: DataTableSort = { field: 'name', direction: 'asc' };
-const DEFAULT_PAGE_SIZE = 20;
 
 /**
  * Listagem de produtos: busca com debounce, filtros, ordenação e paginação no servidor, estado na
@@ -99,9 +99,13 @@ export class ProductList {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly notifier = inject(Notifier);
+  private readonly auth = inject(AuthService);
   private readonly initial = this.route.snapshot.queryParamMap;
+  /** Itens por página escolhidos em "Meu perfil" (vale quando a URL não traz pageSize). */
+  private readonly defaultPageSize = this.auth.pageSize();
 
   protected readonly strings = PRODUCTS_STRINGS;
+  protected readonly canWrite = this.auth.canWrite;
   protected readonly statusOptions: readonly SegmentedOption<StatusFilter>[] = [
     { value: 'all', label: PRODUCTS_STRINGS.status.all },
     { value: 'active', label: PRODUCTS_STRINGS.status.active },
@@ -126,7 +130,7 @@ export class ProductList {
   protected readonly sort = signal<DataTableSort>(
     readSort(this.initial, SORTABLE_FIELDS, DEFAULT_SORT),
   );
-  protected readonly pageSize = signal(readInt(this.initial, 'pageSize', DEFAULT_PAGE_SIZE));
+  protected readonly pageSize = signal(readInt(this.initial, 'pageSize', this.defaultPageSize));
   private readonly searchTerm = debounced(computed(() => this.search().trim()));
 
   /** Volta para a página 1 sempre que um filtro muda; na abertura respeita a página da URL. */
@@ -217,7 +221,12 @@ export class ProductList {
             page: this.page(),
             pageSize: this.pageSize(),
           },
-          { status: 'all', sort: toSortParam(DEFAULT_SORT), page: 1, pageSize: DEFAULT_PAGE_SIZE },
+          {
+            status: 'all',
+            sort: toSortParam(DEFAULT_SORT),
+            page: 1,
+            pageSize: this.defaultPageSize,
+          },
         ),
       });
     });

@@ -19,11 +19,13 @@ As regras 1 a 3 são verificadas por `backend/tests/Erp.UnitTests/LayerDependenc
 
 - `docker compose` sobe `mysql` (9.7, utf8mb4), `api` (porta 5080) e `web` (nginx, porta 8080).
 - O nginx serve o Angular e repassa `/api/` para a API, então o navegador fala com um único host.
-- Saúde: `/health` (processo vivo) e `/health/ready` (banco acessível).
+- Saúde: `/health` (processo vivo) e `/health/ready` (banco acessível), anônimos.
+- Acesso: ASP.NET Core Identity + tokens bearer do ASP.NET (ADR 0003). Toda rota exige login; o Identity fica
+  na Infrastructure atrás de `IUserAccounts` e `ISessionTokens`, e a Api lê o usuário por `ICurrentUser`.
 
 ## Front
 
-- `core/`: layout, e futuramente auth, interceptors e guards.
+- `core/`: layout, `auth/` (sessão, interceptor com refresh, guards, tema) e `http/`.
 - `shared/ui/`: componentes visuais sem regra de negócio.
 - `features/`: uma pasta por funcionalidade, com a mesma divisão da API.
 - `styles/`: tokens de design e tema do Angular Material.

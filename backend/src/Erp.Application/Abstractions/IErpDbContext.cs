@@ -1,3 +1,4 @@
+using Erp.Domain.Partners;
 using Erp.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -12,6 +13,8 @@ public interface IErpDbContext
     DbSet<ProductCategory> ProductCategories { get; }
 
     DbSet<Unit> Units { get; }
+
+    DbSet<Partner> Partners { get; }
 
     /// <summary>Transações explícitas, para casos de uso que gravam em mais de um passo.</summary>
     DatabaseFacade Database { get; }

@@ -13,8 +13,12 @@
 - Warnings são erros; versões de pacote só em `Directory.Packages.props`.
 - Async de ponta a ponta com `CancellationToken`; relógio via `TimeProvider`.
 - Testes de integração: `MySqlApiFixture` (Testcontainers, MySQL 9.7) + `ApiClient`; dados com `Unique(...)`.
+  Cliente logado: `fixture.ClientFor(Roles.Operator)`; enums vêm como texto (use `ApiClient.Json`).
+- Acesso: Identity em `Erp.Infrastructure/Identity` atrás de `IUserAccounts`/`ISessionTokens`; usuário logado via `ICurrentUser`.
 
 ## Armadilhas
+- `ErpDbContext` herda de `IdentityDbContext`: `OnModelCreating(builder)` chama `base` antes da convenção de nomes.
+- Sem sessão, rota inexistente responde 401 (política padrão), não 404.
 - Testes usam Microsoft.Testing.Platform (`global.json` na raiz):
   rode `dotnet test --solution backend/Erp.slnx`, não `dotnet test backend`.
 - Connection string local: `dotnet user-secrets set ConnectionStrings:Erp "<valor>" --project backend/src/Erp.Api`.

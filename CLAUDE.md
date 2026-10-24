@@ -16,16 +16,18 @@ Plano completo e fases: `docs/plan.md` (leia só a seção que a tarefa pedir).
 ## Comandos
 - Ambiente: `cp .env.example .env` (preencha as senhas) e `docker compose up -d --build`
   - Front em http://localhost:8080, API em http://localhost:5080 (`/health`, `/health/ready`)
+  - Login: `ADMIN_EMAIL`/`ADMIN_PASSWORD` do `.env`; `DEMO_USERS_PASSWORD` cria `operador@` e `leitura@erp.local`
 - API local: `dotnet run --project backend/src/Erp.Api` (connection string via user-secrets)
 - Build, testes e lint da API: `dotnet build backend/Erp.slnx`, `dotnet test --solution backend/Erp.slnx`,
   `dotnet format backend/Erp.slnx --verify-no-changes` (testes de integração precisam de Docker)
 - Front, dentro de `frontend/`: `npm start`, `npm run build`, `npm test` e `npm run lint`
 - Regenerar cliente OpenAPI: `npm run api:generate` dentro de `frontend/` (depois do `dotnet build`)
 - Seed: `dotnet run --project backend/src/Erp.Seed -- seed --profile small|full`
-- Medir listagem: `dotnet run --project backend/src/Erp.Seed -c Release -- measure`
+- Medir listagem: `dotnet run --project backend/src/Erp.Seed -c Release -- measure` (com `ERP_EMAIL` e `ERP_PASSWORD`)
 
 ## Regras globais
 - Código em inglês, interface em pt-BR; termos de negócio em `docs/domain-glossary.md`.
+- Toda rota da API exige login; gravação exige `.RequireWrite()` e a tela esconde a ação sem `canWrite` (ADR 0003).
 - Siga o módulo de referência: produtos (`backend/src/Erp.*/Products` e `frontend/src/app/features/products`).
 - Mudou a API? Regenere o cliente no mesmo commit.
 - Visual: siga `docs/design-system.md` e use só os tokens de `frontend/src/app/styles/`.

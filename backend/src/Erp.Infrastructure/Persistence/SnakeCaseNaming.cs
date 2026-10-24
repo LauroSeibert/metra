@@ -13,7 +13,7 @@ internal static class SnakeCaseNaming
     {
         foreach (var entity in modelBuilder.Model.GetEntityTypes())
         {
-            var table = ToSnakeCase(entity.ClrType.Name);
+            var table = ToSnakeCase(TableName(entity.ClrType));
             entity.SetTableName(table);
 
             foreach (var property in entity.GetProperties())
@@ -40,6 +40,16 @@ internal static class SnakeCaseNaming
                 index.SetDatabaseName($"{(index.IsUnique ? "ux" : "ix")}_{table}_{columns}");
             }
         }
+    }
+
+    /// <summary>
+    /// Nome da tabela a partir do tipo, sem a aridade de genéricos e sem o prefixo Identity das tabelas
+    /// auxiliares do ASP.NET Core Identity (IdentityUserRole`1 → user_role).
+    /// </summary>
+    private static string TableName(Type type)
+    {
+        var name = type.Name.Split('`')[0];
+        return name.StartsWith("Identity", StringComparison.Ordinal) ? name["Identity".Length..] : name;
     }
 
     public static string ToSnakeCase(string name)

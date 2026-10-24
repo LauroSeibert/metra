@@ -1,3 +1,4 @@
+using Erp.Api.Access;
 using Erp.Application.Common;
 using Erp.Application.Products;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -14,15 +15,18 @@ internal static class UnitEndpoints
         group.MapGet("/{id:long}", GetAsync).WithName("GetUnit").ProducesProblem(StatusCodes.Status404NotFound);
         group.MapPost("/", CreateAsync)
             .WithName("CreateUnit")
+            .RequireWrite()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status409Conflict);
         group.MapPut("/{id:long}", UpdateAsync)
             .WithName("UpdateUnit")
+            .RequireWrite()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
         group.MapDelete("/{id:long}", DeleteAsync)
             .WithName("DeleteUnit")
+            .RequireWrite()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
 

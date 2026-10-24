@@ -1,0 +1,131 @@
+<erp-page-header [title]="strings.list.title" [subtitle]="strings.list.subtitle">
+  @if (canWrite()) {
+    <a matButton="filled" class="erp-primary-action" routerLink="edit">
+      <mat-icon>add</mat-icon>
+      {{ strings.list.newPartner }}
+    </a>
+  }
+</erp-page-header>
+
+<section class="erp-toolbar" [attr.aria-label]="strings.list.searchLabel">
+  <mat-form-field class="grow" subscriptSizing="dynamic">
+    <mat-icon matPrefix>search</mat-icon>
+    <mat-label>{{ strings.list.searchLabel }}</mat-label>
+    <input
+      matInput
+      type="search"
+      [placeholder]="strings.list.searchPlaceholder"
+      [value]="search()"
+      (input)="onSearchInput($event)"
+    />
+  </mat-form-field>
+
+  <mat-form-field subscriptSizing="dynamic">
+    <mat-label>{{ strings.list.typeFilter }}</mat-label>
+    <mat-select [value]="type()" (valueChange)="type.set($event)">
+      <mat-option [value]="null">{{ strings.list.allTypes }}</mat-option>
+      <mat-option value="Customer">{{ strings.list.customers }}</mat-option>
+      <mat-option value="Supplier">{{ strings.list.suppliers }}</mat-option>
+      <mat-option value="Both">{{ strings.types.Both }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <erp-segmented-control
+    [options]="statusOptions"
+    [(value)]="status"
+    [label]="strings.list.statusFilter"
+  />
+</section>
+
+<div class="results">
+  <span>{{ strings.list.results((total() | number) ?? '0') }}</span>
+  @if (hasFilters()) {
+    <button matButton type="button" (click)="clearFilters()">
+      <mat-icon>filter_alt_off</mat-icon>
+      {{ strings.list.clearFilters }}
+    </button>
+  }
+</div>
+
+<erp-data-table
+  [columns]="columns"
+  [rows]="rows()"
+  [rowKey]="rowKey"
+  [loading]="partners.isLoading()"
+  [error]="loadError()"
+  [emptyMessage]="strings.list.empty"
+  [(sort)]="sort"
+  [total]="total()"
+  [page]="page()"
+  [pageSize]="pageSize()"
+  (pageChange)="onPage($event)"
+  (retry)="partners.reload()"
+  (rowActivate)="openPartner($event)"
+>
+  <ng-template erpCell="name" [erpCellOf]="rows()" let-partner>
+    <a class="partner-name" [routerLink]="['edit', partner.id]">{{ partner.name }}</a>
+  </ng-template>
+
+  <ng-template erpCell="document" [erpCellOf]="rows()" let-partner>
+    <span class="document">{{ formatDocument(partner.document) }}</span>
+  </ng-template>
+
+  <ng-template erpCell="type" [erpCellOf]="rows()" let-partner>
+    <erp-status-chip
+      [label]="strings.types[partner.type]"
+      [tone]="
+        partner.type === 'Supplier' ? 'info' : partner.type === 'Both' ? 'warning' : 'primary'
+      "
+      [plain]="true"
+    />
+  </ng-template>
+
+  <ng-template erpCell="contact" [erpCellOf]="rows()" let-partner>
+    <div class="contact">
+      @if (partner.email) {
+        <span>{{ partner.email }}</span>
+      }
+      @if (partner.phone) {
+        <small>{{ partner.phone }}</small>
+      }
+      @if (!partner.email && !partner.phone) {
+        <span class="missing">—</span>
+      }
+    </div>
+  </ng-template>
+
+  <ng-template erpCell="active" [erpCellOf]="rows()" let-partner>
+    <erp-status-chip
+      [label]="partner.active ? strings.status.activeChip : strings.status.inactiveChip"
+      [tone]="partner.active ? 'success' : 'neutral'"
+    />
+  </ng-template>
+
+  <ng-template erpCell="actions" [erpCellOf]="rows()" let-partner>
+    <div class="erp-row-actions">
+      <a
+        class="erp-row-action"
+        [routerLink]="['edit', partner.id]"
+        [matTooltip]="strings.list.edit"
+        [attr.aria-label]="strings.list.edit + ' ' + partner.name"
+      >
+        <mat-icon>{{ canWrite() ? 'edit_square' : 'visibility' }}</mat-icon>
+      </a>
+      @if (canWrite()) {
+        <button
+          class="erp-row-action"
+          type="button"
+          [class.danger]="partner.active"
+          [class.success]="!partner.active"
+          [matTooltip]="partner.active ? strings.list.deactivate : strings.list.activate"
+          [attr.aria-label]="
+            (partner.active ? strings.list.deactivate : strings.list.activate) + ' ' + partner.name
+          "
+          (click)="toggleActive(partner)"
+        >
+          <mat-icon>{{ partner.active ? 'pause_circle' : 'play_circle' }}</mat-icon>
+        </button>
+      }
+    </div>
+  </ng-template>
+</erp-data-table>

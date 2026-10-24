@@ -5,7 +5,8 @@
   @include mat.theme(
     (
       color: (
-        theme-type: light,
+        // color-scheme: os tokens internos do Material seguem o color-scheme do <html> (claro/escuro).
+        theme-type: color-scheme,
         primary: mat.$blue-palette,
       ),
       typography: (

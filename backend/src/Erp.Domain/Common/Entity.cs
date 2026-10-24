@@ -4,7 +4,7 @@ namespace Erp.Domain.Common;
 /// Base de toda entidade persistida. Datas e versão são mantidas pela infraestrutura
 /// (ErpDbContext) no momento do SaveChanges, nunca pelo código de negócio.
 /// </summary>
-public abstract class Entity
+public abstract class Entity : IAuditable
 {
     public long Id { get; private set; }
 

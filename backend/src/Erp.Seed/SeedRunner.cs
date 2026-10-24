@@ -7,8 +7,8 @@ using Microsoft.EntityFrameworkCore;
 namespace Erp.Seed;
 
 /// <summary>
-/// Gera dados 100% sintéticos e reproduzíveis (semente fixa). Recusa rodar sobre uma base que já
-/// tem produtos, para nunca misturar seed com dados digitados.
+/// Gera dados 100% sintéticos e reproduzíveis (semente fixa por módulo). Cada módulo só é gerado se a
+/// tabela dele estiver vazia: rodar de novo completa o que falta sem misturar seed com dados digitados.
 /// </summary>
 internal sealed class SeedRunner(string connectionString, SeedProfile profile)
 {
@@ -38,20 +38,35 @@ internal sealed class SeedRunner(string connectionString, SeedProfile profile)
         var stopwatch = Stopwatch.StartNew();
         Randomizer.Seed = new Random(RandomSeed);
 
+        bool hasProducts;
+        bool hasPartners;
         await using (var db = CreateContext())
         {
             await db.Database.MigrateAsync(cancellationToken).ConfigureAwait(false);
-            if (await db.Products.AnyAsync(cancellationToken).ConfigureAwait(false))
-            {
-                await Console.Error.WriteLineAsync("A base já tem produtos. O seed só roda em base vazia.").ConfigureAwait(false);
-                return 1;
-            }
+            hasProducts = await db.Products.AnyAsync(cancellationToken).ConfigureAwait(false);
+            hasPartners = await db.Partners.AnyAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        var (categories, units) = await SeedCatalogAsync(cancellationToken).ConfigureAwait(false);
-        await SeedProductsAsync(categories, units, cancellationToken).ConfigureAwait(false);
+        if (hasProducts)
+        {
+            Console.WriteLine("Produtos: a base já tem, pulando.");
+        }
+        else
+        {
+            var (categories, units) = await SeedCatalogAsync(cancellationToken).ConfigureAwait(false);
+            await SeedProductsAsync(categories, units, cancellationToken).ConfigureAwait(false);
+        }
 
-        Console.WriteLine($"Seed '{profile.Name}' concluído: {profile.Products:N0} produtos em {stopwatch.Elapsed:mm\\:ss}.");
+        if (hasPartners)
+        {
+            Console.WriteLine("Parceiros: a base já tem, pulando.");
+        }
+        else
+        {
+            await new PartnerSeeder(CreateContext, profile.Partners, RandomSeed + 1).RunAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        Console.WriteLine($"Seed '{profile.Name}' concluído em {stopwatch.Elapsed:mm\\:ss}.");
         return 0;
     }
 

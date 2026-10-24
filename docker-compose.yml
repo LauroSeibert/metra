@@ -30,6 +30,13 @@ services:
       Database__MigrateOnStartup: "true"
       ConnectionStrings__Erp: "Server=mysql;Port=3306;Database=${MYSQL_DATABASE};User=${MYSQL_USER};Password=${MYSQL_PASSWORD}"
       Cors__AllowedOrigins__0: "http://localhost:${WEB_PORT:-8080}"
+      # Admin inicial: criado só se não houver nenhum usuário. Demo: operador@erp.local e leitura@erp.local.
+      Auth__BootstrapAdmin__Email: ${ADMIN_EMAIL:-admin@erp.local}
+      Auth__BootstrapAdmin__Password: ${ADMIN_PASSWORD:?defina ADMIN_PASSWORD no .env}
+      Auth__DemoUsersPassword: ${DEMO_USERS_PASSWORD:-}
+      DataProtection__KeysPath: /data/keys
+    volumes:
+      - api-keys:/data/keys
     ports:
       - "${API_PORT:-5080}:8080"
     depends_on:
@@ -45,3 +52,4 @@ services:
 
 volumes:
   mysql-data:
+  api-keys:

@@ -4,6 +4,8 @@ import { provideRouter } from '@angular/router';
 import { listProductCategories } from '../../../api/fn/product-categories/list-product-categories';
 import { deactivateProduct } from '../../../api/fn/products/deactivate-product';
 import { listProducts, ListProducts$Params } from '../../../api/fn/products/list-products';
+import { Role } from '../../../core/auth/auth.service';
+import { signInAs } from '../../../core/auth/testing';
 import { PRODUCTS_STRINGS } from '../products.strings';
 import { CATEGORIES, FakeApi, page, PRODUCTS, productItem } from '../testing/fake-api';
 import { ProductList } from './product-list';
@@ -13,8 +15,9 @@ describe('ProductList', () => {
   let fixture: ComponentFixture<ProductList>;
   let element: HTMLElement;
 
-  async function render(): Promise<void> {
+  async function render(role: Role = 'Operator'): Promise<void> {
     TestBed.configureTestingModule({ providers: [api.provide(), provideRouter([])] });
+    signInAs(role);
     fixture = TestBed.createComponent(ProductList);
     element = fixture.nativeElement as HTMLElement;
     await settle();
@@ -52,6 +55,26 @@ describe('ProductList', () => {
     expect(element.textContent).toContain('CAN-001');
     expect(element.textContent).toContain('Caneta azul');
     expect(element.textContent).toContain(PRODUCTS_STRINGS.status.activeChip);
+  });
+
+  it('hides create, edit and deactivate actions from the read-only profile', async () => {
+    await render('Viewer');
+
+    expect(element.textContent).not.toContain(PRODUCTS_STRINGS.list.newProduct);
+    expect(element.querySelector('.erp-row-action.danger')).toBeNull();
+    expect(element.querySelector('.erp-row-action mat-icon')?.textContent?.trim()).toBe(
+      'visibility',
+    );
+  });
+
+  it('starts with the page size chosen in the profile', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [api.provide(), provideRouter([])] });
+    signInAs('Operator', { pageSize: 50 });
+    fixture = TestBed.createComponent(ProductList);
+    await settle();
+
+    expect(lastListParams().pageSize).toBe(50);
   });
 
   it('filters inactive products through the segmented control', async () => {

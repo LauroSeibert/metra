@@ -1,0 +1,170 @@
+<erp-page-header
+  [title]="isEdit() ? strings.form.editTitle : strings.form.newTitle"
+  [subtitle]="canWrite() ? strings.form.subtitle : strings.form.readOnly"
+>
+  <a matButton="outlined" class="erp-secondary-action" routerLink="/partners">
+    <mat-icon>arrow_back</mat-icon>
+    {{ strings.back }}
+  </a>
+</erp-page-header>
+
+@if (loadError()) {
+  <erp-card class="state" role="alert">
+    <span class="state-icon"><mat-icon>cloud_off</mat-icon></span>
+    <p>{{ strings.form.loadError }}</p>
+    <button matButton="outlined" type="button" (click)="reload()">
+      <mat-icon>refresh</mat-icon>
+      {{ strings.form.reload }}
+    </button>
+  </erp-card>
+} @else if (loadingPartner()) {
+  <div class="layout" aria-busy="true">
+    @if (showSkeleton()) {
+      <erp-card class="loading">
+        <span class="erp-skeleton title"></span>
+        <span class="erp-skeleton"></span>
+        <span class="erp-skeleton short"></span>
+      </erp-card>
+    }
+  </div>
+} @else {
+  <form novalidate (submit)="save($event)">
+    @if (formErrors().length > 0) {
+      <div class="banner" role="alert">
+        <mat-icon>warning</mat-icon>
+        <div>
+          @for (error of formErrors(); track $index) {
+            <p>{{ error.message }}</p>
+          }
+        </div>
+        @if (conflict()) {
+          <button matButton="outlined" type="button" (click)="reload()">
+            {{ strings.form.reload }}
+          </button>
+        }
+      </div>
+    }
+
+    <div class="layout">
+      <div class="main">
+        <erp-card class="section">
+          <header>
+            <span class="section-icon"><mat-icon>badge</mat-icon></span>
+            <div>
+              <h2>{{ strings.form.identification }}</h2>
+              <p>{{ strings.form.identificationHint }}</p>
+            </div>
+          </header>
+
+          <div class="fields">
+            <mat-form-field>
+              <mat-label>{{ strings.form.type }}</mat-label>
+              <mat-select [formField]="partnerForm.type">
+                @for (type of types; track type) {
+                  <mat-option [value]="type">{{ strings.types[type] }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="span-2">
+              <mat-label>{{ strings.form.name }}</mat-label>
+              <input matInput [formField]="partnerForm.name" />
+              @if (partnerForm.name().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="span-2">
+              <mat-label>{{ strings.form.document }}</mat-label>
+              <input
+                matInput
+                autocomplete="off"
+                [formField]="partnerForm.document"
+                (blur)="formatDocumentField()"
+              />
+              <mat-hint>{{ strings.form.documentHint }}</mat-hint>
+              @if (partnerForm.document().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </erp-card>
+
+        <erp-card class="section">
+          <header>
+            <span class="section-icon info"><mat-icon>contact_mail</mat-icon></span>
+            <div>
+              <h2>{{ strings.form.contact }}</h2>
+              <p>{{ strings.form.contactHint }}</p>
+            </div>
+          </header>
+
+          <div class="fields">
+            <mat-form-field class="span-2">
+              <mat-label>{{ strings.form.email }}</mat-label>
+              <input matInput type="email" autocomplete="off" [formField]="partnerForm.email" />
+              @if (partnerForm.email().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>{{ strings.form.phone }}</mat-label>
+              <input matInput type="tel" autocomplete="off" [formField]="partnerForm.phone" />
+              @if (partnerForm.phone().errors()[0]; as error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </erp-card>
+      </div>
+
+      <aside class="summary">
+        <erp-card>
+          <span class="eyebrow">{{ strings.types[model().type] }}</span>
+          <h3>{{ model().name.trim() || strings.form.newTitle }}</h3>
+          <div class="chips">
+            @if (model().document.trim()) {
+              <erp-status-chip [label]="model().document" tone="primary" [plain]="true" />
+            }
+            @if (partner.hasValue()) {
+              <erp-status-chip
+                [label]="
+                  partner.value().active ? strings.status.activeChip : strings.status.inactiveChip
+                "
+                [tone]="partner.value().active ? 'success' : 'neutral'"
+              />
+            }
+          </div>
+          @if (partner.hasValue()) {
+            <dl>
+              <div>
+                <dt>{{ strings.form.createdAt }}</dt>
+                <dd>{{ partner.value().createdAt | date: 'short' }}</dd>
+              </div>
+              <div>
+                <dt>{{ strings.form.updatedAt }}</dt>
+                <dd>{{ partner.value().updatedAt | date: 'short' }}</dd>
+              </div>
+            </dl>
+          }
+        </erp-card>
+      </aside>
+    </div>
+
+    @if (canWrite()) {
+      <div class="actions">
+        <a matButton routerLink="/partners">{{ strings.form.cancel }}</a>
+        <button
+          matButton="filled"
+          class="erp-primary-action"
+          type="submit"
+          [disabled]="partnerForm().submitting()"
+        >
+          <mat-icon>check</mat-icon>
+          {{ partnerForm().submitting() ? strings.form.saving : strings.form.save }}
+        </button>
+      </div>
+    }
+  </form>
+}
