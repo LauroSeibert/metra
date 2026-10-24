@@ -100,7 +100,7 @@ describe('EntryList', () => {
   it('shows the summary cards in reais', async () => {
     await render();
 
-    const cards = Array.from(element.querySelectorAll('erp-kpi-card')).map((card) =>
+    const cards = Array.from(element.querySelectorAll('erp-kpi-strip .cell')).map((card) =>
       card.textContent?.replace(/\s/g, ' '),
     );
     expect(cards[0]).toContain('R$ 1.500,00');

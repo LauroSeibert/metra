@@ -1,19 +1,7 @@
-.results {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--erp-space-3);
-  min-height: 36px;
-  margin-bottom: var(--erp-space-3);
-  padding: 0 var(--erp-space-1);
-  color: var(--erp-text-muted);
-  font-size: var(--erp-font-size-sm);
-  font-weight: var(--erp-font-weight-medium);
-}
-
 .partner-name {
-  color: var(--erp-text);
-  font-weight: var(--erp-font-weight-semibold);
+  display: block;
+  color: inherit;
+  font-weight: var(--erp-font-weight-medium);
   text-decoration: none;
 
   &:hover {
@@ -22,20 +10,21 @@
   }
 }
 
+.secondary {
+  display: block;
+  color: var(--erp-text-muted);
+  font-size: var(--erp-font-size-sm);
+}
+
 .document {
   color: var(--erp-text-muted);
-  font-family: ui-monospace, 'Cascadia Mono', 'SFMono-Regular', monospace;
+  font-family: var(--erp-font-mono);
   font-size: var(--erp-font-size-sm);
   white-space: nowrap;
 }
 
 .contact {
-  display: flex;
-  flex-direction: column;
-
-  small {
-    color: var(--erp-text-subtle);
-  }
+  display: block;
 }
 
 .missing {

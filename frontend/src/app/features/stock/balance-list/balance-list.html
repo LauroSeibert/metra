@@ -11,50 +11,14 @@
   }
 </erp-page-header>
 
-<section class="erp-toolbar" [attr.aria-label]="strings.balances.searchLabel">
-  <mat-form-field class="grow" subscriptSizing="dynamic">
-    <mat-icon matPrefix>search</mat-icon>
-    <mat-label>{{ strings.balances.searchLabel }}</mat-label>
-    <input
-      matInput
-      type="search"
-      [placeholder]="strings.balances.searchPlaceholder"
-      [value]="search()"
-      (input)="onSearchInput($event)"
-    />
-  </mat-form-field>
-
-  <mat-form-field subscriptSizing="dynamic">
-    <mat-label>{{ strings.balances.categoryFilter }}</mat-label>
-    <mat-select [value]="categoryId()" (valueChange)="categoryId.set($event)">
-      <mat-option [value]="null">{{ strings.balances.allCategories }}</mat-option>
-      @for (category of categoryOptions(); track category.id) {
-        <mat-option [value]="category.id">{{ category.name }}</mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-
-  <erp-segmented-control
-    [options]="levelOptions"
-    [(value)]="level"
-    [label]="strings.balances.levelFilter"
-  />
-</section>
-
-<div class="results">
-  <span>{{ strings.balances.results((total() | number) ?? '0') }}</span>
-  @if (hasFilters()) {
-    <button matButton type="button" (click)="clearFilters()">
-      <mat-icon>filter_alt_off</mat-icon>
-      {{ strings.balances.clearFilters }}
-    </button>
-  }
-</div>
+<!-- As três células filtram pelo nível do saldo em relação ao estoque mínimo. -->
+<erp-kpi-strip [items]="kpiItems()" [(selected)]="level" [label]="strings.balances.levelFilter" />
 
 <erp-data-table
   [columns]="columns"
   [rows]="rows()"
   [rowKey]="rowKey"
+  [rowMuted]="inactive"
   [loading]="balances.isLoading()"
   [error]="loadError()"
   [emptyMessage]="strings.balances.empty"
@@ -66,11 +30,52 @@
   (retry)="balances.reload()"
   (rowActivate)="openHistory($event)"
 >
-  <ng-template erpCell="name" [erpCellOf]="rows()" let-balance>
-    <span class="product-name" [class.inactive]="!balance.active">{{ balance.name }}</span>
-    @if (!balance.active) {
-      <erp-status-chip [label]="strings.balances.inactive" tone="neutral" [plain]="true" />
+  <section tableToolbar class="erp-toolbar" [attr.aria-label]="strings.balances.searchLabel">
+    <mat-form-field class="grow" subscriptSizing="dynamic">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        erpSlashFocus
+        type="search"
+        [attr.aria-label]="strings.balances.searchLabel"
+        [placeholder]="strings.balances.searchLabel"
+        [value]="search()"
+        (input)="onSearchInput($event)"
+      />
+      <span matSuffix class="erp-kbd" aria-hidden="true">/</span>
+    </mat-form-field>
+
+    <mat-form-field subscriptSizing="dynamic">
+      <span matTextPrefix class="erp-filter-label">{{ strings.balances.categoryFilter }}</span>
+      <mat-select
+        [value]="categoryId() ?? 0"
+        [aria-label]="strings.balances.categoryFilter"
+        (valueChange)="categoryId.set($event || null)"
+      >
+        <mat-option [value]="0">{{ strings.balances.allCategories }}</mat-option>
+        @for (category of categoryOptions(); track category.id) {
+          <mat-option [value]="category.id">{{ category.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (hasFilters()) {
+      <button matButton type="button" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        {{ strings.balances.clearFilters }}
+      </button>
     }
+    <span class="erp-count">{{ strings.balances.results((total() | number) ?? '0') }}</span>
+  </section>
+
+  <ng-template erpCell="name" [erpCellOf]="rows()" let-balance>
+    <span class="product-name">{{ balance.name }}</span>
+    <span class="secondary">
+      {{ balance.categoryName ?? strings.balances.noCategory }}
+      @if (!balance.active) {
+        · {{ strings.balances.inactive }}
+      }
+    </span>
   </ng-template>
 
   <ng-template erpCell="sku" [erpCellOf]="rows()" let-balance>
@@ -78,28 +83,24 @@
   </ng-template>
 
   <ng-template erpCell="unitCode" [erpCellOf]="rows()" let-balance>
-    @if (balance.unitCode; as unitCode) {
-      <erp-status-chip [label]="unitCode" tone="neutral" [plain]="true" />
-    } @else {
-      <span class="missing">—</span>
-    }
+    {{ balance.unitCode ?? '—' }}
   </ng-template>
 
   <ng-template erpCell="quantity" [erpCellOf]="rows()" let-balance>
-    <strong class="quantity" [class.negative]="balance.quantity < 0">
-      {{ balance.quantity | number: '1.0-3' }}
-    </strong>
+    @if (balance.quantity <= 0) {
+      <span class="flag zero">{{ strings.balances.zeroFlag }}</span>
+    } @else if (balance.lowStock) {
+      <span class="flag low">{{ strings.balances.lowFlag }}</span>
+    }
+    <span
+      [class.zero]="balance.quantity <= 0"
+      [class.low]="balance.quantity > 0 && balance.lowStock"
+      >{{ balance.quantity | number: '1.0-3' }}</span
+    >
   </ng-template>
 
   <ng-template erpCell="minStock" [erpCellOf]="rows()" let-balance>
     {{ balance.minStock | number: '1.0-3' }}
-  </ng-template>
-
-  <ng-template erpCell="lowStock" [erpCellOf]="rows()" let-balance>
-    <erp-status-chip
-      [label]="balance.lowStock ? strings.balances.lowChip : strings.balances.okChip"
-      [tone]="balance.lowStock ? 'warning' : 'success'"
-    />
   </ng-template>
 
   <ng-template erpCell="actions" [erpCellOf]="rows()" let-balance>

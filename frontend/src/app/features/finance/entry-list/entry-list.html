@@ -11,88 +11,13 @@
   }
 </erp-page-header>
 
-<section class="erp-kpi-grid" [attr.aria-label]="texts().title">
-  <erp-kpi-card
-    icon="account_balance_wallet"
-    tone="primary"
-    format="currency"
-    [label]="strings.summary.open"
-    [value]="totals()?.openAmount ?? null"
-    [hint]="totals() ? strings.summary.count(totals()!.openCount) : undefined"
-  />
-  <erp-kpi-card
-    icon="warning"
-    tone="danger"
-    format="currency"
-    [label]="strings.summary.overdue"
-    [value]="totals()?.overdueAmount ?? null"
-    [hint]="totals() ? strings.summary.count(totals()!.overdueCount) : undefined"
-  />
-  <erp-kpi-card
-    icon="event_upcoming"
-    tone="warning"
-    format="currency"
-    [label]="strings.summary.dueSoon"
-    [value]="totals()?.dueNext7DaysAmount ?? null"
-    [hint]="totals() ? strings.summary.count(totals()!.dueNext7DaysCount) : undefined"
-  />
-  <erp-kpi-card
-    icon="task_alt"
-    tone="success"
-    format="currency"
-    [label]="texts().paidThisMonth"
-    [value]="totals()?.paidThisMonthAmount ?? null"
-    [hint]="totals() ? strings.summary.count(totals()!.paidThisMonthCount) : undefined"
-  />
-</section>
-
-<section class="erp-toolbar filters" [attr.aria-label]="strings.list.searchLabel">
-  <mat-form-field class="grow" subscriptSizing="dynamic">
-    <mat-icon matPrefix>search</mat-icon>
-    <mat-label>{{ strings.list.searchLabel }}</mat-label>
-    <input matInput type="search" [value]="search()" (input)="onSearchInput($event)" />
-  </mat-form-field>
-
-  <mat-form-field subscriptSizing="dynamic">
-    <mat-label>{{ strings.list.categoryFilter }}</mat-label>
-    <mat-select [value]="categoryId()" (valueChange)="categoryId.set($event)">
-      <mat-option [value]="null">{{ strings.list.allCategories }}</mat-option>
-      @for (category of categoryOptions(); track category.id) {
-        <mat-option [value]="category.id">{{ category.name }}</mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-
-  <mat-form-field subscriptSizing="dynamic" class="date">
-    <mat-label>{{ strings.list.dueFrom }}</mat-label>
-    <input matInput type="date" [value]="dueFrom()" (change)="onDate('dueFrom', $event)" />
-  </mat-form-field>
-
-  <mat-form-field subscriptSizing="dynamic" class="date">
-    <mat-label>{{ strings.list.dueTo }}</mat-label>
-    <input matInput type="date" [value]="dueTo()" (change)="onDate('dueTo', $event)" />
-  </mat-form-field>
-</section>
-
-<div class="results">
-  <erp-segmented-control
-    [options]="statusOptions"
-    [(value)]="status"
-    [label]="strings.list.statusFilter"
-  />
-  <span class="count">{{ strings.list.results((total() | number) ?? '0') }}</span>
-  @if (hasFilters()) {
-    <button matButton type="button" (click)="clearFilters()">
-      <mat-icon>filter_alt_off</mat-icon>
-      {{ strings.list.clearFilters }}
-    </button>
-  }
-</div>
+<erp-kpi-strip [items]="kpiItems()" [label]="texts().title" />
 
 <erp-data-table
   [columns]="columns"
   [rows]="rows()"
   [rowKey]="rowKey"
+  [rowMuted]="cancelled"
   [loading]="entries.isLoading()"
   [error]="loadError()"
   [emptyMessage]="strings.list.empty"
@@ -104,8 +29,73 @@
   (retry)="entries.reload()"
   (rowActivate)="open($event)"
 >
+  <section tableToolbar class="erp-toolbar" [attr.aria-label]="strings.list.searchLabel">
+    <mat-form-field class="grow" subscriptSizing="dynamic">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        erpSlashFocus
+        type="search"
+        [attr.aria-label]="strings.list.searchLabel"
+        [placeholder]="strings.list.searchLabel"
+        [value]="search()"
+        (input)="onSearchInput($event)"
+      />
+      <span matSuffix class="erp-kbd" aria-hidden="true">/</span>
+    </mat-form-field>
+
+    <mat-form-field subscriptSizing="dynamic">
+      <span matTextPrefix class="erp-filter-label">{{ strings.list.categoryFilter }}</span>
+      <mat-select
+        [value]="categoryId() ?? 0"
+        [aria-label]="strings.list.categoryFilter"
+        (valueChange)="categoryId.set($event || null)"
+      >
+        <mat-option [value]="0">{{ strings.list.allCategories }}</mat-option>
+        @for (category of categoryOptions(); track category.id) {
+          <mat-option [value]="category.id">{{ category.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field subscriptSizing="dynamic" class="date">
+      <span matTextPrefix class="erp-filter-label">{{ strings.list.dueFrom }}</span>
+      <input
+        matInput
+        type="date"
+        [attr.aria-label]="strings.list.dueFrom"
+        [value]="dueFrom()"
+        (change)="onDate('dueFrom', $event)"
+      />
+    </mat-form-field>
+
+    <mat-form-field subscriptSizing="dynamic" class="date">
+      <span matTextPrefix class="erp-filter-label">{{ strings.list.dueTo }}</span>
+      <input
+        matInput
+        type="date"
+        [attr.aria-label]="strings.list.dueTo"
+        [value]="dueTo()"
+        (change)="onDate('dueTo', $event)"
+      />
+    </mat-form-field>
+
+    <erp-segmented-control
+      [options]="statusOptions"
+      [(value)]="status"
+      [label]="strings.list.statusFilter"
+    />
+
+    @if (hasFilters()) {
+      <button matButton type="button" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        {{ strings.list.clearFilters }}
+      </button>
+    }
+    <span class="erp-count">{{ strings.list.results((total() | number) ?? '0') }}</span>
+  </section>
   <ng-template erpCell="dueDate" [erpCellOf]="rows()" let-entry>
-    <span class="due">{{ entry.dueDate | date: 'dd/MM/yyyy' }}</span>
+    <span class="due erp-mono">{{ entry.dueDate | date: 'dd/MM/yyyy' }}</span>
   </ng-template>
 
   <ng-template erpCell="description" [erpCellOf]="rows()" let-entry>
@@ -128,7 +118,7 @@
   </ng-template>
 
   <ng-template erpCell="amount" [erpCellOf]="rows()" let-entry>
-    <strong class="amount">{{ entry.amount | currency }}</strong>
+    {{ entry.amount | currency }}
     @if (entry.paidAmount !== null && entry.paidAmount !== entry.amount) {
       <small class="paid">{{ entry.paidAmount | currency }}</small>
     }

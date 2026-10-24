@@ -5,7 +5,7 @@
   grid-template-columns: var(--shell-nav-width) minmax(0, 1fr);
   grid-template-rows: var(--erp-topbar-height) minmax(0, 1fr);
   grid-template-areas:
-    'top top'
+    'side top'
     'side content';
   min-height: 100dvh;
   transition: grid-template-columns var(--erp-duration-base) var(--erp-easing);
@@ -20,13 +20,14 @@
   position: sticky;
   top: 0;
   z-index: var(--erp-z-topbar);
+  min-width: 0;
 }
 
 .side {
   grid-area: side;
   position: sticky;
-  top: var(--erp-topbar-height);
-  height: calc(100dvh - var(--erp-topbar-height));
+  top: 0;
+  height: 100dvh;
   overflow: hidden auto;
   background: var(--erp-surface);
   border-right: var(--erp-border-width) solid var(--erp-border);
@@ -47,7 +48,7 @@
 
   .side {
     position: fixed;
-    top: var(--erp-topbar-height);
+    top: 0;
     bottom: 0;
     left: 0;
     z-index: var(--erp-z-nav);
@@ -70,7 +71,7 @@
 
 .backdrop {
   position: fixed;
-  inset: var(--erp-topbar-height) 0 0;
+  inset: 0;
   z-index: calc(var(--erp-z-nav) - 1);
   background: var(--erp-backdrop);
 }

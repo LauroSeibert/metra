@@ -21,5 +21,14 @@ export const LAYOUT_STRINGS = {
   openMenu: 'Abrir menu',
   closeMenu: 'Fechar menu',
   collapseMenu: 'Recolher menu',
+  collapse: 'Recolher',
+  demoBadge: 'Ambiente de demonstração',
+  search: {
+    placeholder: 'Buscar ou ir para...',
+    label: 'Buscar ou ir para uma tela',
+    empty: 'Nada encontrado.',
+    goTo: 'Ir para',
+    create: 'Criar',
+  },
   expandMenu: 'Expandir menu',
 } as const;

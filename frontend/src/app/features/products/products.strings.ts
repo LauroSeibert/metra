@@ -5,6 +5,8 @@ export const PRODUCTS_STRINGS = {
     subtitle: 'Catálogo de produtos vendidos pela empresa.',
     newProduct: 'Novo produto',
     noCategory: 'Sem categoria',
+    zeroStock: 'zerado',
+    lowStockFlag: 'baixo',
     stockFilter: 'Estoque',
     allStock: 'Todos',
     lowStock: 'Abaixo do mínimo',
@@ -13,7 +15,7 @@ export const PRODUCTS_STRINGS = {
     searchLabel: 'Buscar por SKU ou nome',
     searchPlaceholder: 'Comece a digitar o SKU ou o nome',
     categoryFilter: 'Categoria',
-    allCategories: 'Todas as categorias',
+    allCategories: 'Todas',
     statusFilter: 'Situação',
     clearFilters: 'Limpar filtros',
     results: (count: string) => `${count} resultados`,
@@ -33,6 +35,7 @@ export const PRODUCTS_STRINGS = {
     inactiveChip: 'Inativo',
   },
   kpis: {
+    label: 'Indicadores do catálogo',
     total: 'Produtos cadastrados',
     active: 'Ativos',
     inactive: 'Inativos',
@@ -45,6 +48,7 @@ export const PRODUCTS_STRINGS = {
   columns: {
     product: 'Produto',
     stock: 'Estoque',
+    unitShort: 'Unid.',
     sku: 'SKU',
     name: 'Nome',
     category: 'Categoria',

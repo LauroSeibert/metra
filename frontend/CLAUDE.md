@@ -5,7 +5,8 @@
 - `src/app/api`: cliente gerado pelo `ng-openapi-gen` (nunca editar; `npm run api:generate`).
 - `src/app/core`: layout, `auth/` (sessão, interceptor, guards, tema), `http/` (ProblemDetails → `ApiProblem`,
   erros do servidor no Signal Forms), notificações.
-- `src/app/shared/ui`: `AppShell`, `PageHeader`, `Card`, `DataTable`, `StatusChip`, `SegmentedControl`, `ConfirmDialog`.
+- `src/app/shared/ui`: `AppShell`, `PageHeader`, `KpiStrip`, `DataTable` (filtros no slot `[tableToolbar]`), `Card`,
+  `StatusChip`, `SegmentedControl`, `ConfirmDialog`, `MoneyInput`. Visual de referência: `docs/design/listagem.png`.
 - `src/app/shared/data`: `debounced()` e estado de listagem na URL.
 - `src/app/features/<funcionalidade>`: rotas lazy, telas, `*.strings.ts`, `*-rules.ts` e `testing/`.
 - `src/app/styles`: `tokens.scss` (fonte única de cor, raio, espaçamento) e `theme.scss` (Material).
@@ -23,7 +24,8 @@
 
 - `app.routes.ts` não pode importar `provideMaterialFormDefaults` nem o `<modulo>.strings.ts`: rota nova vai em
   `loadChildren` e o breadcrumb de primeiro nível fica em `LAYOUT_STRINGS.breadcrumbs`.
-- Orçamento inicial apertado (~543 de 550 kB): nada de `MatMenu` no layout (o menu da conta é `popover` nativo).
+- Orçamento inicial: ~477 de 550 kB. No layout (core/layout) nada de `MatTooltip`, `MatMenu` ou `@defer`: use `title` e
+  `popover` nativos. Folha de estilo de componente: até 6 kB (o `DataTable` está perto do limite).
 
 - `MAT_FORM_FIELD_DEFAULT_OPTIONS`/`MatPaginatorIntl` no `app.config` arrastam ~250 kB para o bundle inicial:
   use `provideMaterialFormDefaults()` nos `providers` da rota lazy.

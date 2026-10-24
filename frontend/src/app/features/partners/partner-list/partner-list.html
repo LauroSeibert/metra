@@ -7,50 +7,14 @@
   }
 </erp-page-header>
 
-<section class="erp-toolbar" [attr.aria-label]="strings.list.searchLabel">
-  <mat-form-field class="grow" subscriptSizing="dynamic">
-    <mat-icon matPrefix>search</mat-icon>
-    <mat-label>{{ strings.list.searchLabel }}</mat-label>
-    <input
-      matInput
-      type="search"
-      [placeholder]="strings.list.searchPlaceholder"
-      [value]="search()"
-      (input)="onSearchInput($event)"
-    />
-  </mat-form-field>
-
-  <mat-form-field subscriptSizing="dynamic">
-    <mat-label>{{ strings.list.typeFilter }}</mat-label>
-    <mat-select [value]="type()" (valueChange)="type.set($event)">
-      <mat-option [value]="null">{{ strings.list.allTypes }}</mat-option>
-      <mat-option value="Customer">{{ strings.list.customers }}</mat-option>
-      <mat-option value="Supplier">{{ strings.list.suppliers }}</mat-option>
-      <mat-option value="Both">{{ strings.types.Both }}</mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <erp-segmented-control
-    [options]="statusOptions"
-    [(value)]="status"
-    [label]="strings.list.statusFilter"
-  />
-</section>
-
-<div class="results">
-  <span>{{ strings.list.results((total() | number) ?? '0') }}</span>
-  @if (hasFilters()) {
-    <button matButton type="button" (click)="clearFilters()">
-      <mat-icon>filter_alt_off</mat-icon>
-      {{ strings.list.clearFilters }}
-    </button>
-  }
-</div>
+<!-- Todos / Ativos / Inativos filtram a lista; Fornecedores é só informação. -->
+<erp-kpi-strip [items]="kpiItems()" [(selected)]="status" [label]="strings.list.kpis" />
 
 <erp-data-table
   [columns]="columns"
   [rows]="rows()"
   [rowKey]="rowKey"
+  [rowMuted]="inactive"
   [loading]="partners.isLoading()"
   [error]="loadError()"
   [emptyMessage]="strings.list.empty"
@@ -62,43 +26,68 @@
   (retry)="partners.reload()"
   (rowActivate)="openPartner($event)"
 >
+  <section tableToolbar class="erp-toolbar" [attr.aria-label]="strings.list.searchLabel">
+    <mat-form-field class="grow" subscriptSizing="dynamic">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        erpSlashFocus
+        type="search"
+        [attr.aria-label]="strings.list.searchLabel"
+        [placeholder]="strings.list.searchLabel"
+        [value]="search()"
+        (input)="onSearchInput($event)"
+      />
+      <span matSuffix class="erp-kbd" aria-hidden="true">/</span>
+    </mat-form-field>
+
+    <mat-form-field subscriptSizing="dynamic">
+      <span matTextPrefix class="erp-filter-label">{{ strings.list.typeFilter }}</span>
+      <mat-select
+        [value]="type() ?? 'all'"
+        [aria-label]="strings.list.typeFilter"
+        (valueChange)="type.set($event === 'all' ? null : $event)"
+      >
+        <mat-option value="all">{{ strings.list.allTypes }}</mat-option>
+        <mat-option value="Customer">{{ strings.list.customers }}</mat-option>
+        <mat-option value="Supplier">{{ strings.list.suppliers }}</mat-option>
+        <mat-option value="Both">{{ strings.types.Both }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    @if (hasFilters()) {
+      <button matButton type="button" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        {{ strings.list.clearFilters }}
+      </button>
+    }
+    <span class="erp-count">{{ strings.list.results((total() | number) ?? '0') }}</span>
+  </section>
+
   <ng-template erpCell="name" [erpCellOf]="rows()" let-partner>
     <a class="partner-name" [routerLink]="['edit', partner.id]">{{ partner.name }}</a>
+    <span class="secondary">{{ strings.types[partner.type] }}</span>
   </ng-template>
 
   <ng-template erpCell="document" [erpCellOf]="rows()" let-partner>
     <span class="document">{{ formatDocument(partner.document) }}</span>
   </ng-template>
 
-  <ng-template erpCell="type" [erpCellOf]="rows()" let-partner>
-    <erp-status-chip
-      [label]="strings.types[partner.type]"
-      [tone]="
-        partner.type === 'Supplier' ? 'info' : partner.type === 'Both' ? 'warning' : 'primary'
-      "
-      [plain]="true"
-    />
-  </ng-template>
-
   <ng-template erpCell="contact" [erpCellOf]="rows()" let-partner>
-    <div class="contact">
-      @if (partner.email) {
-        <span>{{ partner.email }}</span>
-      }
-      @if (partner.phone) {
-        <small>{{ partner.phone }}</small>
-      }
-      @if (!partner.email && !partner.phone) {
-        <span class="missing">—</span>
-      }
-    </div>
+    @if (partner.email || partner.phone) {
+      <span class="contact">{{ partner.email ?? '' }}</span>
+      <span class="secondary">{{ partner.phone ?? '' }}</span>
+    } @else {
+      <span class="missing">—</span>
+    }
   </ng-template>
 
   <ng-template erpCell="active" [erpCellOf]="rows()" let-partner>
-    <erp-status-chip
-      [label]="partner.active ? strings.status.activeChip : strings.status.inactiveChip"
-      [tone]="partner.active ? 'success' : 'neutral'"
-    />
+    @if (partner.active) {
+      <span class="erp-dot" [attr.aria-label]="strings.status.activeChip"></span>
+    } @else {
+      <span class="erp-dot off">{{ strings.status.inactiveChip }}</span>
+    }
   </ng-template>
 
   <ng-template erpCell="actions" [erpCellOf]="rows()" let-partner>
