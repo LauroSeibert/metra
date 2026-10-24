@@ -9,7 +9,7 @@ namespace Erp.Seed;
 /// <summary>
 /// Mede o p95 das listagens contra a API em execução, com cenários de busca, filtro, ordenação e página
 /// profunda. Alvos: `products` (Fase 2) e `stock` (Fase 4, histórico com 1 milhão de movimentações por
-/// chave). Meta: p95 abaixo de 200 ms com o seed completo.
+/// chave) e `finance` (Fase 5). Meta: p95 abaixo de 200 ms com o seed completo.
 /// </summary>
 internal sealed class ListingBenchmark(Uri baseUrl, int requestsPerScenario, string email, string password, string target = "all")
 {
@@ -33,6 +33,13 @@ internal sealed class ListingBenchmark(Uri baseUrl, int requestsPerScenario, str
         ("stock", "saldo, primeira página", "/api/v1/stock-balances?pageSize=20"),
         ("stock", "saldo abaixo do mínimo", "/api/v1/stock-balances?lowStock=true&pageSize=20"),
         ("stock", "saldo por categoria", "/api/v1/stock-balances?categoryId={category}&sort=quantity&pageSize=20"),
+        ("finance", "a receber em aberto", "/api/v1/financial-entries?kind=Receivable&status=Open&pageSize=20"),
+        ("finance", "a pagar vencidas", "/api/v1/financial-entries?kind=Payable&status=Overdue&pageSize=20"),
+        ("finance", "a pagar por período", "/api/v1/financial-entries?kind=Payable&dueFrom={date}&dueTo={dateEnd}&pageSize=20"),
+        ("finance", "busca por descrição", "/api/v1/financial-entries?kind=Payable&search=Alu&pageSize=20"),
+        ("finance", "a pagar, página 50", "/api/v1/financial-entries?kind=Payable&page=50&pageSize=20"),
+        ("finance", "resumo a receber", "/api/v1/financial-entries/summary?kind=Receivable"),
+        ("finance", "resumo a pagar", "/api/v1/financial-entries/summary?kind=Payable"),
     ];
 
     private (string Target, string Name, string Url)[] Scenarios =>
@@ -89,7 +96,8 @@ internal sealed class ListingBenchmark(Uri baseUrl, int requestsPerScenario, str
             .Replace("{sku}", SkuPrefixes[random.Next(SkuPrefixes.Length)], StringComparison.Ordinal)
             .Replace("{category}", random.Next(1, 31).ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal)
             .Replace("{product}", random.Next(1, 100_001).ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal)
-            .Replace("{date}", DateTime.UtcNow.AddDays(-random.Next(1, 720)).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), StringComparison.Ordinal);
+            .Replace("{dateEnd}", DateTime.UtcNow.AddDays(-random.Next(1, 300)).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), StringComparison.Ordinal)
+            .Replace("{date}", DateTime.UtcNow.AddDays(-random.Next(330, 720)).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), StringComparison.Ordinal);
 
     private static async Task<double> GetAsync(HttpClient client, string url, CancellationToken cancellationToken)
     {

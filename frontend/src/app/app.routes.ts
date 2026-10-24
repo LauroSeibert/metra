@@ -38,6 +38,12 @@ export const routes: Routes = [
         loadChildren: () => import('./features/stock/stock.routes').then((m) => m.STOCK_ROUTES),
       },
       {
+        path: 'finance',
+        data: { breadcrumb: LAYOUT_STRINGS.breadcrumbs.finance },
+        loadChildren: () =>
+          import('./features/finance/finance.routes').then((m) => m.FINANCE_ROUTES),
+      },
+      {
         path: 'profile',
         data: { breadcrumb: LAYOUT_STRINGS.breadcrumbs.profile },
         loadChildren: () => import('./features/access/access.routes').then((m) => m.PROFILE_ROUTES),

@@ -111,6 +111,12 @@ public static class ErrorCodes
     public const string StockMovementNotFound = "stock_movement.not_found";
     public const string StockMovementAlreadyReversed = "stock_movement.already_reversed";
 
+    public const string InvalidState = "invalid_state";
+    public const string FinancialCategoryNotFound = "financial_category.not_found";
+    public const string FinancialCategoryNameDuplicate = "financial_category.name_duplicate";
+    public const string FinancialCategoryInUse = "financial_category.in_use";
+    public const string FinancialEntryNotFound = "financial_entry.not_found";
+
     public const string InvalidCredentials = "auth.invalid_credentials";
     public const string LockedOut = "auth.locked_out";
     public const string InvalidRefreshToken = "auth.invalid_refresh_token";

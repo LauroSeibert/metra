@@ -1,3 +1,4 @@
+using Erp.Domain.Finance;
 using Erp.Domain.Partners;
 using Erp.Domain.Products;
 using Erp.Domain.Settings;
@@ -24,6 +25,10 @@ public interface IErpDbContext
     DbSet<StockBalance> StockBalances { get; }
 
     DbSet<AppSetting> AppSettings { get; }
+
+    DbSet<FinancialCategory> FinancialCategories { get; }
+
+    DbSet<FinancialEntry> FinancialEntries { get; }
 
     /// <summary>Nomes dos usuários, para exibir quem registrou algo (o usuário em si fica no Identity).</summary>
     IQueryable<UserName> UserNames { get; }

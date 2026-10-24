@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Erp.Api.Access;
 using Erp.Api.ErrorHandling;
+using Erp.Api.Finance;
 using Erp.Api.OpenApi;
 using Erp.Api.Partners;
 using Erp.Api.Products;
@@ -85,7 +86,8 @@ app.MapGroup("/api/v1")
     .MapProductCategoryEndpoints()
     .MapUnitEndpoints()
     .MapPartnerEndpoints()
-    .MapStockEndpoints();
+    .MapStockEndpoints()
+    .MapFinanceEndpoints();
 
 await app.RunAsync().ConfigureAwait(false);
 

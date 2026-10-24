@@ -28,6 +28,7 @@ internal sealed partial class ApiExceptionHandler(IProblemDetailsService problem
             },
             NotFoundException notFound => Problem(StatusCodes.Status404NotFound, "Não encontrado.", notFound.Message, notFound.Code),
             UnauthorizedException unauthorized => Problem(StatusCodes.Status401Unauthorized, "Não autorizado.", unauthorized.Message, unauthorized.Code),
+            InvalidStateException invalid => Problem(StatusCodes.Status409Conflict, "Conflito.", invalid.Message, ErrorCodes.InvalidState),
             ConflictException conflict => Problem(StatusCodes.Status409Conflict, "Conflito.", conflict.Message, conflict.Code),
             DbUpdateConcurrencyException => Problem(
                 StatusCodes.Status409Conflict,
