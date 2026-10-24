@@ -18,13 +18,10 @@ Plano completo e fases: `docs/plan.md` (leia só a seção que a tarefa pedir).
   - Front em http://localhost:8080, API em http://localhost:5080 (`/health`, `/health/ready`)
   - Login: `ADMIN_EMAIL`/`ADMIN_PASSWORD` do `.env`; `DEMO_USERS_PASSWORD` cria `operador@` e `leitura@erp.local`
 - API local: `dotnet run --project backend/src/Erp.Api` (connection string via user-secrets)
-- Build, testes e lint da API: `dotnet build backend/Erp.slnx`, `dotnet test --solution backend/Erp.slnx`,
-  `dotnet format backend/Erp.slnx --verify-no-changes` (testes de integração precisam de Docker)
-- Front, dentro de `frontend/`: `npm start`, `npm run build`, `npm test` e `npm run lint`
+- Build da API: `dotnet build backend/Erp.slnx` (testes existentes: `dotnet test --solution backend/Erp.slnx`, com Docker)
+- Front, dentro de `frontend/`: `npm start`, `npm run build` e `npm run lint`
 - Regenerar cliente OpenAPI: `npm run api:generate` dentro de `frontend/` (depois do `dotnet build`)
-- Seed: `dotnet run --project backend/src/Erp.Seed -- seed --profile small|full`
-- Medir listagens: `dotnet run --project backend/src/Erp.Seed -c Release -- measure --target products|stock|finance|all`,
-  com `ERP_EMAIL` e `ERP_PASSWORD`. O seed só completa tabelas vazias (produtos, parceiros, estoque...).
+- Seed: `dotnet run --project backend/src/Erp.Seed -- seed --profile small` (só completa tabelas vazias)
 
 ## Regras globais
 - Código em inglês, interface em pt-BR; termos de negócio em `docs/domain-glossary.md`.
@@ -32,8 +29,8 @@ Plano completo e fases: `docs/plan.md` (leia só a seção que a tarefa pedir).
 - Siga o módulo de referência: produtos (`backend/src/Erp.*/Products` e `frontend/src/app/features/products`).
 - Mudou a API? Regenere o cliente no mesmo commit.
 - Visual: siga `docs/design-system.md` e use só os tokens de `frontend/src/app/styles/`.
-- Nova dependência exige ADR em `docs/adr/`.
-- Ao terminar, rode build, testes e lint e relate o resultado real.
+- Escopo simplificado (`docs/plan.md`): foco em telas funcionando e visual; sem testes novos, benchmarks ou ADRs.
+- Ao terminar, rode `dotnet build` e `npm run build` e relate o resultado real.
 
 ## Leia só o que for tocar
 - Convenções de API: `docs/api-conventions.md`

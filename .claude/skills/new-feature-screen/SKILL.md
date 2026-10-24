@@ -47,12 +47,7 @@ Registre a rota em `app.routes.ts` com `loadChildren` e `data: { breadcrumb }`, 
 - Edição envia `version`; em `concurrency_conflict` mostre o banner com "Recarregar dados".
 - Campos: `<mat-form-field>` + `[formField]` + `<mat-error>` com `campo().errors()[0]`.
 
-## Testes (copie os `*.spec.ts` de produtos)
-
-`FakeApi` com `.on(fn, resposta)` e `callsTo(fn)`; `signInAs('Operator')` (`core/auth/testing.ts`) antes de criar o componente. Cubra: parâmetros da primeira carga, filtro, busca com debounce,
-vazio, erro, validação que bloqueia o envio, erro do servidor no campo e envio da versão na edição.
-
 ## Antes de entregar
 
-`npm run lint`, `npm run build` (orçamento de bundle) e `npm test` dentro de `frontend/`. Confira no navegador
-os três estados e um fluxo de cadastro completo.
+`npm run build` dentro de `frontend/` e uma olhada no navegador (lista, cadastro e erro de validação).
+Sem testes novos (escopo simplificado em `docs/plan.md`).

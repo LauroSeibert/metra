@@ -29,7 +29,7 @@ Falta um valor? Crie o token primeiro. Nenhum componente usa cor, raio ou espaç
   futuros com "Em breve". No rodapé, separados por uma linha: Configurações e Recolher.
 - **Barra superior branca** só sobre o conteúdo: trilha com o grupo do menu ("Cadastros › Produtos"), busca global
   "Buscar ou ir para…" (Ctrl K), selo "Ambiente de demonstração", ajuda, notificações e avatar com nome e perfil.
-- Dicas do layout usam `title` nativo, não `MatTooltip` (o overlay do Material pesaria ~70 kB no bundle inicial).
+- Dicas do layout usam `title` nativo.
 
 ## Componentes (`frontend/src/app/shared/ui/`)
 
@@ -86,7 +86,5 @@ Classes globais (`src/styles.scss`):
 
 ## Bundle
 
-O orçamento do build (`angular.json`) é 550 kB de aviso e 650 kB de erro para o carregamento inicial (hoje ~477 kB)
-e 6 kB por folha de estilo de componente. Tokens do Material de formulário entram por
-`provideMaterialFormDefaults()` na rota lazy de cada funcionalidade: no `app.config` eles arrastam ~250 kB.
-Nada de `MatTooltip`, `MatMenu` ou `@defer` no layout (todos pesam mais no bundle inicial do que economizam).
+Orçamento folgado (1 MB de aviso). Tokens do Material de formulário entram por `provideMaterialFormDefaults()`
+na rota lazy de cada funcionalidade: no `app.config` eles arrastam ~250 kB.

@@ -24,8 +24,7 @@
 
 - `app.routes.ts` não pode importar `provideMaterialFormDefaults` nem o `<modulo>.strings.ts`: rota nova vai em
   `loadChildren` e o breadcrumb de primeiro nível fica em `LAYOUT_STRINGS.breadcrumbs`.
-- Orçamento inicial: ~477 de 550 kB. No layout (core/layout) nada de `MatTooltip`, `MatMenu` ou `@defer`: use `title` e
-  `popover` nativos. Folha de estilo de componente: até 6 kB (o `DataTable` está perto do limite).
+- Folha de estilo de componente: até 12 kB de aviso. No layout (core/layout) as dicas usam `title` nativo.
 
 - `MAT_FORM_FIELD_DEFAULT_OPTIONS`/`MatPaginatorIntl` no `app.config` arrastam ~250 kB para o bundle inicial:
   use `provideMaterialFormDefaults()` nos `providers` da rota lazy.
@@ -34,6 +33,5 @@
 
 ## Comandos
 
-- `npm start` (proxy de `/api` para http://localhost:5080), `npm test` (Vitest, roda uma vez), `npm run lint`.
+- `npm start` (proxy de `/api` para http://localhost:5080), `npm run lint`.
 - `npm run api:check` falha se o cliente commitado não bater com `backend/openapi/erp-api.json`.
-- O build de produção falha se o orçamento de bundle em `angular.json` estourar.
