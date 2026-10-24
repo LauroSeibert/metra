@@ -4,6 +4,7 @@ using Erp.Api.ErrorHandling;
 using Erp.Api.OpenApi;
 using Erp.Api.Partners;
 using Erp.Api.Products;
+using Erp.Api.Stock;
 using Erp.Application;
 using Erp.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -83,7 +84,8 @@ app.MapGroup("/api/v1")
     .MapProductEndpoints()
     .MapProductCategoryEndpoints()
     .MapUnitEndpoints()
-    .MapPartnerEndpoints();
+    .MapPartnerEndpoints()
+    .MapStockEndpoints();
 
 await app.RunAsync().ConfigureAwait(false);
 

@@ -1,0 +1,51 @@
+.filters {
+  flex-wrap: wrap;
+
+  .date {
+    width: 170px;
+  }
+}
+
+.date {
+  white-space: nowrap;
+}
+
+.product {
+  display: flex;
+  flex-direction: column;
+
+  small {
+    color: var(--erp-text-subtle);
+    font-family: ui-monospace, 'Cascadia Mono', monospace;
+    font-size: var(--erp-font-size-sm);
+  }
+}
+
+.quantity {
+  font-variant-numeric: tabular-nums;
+
+  &.in {
+    color: var(--erp-success);
+  }
+
+  &.out {
+    color: var(--erp-danger);
+  }
+}
+
+.unit {
+  margin-left: var(--erp-space-1);
+  color: var(--erp-text-subtle);
+}
+
+.note {
+  color: var(--erp-text-muted);
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+  padding: var(--erp-space-5) 0;
+  color: var(--erp-text-subtle);
+  font-size: var(--erp-font-size-sm);
+}

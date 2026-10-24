@@ -1,0 +1,40 @@
+.results {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--erp-space-3);
+  min-height: 36px;
+  margin-bottom: var(--erp-space-3);
+  padding: 0 var(--erp-space-1);
+  color: var(--erp-text-muted);
+  font-size: var(--erp-font-size-sm);
+  font-weight: var(--erp-font-weight-medium);
+}
+
+.product-name {
+  margin-right: var(--erp-space-2);
+  font-weight: var(--erp-font-weight-semibold);
+
+  &.inactive {
+    color: var(--erp-text-muted);
+  }
+}
+
+.sku {
+  color: var(--erp-text-muted);
+  font-family: ui-monospace, 'Cascadia Mono', 'SFMono-Regular', monospace;
+  font-size: var(--erp-font-size-sm);
+  white-space: nowrap;
+}
+
+.quantity {
+  font-variant-numeric: tabular-nums;
+
+  &.negative {
+    color: var(--erp-danger);
+  }
+}
+
+.missing {
+  color: var(--erp-text-subtle);
+}

@@ -21,8 +21,9 @@
 
 ## Armadilhas
 
-- `app.routes.ts` não pode importar `provideMaterialFormDefaults`: rota nova com formulário vai em `loadChildren`.
-- Orçamento inicial apertado (~548 de 550 kB): nada de `MatMenu` no layout (o menu da conta é `popover` nativo).
+- `app.routes.ts` não pode importar `provideMaterialFormDefaults` nem o `<modulo>.strings.ts`: rota nova vai em
+  `loadChildren` e o breadcrumb de primeiro nível fica em `LAYOUT_STRINGS.breadcrumbs`.
+- Orçamento inicial apertado (~543 de 550 kB): nada de `MatMenu` no layout (o menu da conta é `popover` nativo).
 
 - `MAT_FORM_FIELD_DEFAULT_OPTIONS`/`MatPaginatorIntl` no `app.config` arrastam ~250 kB para o bundle inicial:
   use `provideMaterialFormDefaults()` nos `providers` da rota lazy.

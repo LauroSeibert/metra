@@ -87,3 +87,12 @@ dt {
     grid-template-columns: 1fr;
   }
 }
+
+.stock {
+  font-variant-numeric: tabular-nums;
+
+  &.low {
+    color: var(--erp-warning-text);
+    font-weight: var(--erp-font-weight-semibold);
+  }
+}

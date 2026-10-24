@@ -19,6 +19,7 @@ export function productItem(overrides: Partial<ProductListItemDto> = {}): Produc
     costPrice: 1.5,
     salePrice: 3.9,
     minStock: 10,
+    stockQuantity: 25,
     active: true,
     updatedAt: '2026-10-23T12:00:00Z',
     ...overrides,

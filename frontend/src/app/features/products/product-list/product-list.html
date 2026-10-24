@@ -73,6 +73,14 @@
     </mat-select>
   </mat-form-field>
 
+  <mat-form-field subscriptSizing="dynamic">
+    <mat-label>{{ strings.list.stockFilter }}</mat-label>
+    <mat-select [value]="lowStock()" (valueChange)="lowStock.set($event)">
+      <mat-option [value]="false">{{ strings.list.allStock }}</mat-option>
+      <mat-option [value]="true">{{ strings.list.lowStock }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
   <erp-segmented-control
     [options]="statusOptions"
     [(value)]="status"
@@ -131,6 +139,12 @@
 
   <ng-template erpCell="salePrice" [erpCellOf]="rows()" let-product>
     <strong class="price">{{ product.salePrice | currency }}</strong>
+  </ng-template>
+
+  <ng-template erpCell="stockQuantity" [erpCellOf]="rows()" let-product>
+    <span class="stock" [class.low]="product.stockQuantity < product.minStock">
+      {{ product.stockQuantity | number: '1.0-3' }}
+    </span>
   </ng-template>
 
   <ng-template erpCell="active" [erpCellOf]="rows()" let-product>

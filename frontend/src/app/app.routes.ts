@@ -2,9 +2,6 @@ import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './core/auth/auth.guards';
 import { LAYOUT_STRINGS } from './core/layout/layout.strings';
 import { MainLayout } from './core/layout/main-layout';
-import { ACCESS_STRINGS } from './features/access/access.strings';
-import { PARTNERS_STRINGS } from './features/partners/partners.strings';
-import { PRODUCTS_STRINGS } from './features/products/products.strings';
 
 export const routes: Routes = [
   {
@@ -25,19 +22,24 @@ export const routes: Routes = [
       },
       {
         path: 'products',
-        data: { breadcrumb: PRODUCTS_STRINGS.breadcrumb },
+        data: { breadcrumb: LAYOUT_STRINGS.breadcrumbs.products },
         loadChildren: () =>
           import('./features/products/products.routes').then((m) => m.PRODUCTS_ROUTES),
       },
       {
         path: 'partners',
-        data: { breadcrumb: PARTNERS_STRINGS.breadcrumb },
+        data: { breadcrumb: LAYOUT_STRINGS.breadcrumbs.partners },
         loadChildren: () =>
           import('./features/partners/partners.routes').then((m) => m.PARTNERS_ROUTES),
       },
       {
+        path: 'stock',
+        data: { breadcrumb: LAYOUT_STRINGS.breadcrumbs.stock },
+        loadChildren: () => import('./features/stock/stock.routes').then((m) => m.STOCK_ROUTES),
+      },
+      {
         path: 'profile',
-        data: { breadcrumb: ACCESS_STRINGS.profile.breadcrumb },
+        data: { breadcrumb: LAYOUT_STRINGS.breadcrumbs.profile },
         loadChildren: () => import('./features/access/access.routes').then((m) => m.PROFILE_ROUTES),
       },
     ],

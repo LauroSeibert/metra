@@ -19,6 +19,9 @@
 ## Armadilhas
 - `ErpDbContext` herda de `IdentityDbContext`: `OnModelCreating(builder)` chama `base` antes da convenção de nomes.
 - Sem sessão, rota inexistente responde 401 (política padrão), não 404.
+- Filtro do EF sobre projeção: use tipo anônimo ou classe com `init`; record posicional não é traduzido.
+- Movimento de estoque só por `StockService` (saldo na mesma transação, nova tentativa em conflito de versão).
+- Backend roda com `InvariantGlobalization`: nada de `CultureInfo("pt-BR")` nem `string.Normalize` para tirar acento.
 - Testes usam Microsoft.Testing.Platform (`global.json` na raiz):
   rode `dotnet test --solution backend/Erp.slnx`, não `dotnet test backend`.
 - Connection string local: `dotnet user-secrets set ConnectionStrings:Erp "<valor>" --project backend/src/Erp.Api`.

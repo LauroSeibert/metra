@@ -36,7 +36,8 @@ Vale para todo endpoint sob `/api/v1`. Referência de implementação: módulo d
 | filtros | nomes do contrato (`categoryId`, `active`); ausente = sem filtro |
 
 Resposta: `{ items, page, pageSize, totalCount }`. A ordenação sempre desempata por `id` para a paginação ser estável.
-Tabelas grandes de histórico (movimentações) usarão paginação por chave (keyset) a partir da Fase 4.
+Tabelas grandes de histórico usam **paginação por chave**: `GET ...?cursor=&pageSize=` responde `{ items, nextCursor }`, sem total,
+em `page`. `nextCursor` nulo = fim. Referência: `GET /api/v1/stock-movements` (`docs/modules/stock.md`).
 
 ## Erros (ProblemDetails, RFC 9457)
 
@@ -49,6 +50,7 @@ Todo erro sai como `application/problem+json` com o campo `code` estável:
 | 409 | duplicidade de chave de negócio | `entidade.campo_duplicate` | |
 | 409 | versão desatualizada (concorrência otimista) | `concurrency_conflict` | |
 | 409 | exclusão de registro em uso | `entidade.in_use` | |
+| 409 | ação que só vale uma vez (ex.: estorno repetido) | `entidade.already_<ação>` | |
 | 409 | índice único violado numa corrida | `duplicate_key` | |
 | 401 | credenciais, conta bloqueada, refresh inválido | `auth.invalid_credentials`, `auth.locked_out`, `auth.invalid_refresh_token` | |
 | 401 / 403 | sem sessão / perfil sem permissão | (sem `code`) | |

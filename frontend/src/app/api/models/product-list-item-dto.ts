@@ -12,6 +12,7 @@ export interface ProductListItemDto {
   name: string;
   salePrice: number;
   sku: string;
+  stockQuantity: number;
   unitCode: string | null;
   unitId: number | null;
   updatedAt: string;
