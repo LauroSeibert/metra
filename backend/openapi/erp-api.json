@@ -1722,6 +1722,26 @@
         }
       }
     },
+    "/api/v1/dashboard": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "operationId": "GetDashboard",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/stock-movements": {
       "get": {
         "tags": [
@@ -3341,6 +3361,101 @@
           }
         }
       },
+      "DailySalesDto": {
+        "required": [
+          "date",
+          "total",
+          "count"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "total": {
+            "type": "number",
+            "format": "double"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "DashboardDto": {
+        "required": [
+          "salesThisMonth",
+          "salesThisMonthCount",
+          "salesLastMonth",
+          "draftCount",
+          "receivableOpen",
+          "receivableOverdue",
+          "payableOpen",
+          "payableOverdue",
+          "lowStockCount",
+          "dailySales",
+          "topProducts",
+          "recentSales"
+        ],
+        "type": "object",
+        "properties": {
+          "salesThisMonth": {
+            "type": "number",
+            "format": "double"
+          },
+          "salesThisMonthCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "salesLastMonth": {
+            "type": "number",
+            "format": "double"
+          },
+          "draftCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "receivableOpen": {
+            "type": "number",
+            "format": "double"
+          },
+          "receivableOverdue": {
+            "type": "number",
+            "format": "double"
+          },
+          "payableOpen": {
+            "type": "number",
+            "format": "double"
+          },
+          "payableOverdue": {
+            "type": "number",
+            "format": "double"
+          },
+          "lowStockCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dailySales": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DailySalesDto"
+            }
+          },
+          "topProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopProductDto"
+            }
+          },
+          "recentSales": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecentSaleDto"
+            }
+          }
+        }
+      },
       "FinancialCategoryDto": {
         "required": [
           "id",
@@ -4258,6 +4373,41 @@
           }
         }
       },
+      "RecentSaleDto": {
+        "required": [
+          "id",
+          "number",
+          "partnerName",
+          "status",
+          "total",
+          "issuedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "partnerName": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SaleStatus"
+          },
+          "total": {
+            "type": "number",
+            "format": "double"
+          },
+          "issuedAt": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
       "RefreshRequest": {
         "required": [
           "refreshToken"
@@ -4912,6 +5062,32 @@
           "Dark"
         ]
       },
+      "TopProductDto": {
+        "required": [
+          "productId",
+          "name",
+          "quantity",
+          "total"
+        ],
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number",
+            "format": "double"
+          },
+          "total": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
       "UnitDto": {
         "required": [
           "id",
@@ -5226,6 +5402,9 @@
     },
     {
       "name": "Stock"
+    },
+    {
+      "name": "Dashboard"
     },
     {
       "name": "FinancialCategories"

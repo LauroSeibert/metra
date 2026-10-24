@@ -77,6 +77,8 @@ export type { GetStockMovement$Params as GetStockMovement$Params } from './fn/st
 export { getStockMovement as getStockMovement } from './fn/stock/get-stock-movement';
 export type { ReverseStockMovement$Params as ReverseStockMovement$Params } from './fn/stock/reverse-stock-movement';
 export { reverseStockMovement as reverseStockMovement } from './fn/stock/reverse-stock-movement';
+export type { GetDashboard$Params as GetDashboard$Params } from './fn/dashboard/get-dashboard';
+export { getDashboard as getDashboard } from './fn/dashboard/get-dashboard';
 export type { ListFinancialCategories$Params as ListFinancialCategories$Params } from './fn/financial-categories/list-financial-categories';
 export { listFinancialCategories as listFinancialCategories } from './fn/financial-categories/list-financial-categories';
 export type { CreateFinancialCategory$Params as CreateFinancialCategory$Params } from './fn/financial-categories/create-financial-category';

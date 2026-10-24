@@ -1,3 +1,4 @@
+using Erp.Api.Dashboard;
 using System.Text.Json.Serialization;
 using Erp.Api.Access;
 using Erp.Api.ErrorHandling;
@@ -89,7 +90,8 @@ app.MapGroup("/api/v1")
     .MapPartnerEndpoints()
     .MapStockEndpoints()
     .MapFinanceEndpoints()
-    .MapSaleEndpoints();
+    .MapSaleEndpoints()
+    .MapDashboardEndpoints();
 
 await app.RunAsync().ConfigureAwait(false);
 
