@@ -57,7 +57,7 @@ import { UI_STRINGS } from '../ui.strings';
               <hlm-combobox-value class="truncate font-medium" [placeholder]="placeholder()" />
             </span>
           </hlm-combobox-trigger>
-          <hlm-combobox-content *hlmComboboxPortal>
+          <hlm-combobox-content *hlmComboboxPortal class="min-w-80">
             <hlm-combobox-input [placeholder]="searchPlaceholder()" [showTrigger]="false" />
             <hlm-combobox-empty>{{ term() ? noResults() : typeToSearch() }}</hlm-combobox-empty>
             <div hlmComboboxList>

@@ -21,12 +21,7 @@ import {
   validate,
 } from '@angular/forms/signals';
 import { DatePipe } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Api } from '../../../api/api';
 import { createPartner } from '../../../api/fn/partners/create-partner';
 import { getPartner } from '../../../api/fn/partners/get-partner';
@@ -39,11 +34,21 @@ import { API_ERROR_CODES, toApiProblem } from '../../../core/http/api-problem';
 import { toServerErrors } from '../../../core/http/server-errors';
 import { Notifier } from '../../../core/notifications/notifier';
 import { delayedFlag } from '../../../shared/data/delayed-flag';
-import { Card } from '../../../shared/ui/card/card';
-import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { StatusChip } from '../../../shared/ui/status-chip/status-chip';
 import { formatDocument, isValidDocument, PARTNER_RULES } from '../partner-rules';
+import { fieldError } from '../../../shared/ui/field-shell/field-error';
 import { PARTNERS_STRINGS } from '../partners.strings';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
+import { ActionBar } from '../../../shared/ui/action-bar/action-bar';
+import { FieldShell } from '../../../shared/ui/field-shell/field-shell';
+import { FormBanner } from '../../../shared/ui/form-banner/form-banner';
+import { FormHeader } from '../../../shared/ui/form-header/form-header';
+import { Icon } from '../../../shared/ui/icon/icon';
+import { LoadError } from '../../../shared/ui/load-error/load-error';
+import { SectionCard } from '../../../shared/ui/section-card/section-card';
 
 export interface PartnerFormModel {
   type: PartnerType;
@@ -99,20 +104,22 @@ export const partnerSchema = schema<PartnerFormModel>((path) => {
   selector: 'erp-partner-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HlmButton,
+    HlmInput,
+    HlmSelectImports,
+    HlmSkeleton,
+    ActionBar,
+    FieldShell,
+    FormBanner,
+    FormHeader,
+    Icon,
+    LoadError,
+    SectionCard,
     DatePipe,
-    RouterLink,
     FormField,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-    Card,
-    PageHeader,
     StatusChip,
   ],
   templateUrl: './partner-form.html',
-  styleUrl: './partner-form.scss',
 })
 export class PartnerForm {
   private readonly api = inject(Api);
@@ -153,6 +160,22 @@ export class PartnerForm {
     () => this.isEdit() && (this.partnerId() === null || this.partner.status() === 'error'),
   );
   protected readonly formErrors = computed(() => this.partnerForm().errors());
+  protected readonly fieldError = fieldError;
+  protected readonly typeLabel = (type: PartnerType): string => PARTNERS_STRINGS.types[type];
+
+  /** Muda em relação ao que está salvo (ou ao formulário vazio, no cadastro). */
+  protected readonly dirty = computed(() => {
+    const saved = this.partner.hasValue()
+      ? toPartnerFormModel(this.partner.value())
+      : EMPTY_PARTNER;
+    return JSON.stringify(this.model()) !== JSON.stringify(saved);
+  });
+
+  protected setType(type: PartnerType | null | undefined): void {
+    if (type) {
+      this.partnerForm.type().value.set(type);
+    }
+  }
 
   /** Mostra o documento formatado ao sair do campo. */
   protected formatDocumentField(): void {

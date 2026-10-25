@@ -60,35 +60,3 @@ h1 {
   color: var(--erp-text-muted);
   line-height: var(--erp-line-height-body);
 }
-
-.notice {
-  display: flex;
-  align-items: center;
-  gap: var(--erp-space-2);
-  margin-bottom: var(--erp-space-4);
-  padding: var(--erp-space-3);
-  border-radius: var(--erp-radius-sm);
-  background: var(--erp-info-soft);
-  color: var(--erp-info-text);
-  font-size: var(--erp-font-size-sm);
-
-  &.error {
-    background: var(--erp-danger-soft);
-    color: var(--erp-danger);
-  }
-
-  mat-icon {
-    flex: none;
-  }
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--erp-space-1);
-}
-
-.submit {
-  width: 100%;
-  margin-top: var(--erp-space-3);
-}

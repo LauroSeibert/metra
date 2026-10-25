@@ -1,29 +1,18 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  effect,
   ElementRef,
-  inject,
   input,
   model,
   output,
-  signal,
   viewChild,
 } from '@angular/core';
 import { FormValueControl, ValidationError } from '@angular/forms/signals';
-import { MAT_FORM_FIELD, MatFormFieldControl } from '@angular/material/form-field';
-import { Subject } from 'rxjs';
 
 /** Até 9.999.999.999.999,99: cabe no DECIMAL(18,2) do servidor e em inteiro seguro do JS. */
 const MAX_DIGITS = 15;
 
-/** Fora de um mat-form-field o campo tem o visual dos inputs do Spartan; dentro, o Material o contorna. */
-const STANDALONE_CLASS =
-  'h-control w-full min-w-0 rounded-md border border-input bg-card px-3 text-sm tabular-nums outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:shadow-focus disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive';
-
 const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-
-let nextId = 0;
 
 /** Valor em reais a partir dos dígitos digitados, lidos como centavos ("100" → 1). */
 export function parseCents(text: string): number | null {
@@ -40,50 +29,27 @@ export function formatMoney(value: number | null): string {
 
 /**
  * Campo monetário que preenche a partir dos centavos, como em caixa: digitar 1, 0, 0 mostra
- * R$ 0,01 → R$ 0,10 → R$ 1,00. Funciona com `[formField]` (Signal Forms) e dentro de
- * `mat-form-field`. O valor do modelo é em reais (`number | null`).
+ * R$ 0,01 → R$ 0,10 → R$ 1,00. Funciona com `[formField]` (Signal Forms), dentro de `erp-field-shell`.
+ * O valor do modelo é em reais (`number | null`).
  */
 @Component({
   selector: 'erp-money-input',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [{ provide: MatFormFieldControl, useFactory: () => inject(MoneyInput).control }],
-  host: { class: 'erp-money-input' },
+  host: { class: 'block' },
   template: `
     <input
       #native
-      [id]="inputId"
       type="text"
       inputmode="numeric"
       autocomplete="off"
-      [class]="inputClass"
+      class="h-control w-full min-w-0 rounded-md border border-input bg-card px-3 text-sm tabular-nums transition-[color,box-shadow] outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:shadow-focus disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive"
       [value]="text(value())"
       [disabled]="disabled()"
       [readOnly]="readonly()"
-      [attr.aria-invalid]="control.errorState || null"
-      [attr.aria-describedby]="describedBy()"
+      [attr.aria-invalid]="touched() && errors().length > 0 ? 'true' : null"
       (input)="onInput()"
-      (focus)="onFocus()"
-      (blur)="onBlur()"
+      (blur)="touch.emit()"
     />
-  `,
-  styles: `
-    :host {
-      display: block;
-    }
-
-    input {
-      font: inherit;
-      color: inherit;
-      font-variant-numeric: tabular-nums;
-    }
-
-    input.embedded {
-      width: 100%;
-      padding: 0;
-      border: 0;
-      outline: 0;
-      background: transparent;
-    }
   `,
 })
 export class MoneyInput implements FormValueControl<number | null> {
@@ -95,33 +61,11 @@ export class MoneyInput implements FormValueControl<number | null> {
   readonly required = input(false);
   readonly touch = output<void>();
 
-  readonly inputId = `erp-money-input-${nextId++}`;
-  protected readonly inputClass = inject(MAT_FORM_FIELD, { optional: true })
-    ? 'embedded'
-    : STANDALONE_CLASS;
-  readonly control = new MoneyFieldControl(this);
-  protected readonly describedBy = signal<string | null>(null);
   protected readonly text = formatMoney;
   private readonly native = viewChild.required<ElementRef<HTMLInputElement>>('native');
 
-  constructor() {
-    // O mat-form-field (OnPush) só se redesenha quando o controle avisa.
-    effect(() => {
-      this.value();
-      this.touched();
-      this.errors();
-      this.disabled();
-      this.required();
-      this.control.stateChanges.next();
-    });
-  }
-
   focus(): void {
     this.native().nativeElement.focus();
-  }
-
-  setDescribedBy(ids: string): void {
-    this.describedBy.set(ids || null);
   }
 
   protected onInput(): void {
@@ -131,66 +75,5 @@ export class MoneyInput implements FormValueControl<number | null> {
     // Reescreve mesmo quando o valor não muda (letra ou vírgula apagada), e mantém o cursor no fim.
     element.value = formatMoney(value);
     element.setSelectionRange(element.value.length, element.value.length);
-  }
-
-  protected onFocus(): void {
-    this.control.focused = true;
-    this.control.stateChanges.next();
-  }
-
-  protected onBlur(): void {
-    this.control.focused = false;
-    this.touch.emit();
-    this.control.stateChanges.next();
-  }
-}
-
-/**
- * Lado Material do campo. Fica separado do componente porque `MatFormFieldControl.value` é um
- * valor simples e, no Signal Forms, `value` precisa ser um `model()`.
- */
-class MoneyFieldControl implements MatFormFieldControl<number> {
-  readonly stateChanges = new Subject<void>();
-  readonly controlType = 'erp-money-input';
-  readonly ngControl = null;
-  readonly placeholder = '';
-  focused = false;
-
-  constructor(private readonly owner: MoneyInput) {}
-
-  get id(): string {
-    return this.owner.inputId;
-  }
-
-  get value(): number | null {
-    return this.owner.value();
-  }
-
-  get empty(): boolean {
-    return this.owner.value() === null;
-  }
-
-  get shouldLabelFloat(): boolean {
-    return this.focused || !this.empty;
-  }
-
-  get required(): boolean {
-    return this.owner.required();
-  }
-
-  get disabled(): boolean {
-    return this.owner.disabled();
-  }
-
-  get errorState(): boolean {
-    return this.owner.touched() && this.owner.errors().length > 0;
-  }
-
-  setDescribedByIds(ids: string[]): void {
-    this.owner.setDescribedBy(ids.join(' '));
-  }
-
-  onContainerClick(): void {
-    this.owner.focus();
   }
 }

@@ -1,6 +1,11 @@
 import {
   LucideArrowLeft,
   LucideBan,
+  LucideKey,
+  LucideClock,
+  LucideEyeOff,
+  LucideLock,
+  LucideMail,
   LucideUndo2,
   LucideArrowUpDown,
   LucideBanknote,
@@ -66,6 +71,11 @@ import {
 export const ICONS = {
   'arrow-left': LucideArrowLeft.icon,
   ban: LucideBan.icon,
+  key: LucideKey.icon,
+  clock: LucideClock.icon,
+  'eye-off': LucideEyeOff.icon,
+  lock: LucideLock.icon,
+  mail: LucideMail.icon,
   undo: LucideUndo2.icon,
   'arrow-up-down': LucideArrowUpDown.icon,
   banknote: LucideBanknote.icon,

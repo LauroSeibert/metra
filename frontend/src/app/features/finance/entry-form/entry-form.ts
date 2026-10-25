@@ -1,4 +1,3 @@
-import { DatePickerToggle } from '../../../shared/ui/date-picker-toggle/date-picker-toggle';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -22,12 +21,7 @@ import {
   submit,
   validate,
 } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Api } from '../../../api/api';
 import { createFinancialEntry } from '../../../api/fn/financial-entries/create-financial-entry';
 import { getFinancialEntry } from '../../../api/fn/financial-entries/get-financial-entry';
@@ -40,13 +34,23 @@ import { API_ERROR_CODES, toApiProblem } from '../../../core/http/api-problem';
 import { toServerErrors } from '../../../core/http/server-errors';
 import { Notifier } from '../../../core/notifications/notifier';
 import { delayedFlag } from '../../../shared/data/delayed-flag';
-import { Card } from '../../../shared/ui/card/card';
 import { MoneyInput } from '../../../shared/ui/money-input/money-input';
-import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { StatusChip } from '../../../shared/ui/status-chip/status-chip';
 import { PartnerPicker, PickedPartner } from '../../partners/partner-picker/partner-picker';
 import { FINANCE_STRINGS } from '../finance.strings';
 import { todayIso } from '../pay-dialog/pay-dialog';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
+import { ActionBar } from '../../../shared/ui/action-bar/action-bar';
+import { FieldShell } from '../../../shared/ui/field-shell/field-shell';
+import { fieldError } from '../../../shared/ui/field-shell/field-error';
+import { FormBanner } from '../../../shared/ui/form-banner/form-banner';
+import { FormHeader } from '../../../shared/ui/form-header/form-header';
+import { Icon } from '../../../shared/ui/icon/icon';
+import { LoadError } from '../../../shared/ui/load-error/load-error';
+import { SectionCard } from '../../../shared/ui/section-card/section-card';
 
 /** Mesmos limites do servidor (FinancialEntry). */
 export const FINANCE_RULES = { descriptionMaxLength: 200, maxInstallments: 60 } as const;
@@ -115,24 +119,25 @@ const entrySchema = schema<EntryModel>((path) => {
   selector: 'erp-entry-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePickerToggle,
+    HlmButton,
+    HlmInput,
+    HlmSelectImports,
+    HlmSkeleton,
+    ActionBar,
+    FieldShell,
+    FormBanner,
+    FormHeader,
+    Icon,
+    LoadError,
+    SectionCard,
     CurrencyPipe,
     DatePipe,
-    RouterLink,
     FormField,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-    Card,
     MoneyInput,
-    PageHeader,
     PartnerPicker,
     StatusChip,
   ],
   templateUrl: './entry-form.html',
-  styleUrl: './entry-form.scss',
 })
 export class EntryForm {
   private readonly api = inject(Api);
@@ -213,6 +218,37 @@ export class EntryForm {
     () => this.isEdit() && (this.entryId() === null || this.entry.status() === 'error'),
   );
   protected readonly formErrors = computed(() => this.entryForm().errors());
+  protected readonly fieldError = fieldError;
+  protected readonly categoryLabel = (id: number): string =>
+    this.categoryOptions().find((category) => category.id === id)?.name ?? '';
+
+  /** Muda em relação ao que está salvo (ou ao formulário vazio, no cadastro). */
+  protected readonly dirty = computed(() => {
+    const entry = this.entry.hasValue() ? this.entry.value() : null;
+    const value = this.model();
+    if (!entry) {
+      return (
+        value.description.trim() !== '' ||
+        value.categoryId !== null ||
+        value.amount !== null ||
+        value.installments !== 1 ||
+        this.partner() !== null
+      );
+    }
+    return (
+      value.description !== entry.description ||
+      value.categoryId !== entry.categoryId ||
+      value.amount !== entry.amount ||
+      value.dueDate !== entry.dueDate ||
+      (this.partner()?.id ?? null) !== (entry.partnerId ?? null)
+    );
+  });
+
+  protected setCategory(id: number | null | undefined): void {
+    if (id) {
+      this.entryForm.categoryId().value.set(id);
+    }
+  }
   protected readonly preview = computed(() => {
     const { amount, installments, dueDate, editing } = this.model();
     return editing || installments < 2

@@ -16,11 +16,6 @@ import {
   submit,
   validate,
 } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { Api } from '../../../api/api';
 import { changeMyPassword } from '../../../api/fn/profile/change-my-password';
 import { updateMyProfile } from '../../../api/fn/profile/update-my-profile';
@@ -28,10 +23,17 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { API_ERROR_CODES, toApiProblem } from '../../../core/http/api-problem';
 import { toServerErrors } from '../../../core/http/server-errors';
 import { Notifier } from '../../../core/notifications/notifier';
-import { Card } from '../../../shared/ui/card/card';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { StatusChip } from '../../../shared/ui/status-chip/status-chip';
 import { ACCESS_STRINGS } from '../access.strings';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { fieldError } from '../../../shared/ui/field-shell/field-error';
+import { FieldShell } from '../../../shared/ui/field-shell/field-shell';
+import { FormBanner } from '../../../shared/ui/form-banner/form-banner';
+import { Icon } from '../../../shared/ui/icon/icon';
+import { SectionCard } from '../../../shared/ui/section-card/section-card';
 
 interface ProfileModel {
   fullName: string;
@@ -76,18 +78,18 @@ const EMPTY_PASSWORD: PasswordModel = { currentPassword: '', newPassword: '', co
   selector: 'erp-profile',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HlmButton,
+    HlmInput,
+    HlmSelectImports,
+    FieldShell,
+    FormBanner,
+    Icon,
+    SectionCard,
     FormField,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-    Card,
     PageHeader,
     StatusChip,
   ],
   templateUrl: './profile.html',
-  styleUrl: './profile.scss',
 })
 export class Profile {
   private readonly api = inject(Api);
@@ -96,6 +98,14 @@ export class Profile {
 
   protected readonly strings = ACCESS_STRINGS.profile;
   protected readonly pageSizes = PROFILE_RULES.pageSizes;
+  protected readonly fieldError = fieldError;
+  protected readonly sizeLabel = (size: number): string => String(size);
+
+  protected setPageSize(size: number | null | undefined): void {
+    if (size) {
+      this.profileForm.pageSize().value.set(size);
+    }
+  }
 
   protected readonly profile = this.auth.profile;
   protected readonly roleName = computed(() => {

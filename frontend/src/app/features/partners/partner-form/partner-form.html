@@ -1,170 +1,137 @@
-<erp-page-header
-  [title]="isEdit() ? strings.form.editTitle : strings.form.newTitle"
-  [subtitle]="canWrite() ? strings.form.subtitle : strings.form.readOnly"
->
-  <a matButton="outlined" class="erp-secondary-action" routerLink="/partners">
-    <mat-icon>arrow_back</mat-icon>
-    {{ strings.back }}
-  </a>
-</erp-page-header>
-
 @if (loadError()) {
-  <erp-card class="state" role="alert">
-    <span class="state-icon"><mat-icon>cloud_off</mat-icon></span>
-    <p>{{ strings.form.loadError }}</p>
-    <button matButton="outlined" type="button" (click)="reload()">
-      <mat-icon>refresh</mat-icon>
-      {{ strings.form.reload }}
-    </button>
-  </erp-card>
+  <erp-load-error
+    [message]="strings.form.loadError"
+    [retryLabel]="strings.form.reload"
+    (retry)="reload()"
+  />
 } @else if (loadingPartner()) {
-  <div class="layout" aria-busy="true">
+  <!-- Skeleton só se a carga demorar; resposta rápida vai direto ao formulário, sem piscar. -->
+  <div aria-busy="true">
     @if (showSkeleton()) {
-      <erp-card class="loading">
-        <span class="erp-skeleton title"></span>
-        <span class="erp-skeleton"></span>
-        <span class="erp-skeleton short"></span>
-      </erp-card>
+      <div class="flex flex-col gap-4">
+        <span hlmSkeleton class="h-8 w-1/3"></span>
+        <span hlmSkeleton class="h-64 w-full"></span>
+      </div>
     }
   </div>
 } @else {
-  <form novalidate (submit)="save($event)">
-    @if (formErrors().length > 0) {
-      <div class="banner" role="alert">
-        <mat-icon>warning</mat-icon>
-        <div>
-          @for (error of formErrors(); track $index) {
-            <p>{{ error.message }}</p>
-          }
-        </div>
-        @if (conflict()) {
-          <button matButton="outlined" type="button" (click)="reload()">
-            {{ strings.form.reload }}
-          </button>
+  <form class="mx-auto flex w-full max-w-page flex-col gap-5" novalidate (submit)="save($event)">
+    <erp-form-header
+      backLink="/partners"
+      [backLabel]="strings.back"
+      [eyebrow]="isEdit() ? strings.form.editTitle : strings.form.newTitle"
+      [title]="model().name.trim() || strings.form.newTitle"
+      [subtitle]="canWrite() ? null : strings.form.readOnly"
+    >
+      <ng-container badges>
+        <erp-status-chip [label]="strings.types[model().type]" tone="primary" [plain]="true" />
+        @if (partner.hasValue()) {
+          <erp-status-chip
+            [label]="
+              partner.value().active ? strings.status.activeChip : strings.status.inactiveChip
+            "
+            [tone]="partner.value().active ? 'success' : 'neutral'"
+          />
         }
-      </div>
+      </ng-container>
+      @if (canWrite()) {
+        <erp-action-bar [dirty]="dirty()" [showSaved]="isEdit()">
+          <button hlmBtn type="submit" [disabled]="partnerForm().submitting()">
+            <erp-icon name="check" />
+            {{ partnerForm().submitting() ? strings.form.saving : strings.form.save }}
+          </button>
+        </erp-action-bar>
+      }
+    </erp-form-header>
+
+    @if (formErrors().length > 0) {
+      <erp-form-banner
+        [errors]="formErrors()"
+        [reloadLabel]="conflict() ? strings.form.reload : null"
+        (reload)="reload()"
+      />
     }
 
-    <div class="layout">
-      <div class="main">
-        <erp-card class="section">
-          <header>
-            <span class="section-icon"><mat-icon>badge</mat-icon></span>
-            <div>
-              <h2>{{ strings.form.identification }}</h2>
-              <p>{{ strings.form.identificationHint }}</p>
-            </div>
-          </header>
+    <div class="flex flex-col gap-5">
+      <div class="flex min-w-0 flex-col gap-5">
+        <erp-section-card
+          icon="id-card"
+          [title]="strings.form.identification"
+          [description]="strings.form.identificationHint"
+        >
+          <div class="@container grid grid-cols-1 gap-4 @xl:grid-cols-3">
+            <erp-field-shell [label]="strings.form.type">
+              <hlm-select
+                [value]="model().type"
+                [itemToString]="typeLabel"
+                [disabled]="!canWrite()"
+                (valueChange)="setType($event)"
+              >
+                <hlm-select-trigger class="w-full">
+                  <hlm-select-value />
+                </hlm-select-trigger>
+                <hlm-select-content *hlmSelectPortal>
+                  @for (type of types; track type) {
+                    <hlm-select-item [value]="type">{{ strings.types[type] }}</hlm-select-item>
+                  }
+                </hlm-select-content>
+              </hlm-select>
+            </erp-field-shell>
 
-          <div class="fields">
-            <mat-form-field>
-              <mat-label>{{ strings.form.type }}</mat-label>
-              <mat-select [formField]="partnerForm.type">
-                @for (type of types; track type) {
-                  <mat-option [value]="type">{{ strings.types[type] }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <erp-field-shell
+              class="@xl:col-span-2"
+              [label]="strings.form.name"
+              [required]="true"
+              [error]="fieldError(partnerForm.name())"
+            >
+              <input hlmInput type="text" autocomplete="off" [formField]="partnerForm.name" />
+            </erp-field-shell>
 
-            <mat-form-field class="span-2">
-              <mat-label>{{ strings.form.name }}</mat-label>
-              <input matInput [formField]="partnerForm.name" />
-              @if (partnerForm.name().errors()[0]; as error) {
-                <mat-error>{{ error.message }}</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field class="span-2">
-              <mat-label>{{ strings.form.document }}</mat-label>
+            <erp-field-shell
+              class="@xl:col-span-2"
+              [label]="strings.form.document"
+              [hint]="strings.form.documentHint"
+              [error]="fieldError(partnerForm.document())"
+            >
               <input
-                matInput
+                hlmInput
+                class="font-mono"
+                type="text"
                 autocomplete="off"
                 [formField]="partnerForm.document"
                 (blur)="formatDocumentField()"
               />
-              <mat-hint>{{ strings.form.documentHint }}</mat-hint>
-              @if (partnerForm.document().errors()[0]; as error) {
-                <mat-error>{{ error.message }}</mat-error>
-              }
-            </mat-form-field>
+            </erp-field-shell>
           </div>
-        </erp-card>
+        </erp-section-card>
 
-        <erp-card class="section">
-          <header>
-            <span class="section-icon info"><mat-icon>contact_mail</mat-icon></span>
-            <div>
-              <h2>{{ strings.form.contact }}</h2>
-              <p>{{ strings.form.contactHint }}</p>
-            </div>
-          </header>
-
-          <div class="fields">
-            <mat-form-field class="span-2">
-              <mat-label>{{ strings.form.email }}</mat-label>
-              <input matInput type="email" autocomplete="off" [formField]="partnerForm.email" />
-              @if (partnerForm.email().errors()[0]; as error) {
-                <mat-error>{{ error.message }}</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field>
-              <mat-label>{{ strings.form.phone }}</mat-label>
-              <input matInput type="tel" autocomplete="off" [formField]="partnerForm.phone" />
-              @if (partnerForm.phone().errors()[0]; as error) {
-                <mat-error>{{ error.message }}</mat-error>
-              }
-            </mat-form-field>
-          </div>
-        </erp-card>
-      </div>
-
-      <aside class="summary">
-        <erp-card>
-          <span class="eyebrow">{{ strings.types[model().type] }}</span>
-          <h3>{{ model().name.trim() || strings.form.newTitle }}</h3>
-          <div class="chips">
-            @if (model().document.trim()) {
-              <erp-status-chip [label]="model().document" tone="primary" [plain]="true" />
-            }
-            @if (partner.hasValue()) {
-              <erp-status-chip
-                [label]="
-                  partner.value().active ? strings.status.activeChip : strings.status.inactiveChip
-                "
-                [tone]="partner.value().active ? 'success' : 'neutral'"
-              />
-            }
-          </div>
-          @if (partner.hasValue()) {
-            <dl>
-              <div>
-                <dt>{{ strings.form.createdAt }}</dt>
-                <dd>{{ partner.value().createdAt | date: 'short' }}</dd>
-              </div>
-              <div>
-                <dt>{{ strings.form.updatedAt }}</dt>
-                <dd>{{ partner.value().updatedAt | date: 'short' }}</dd>
-              </div>
-            </dl>
-          }
-        </erp-card>
-      </aside>
-    </div>
-
-    @if (canWrite()) {
-      <div class="actions">
-        <a matButton routerLink="/partners">{{ strings.form.cancel }}</a>
-        <button
-          matButton="filled"
-          class="erp-primary-action"
-          type="submit"
-          [disabled]="partnerForm().submitting()"
+        <erp-section-card
+          icon="mail"
+          [title]="strings.form.contact"
+          [description]="strings.form.contactHint"
         >
-          <mat-icon>check</mat-icon>
-          {{ partnerForm().submitting() ? strings.form.saving : strings.form.save }}
-        </button>
+          <div class="@container grid grid-cols-1 gap-4 @xl:grid-cols-3">
+            <erp-field-shell
+              class="@xl:col-span-2"
+              [label]="strings.form.email"
+              [error]="fieldError(partnerForm.email())"
+            >
+              <input hlmInput type="email" autocomplete="off" [formField]="partnerForm.email" />
+            </erp-field-shell>
+
+            <erp-field-shell [label]="strings.form.phone" [error]="fieldError(partnerForm.phone())">
+              <input hlmInput type="tel" autocomplete="off" [formField]="partnerForm.phone" />
+            </erp-field-shell>
+          </div>
+        </erp-section-card>
       </div>
-    }
+
+      @if (partner.hasValue()) {
+        <aside class="flex flex-col gap-1 px-1 text-label text-muted-foreground">
+          <div>{{ strings.form.createdAt }} {{ partner.value().createdAt | date: 'short' }}</div>
+          <div>{{ strings.form.updatedAt }} {{ partner.value().updatedAt | date: 'short' }}</div>
+        </aside>
+      }
+    </div>
   </form>
 }

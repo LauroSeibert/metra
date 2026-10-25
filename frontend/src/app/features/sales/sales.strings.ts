@@ -53,6 +53,8 @@ export const SALES_STRINGS = {
     newTitle: 'Nova venda',
     editTitle: (number: number) => `Venda nº ${number}`,
     editBreadcrumb: 'Venda',
+    editLabel: 'Venda',
+    newLabel: 'Venda',
     subtitle: 'Escolha o cliente e os produtos. O rascunho só baixa o estoque ao confirmar.',
     readOnly: 'Seu perfil só consulta vendas.',
     notDraft: 'Só rascunhos podem ser alterados.',

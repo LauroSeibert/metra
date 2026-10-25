@@ -49,8 +49,10 @@ export interface PickedProduct {
       (search)="typed.set($event)"
     >
       <ng-template let-product>
-        <span class="font-mono text-label text-muted-foreground">{{ product.sku }}</span>
-        {{ product.name }}
+        <span class="flex w-full items-baseline gap-3">
+          <span class="shrink-0 font-mono text-label text-muted-foreground">{{ product.sku }}</span>
+          <span class="truncate">{{ product.name }}</span>
+        </span>
       </ng-template>
     </erp-search-picker>
   `,

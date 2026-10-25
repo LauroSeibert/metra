@@ -49,8 +49,12 @@ export interface PickedPartner {
       (search)="typed.set($event)"
     >
       <ng-template let-partner>
-        {{ partner.name }}
-        <span class="ml-1 text-label text-muted-foreground">{{ format(partner.document) }}</span>
+        <span class="flex w-full items-baseline justify-between gap-3">
+          <span class="truncate">{{ partner.name }}</span>
+          <span class="shrink-0 font-mono text-label text-muted-foreground">{{
+            format(partner.document)
+          }}</span>
+        </span>
       </ng-template>
     </erp-search-picker>
   `,
