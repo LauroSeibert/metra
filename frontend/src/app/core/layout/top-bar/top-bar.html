@@ -31,7 +31,7 @@
   hlmBtn
   variant="outline"
   type="button"
-  class="hidden w-full max-w-md shrink justify-between font-normal text-muted-foreground sm:inline-flex"
+  class="hidden h-button w-full max-w-sm shrink justify-between font-normal text-muted-foreground sm:inline-flex"
   aria-keyshortcuts="Control+K Meta+K"
   [attr.aria-label]="strings.palette.open"
   (click)="palette.toggle()"
@@ -54,19 +54,10 @@
     <erp-icon name="search" [size]="18" />
   </button>
 
-  <span hlmBadge variant="warn" class="mr-2 hidden lg:inline-flex">{{ strings.demoBadge }}</span>
+  <span hlmBadge variant="warn" class="mr-2 hidden before:hidden lg:inline-flex">{{
+    strings.demoBadge
+  }}</span>
 
-  <button
-    hlmBtn
-    variant="ghost"
-    size="icon"
-    type="button"
-    class="hidden sm:inline-flex"
-    [title]="strings.help"
-    [attr.aria-label]="strings.help"
-  >
-    <erp-icon name="circle-help" [size]="18" />
-  </button>
   <button
     hlmBtn
     variant="ghost"
@@ -90,17 +81,16 @@
     <erp-icon [name]="theme.isDark() ? 'sun' : 'moon'" [size]="18" />
   </button>
 
+  <div class="mx-2 h-6 w-px bg-border" aria-hidden="true"></div>
   <button
     type="button"
-    class="ml-2 flex cursor-pointer items-center gap-2 rounded-md border border-border bg-card py-1 pr-3 pl-1 text-left outline-none hover:bg-accent focus-visible:shadow-focus"
+    class="flex cursor-pointer items-center gap-2 rounded-md border-0 bg-transparent p-1 text-left outline-none hover:bg-accent focus-visible:shadow-focus"
     align="end"
     [hlmDropdownMenuTrigger]="account"
     [attr.aria-label]="strings.profile"
   >
     <hlm-avatar size="sm"
-      ><span hlmAvatarFallback class="bg-primary text-xs font-medium text-primary-foreground">{{
-        initials()
-      }}</span></hlm-avatar
+      ><span hlmAvatarFallback class="text-xs font-medium">{{ initials() }}</span></hlm-avatar
     >
     <span class="hidden flex-col leading-tight md:flex">
       <strong class="text-sm font-medium">{{ profile()?.fullName }}</strong>
