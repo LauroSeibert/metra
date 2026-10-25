@@ -57,7 +57,7 @@ export class HlmSwitch implements ControlValueAccessor {
   public readonly userClass = input<ClassValue>('', { alias: 'class' });
   protected readonly _computedClass = computed(() =>
     hlm(
-      'group/switch inline-flex switch-track shrink-0 items-center rounded-full border border-transparent transition-colors outline-none focus-visible:border-ring focus-visible:shadow-focus data-checked:bg-primary data-unchecked:bg-border-strong data-disabled:cursor-not-allowed data-disabled:opacity-50 data-[matches-spartan-invalid=true]:border-destructive',
+      'group/switch inline-flex switch-track shrink-0 cursor-pointer p-0 items-center rounded-full border border-transparent transition-colors outline-none focus-visible:border-ring focus-visible:shadow-focus data-checked:bg-primary data-unchecked:bg-border-strong data-disabled:cursor-not-allowed data-disabled:opacity-50 data-[matches-spartan-invalid=true]:border-destructive',
       this.userClass(),
     ),
   );

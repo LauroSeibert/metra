@@ -6,7 +6,7 @@ import type { ClassValue } from 'clsx';
 import { injectBrnButtonConfig } from './hlm-button.token';
 
 export const buttonVariants = cva(
-  'group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent text-sm font-medium whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:shadow-focus active:translate-y-px data-disabled:pointer-events-none data-disabled:opacity-50 data-[matches-spartan-invalid=true]:border-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0',
+  'group/button inline-flex shrink-0 cursor-pointer items-center justify-center rounded-md border border-transparent text-sm font-medium whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:shadow-focus active:translate-y-px data-disabled:pointer-events-none data-disabled:opacity-50 data-[matches-spartan-invalid=true]:border-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0',
   {
     variants: {
       variant: {

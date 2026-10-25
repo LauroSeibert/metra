@@ -17,11 +17,20 @@ import {
   submit,
   validate,
 } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { HlmAvatar, HlmAvatarFallback } from '@spartan-ng/helm/avatar';
+import { HlmBadge } from '@spartan-ng/helm/badge';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmCard } from '@spartan-ng/helm/card';
+import {
+  HlmEmpty,
+  HlmEmptyContent,
+  HlmEmptyDescription,
+  HlmEmptyHeader,
+  HlmEmptyMedia,
+  HlmEmptyTitle,
+} from '@spartan-ng/helm/empty';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSwitch } from '@spartan-ng/helm/switch';
 import { Api } from '../../api/api';
 import { getCompanySettings } from '../../api/fn/settings/get-company-settings';
 import { updateCompanySettings } from '../../api/fn/settings/update-company-settings';
@@ -32,10 +41,13 @@ import { AuthService } from '../../core/auth/auth.service';
 import { toApiProblem } from '../../core/http/api-problem';
 import { toServerErrors } from '../../core/http/server-errors';
 import { Notifier } from '../../core/notifications/notifier';
-import { Card } from '../../shared/ui/card/card';
 import { DataTable, DataTableColumn } from '../../shared/ui/data-table/data-table';
 import { DataTableCell } from '../../shared/ui/data-table/data-table-templates';
+import { FieldShell } from '../../shared/ui/field-shell/field-shell';
+import { Icon } from '../../shared/ui/icon/icon';
 import { PageHeader } from '../../shared/ui/page-header/page-header';
+import { SectionCard } from '../../shared/ui/section-card/section-card';
+import { formatCompanyDocument, initialsOf } from './company-document';
 import { SETTINGS_STRINGS } from './settings.strings';
 
 /** Mesmos limites do servidor (SettingsService). */
@@ -77,18 +89,27 @@ function toModel(dto: CompanySettingsDto | null): SettingsModel {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormField,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSlideToggleModule,
-    Card,
+    HlmAvatar,
+    HlmAvatarFallback,
+    HlmBadge,
+    HlmButton,
+    HlmCard,
+    HlmEmpty,
+    HlmEmptyContent,
+    HlmEmptyDescription,
+    HlmEmptyHeader,
+    HlmEmptyMedia,
+    HlmEmptyTitle,
+    HlmInput,
+    HlmSwitch,
     DataTable,
     DataTableCell,
+    FieldShell,
+    Icon,
     PageHeader,
+    SectionCard,
   ],
   templateUrl: './settings.html',
-  styleUrl: './settings.scss',
 })
 export class Settings {
   private readonly api = inject(Api);
@@ -131,9 +152,17 @@ export class Settings {
   );
   protected readonly userKey = (user: UserDto) => user.id;
   protected readonly inactive = (user: UserDto) => !user.active;
+  protected readonly initials = initialsOf;
 
   protected setAllowNegative(checked: boolean): void {
     this.model.update((model) => ({ ...model, allowNegativeStock: checked }));
+  }
+
+  /** Aplica a máscara do CNPJ antes de o campo ler o valor digitado. */
+  protected maskDocument(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    input.value = formatCompanyDocument(input.value);
+    this.model.update((model) => ({ ...model, companyDocument: input.value }));
   }
 
   protected async save(event: Event): Promise<void> {
