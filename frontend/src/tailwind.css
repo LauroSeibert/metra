@@ -1,0 +1,67 @@
+/*
+ * Tailwind v4 sem o preflight (tailwindcss/preflight.css): enquanto o Angular Material convive com o Spartan,
+ * o reset do preflight quebraria os componentes do Material. O preflight entra na fase 9, quando o Material sai.
+ */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+@import '@spartan-ng/brain/hlm-tailwind-preset.css';
+@import 'tw-animate-css';
+
+/*
+ * Ponte: as variáveis do Spartan apontam para os tokens --erp-* (styles/tokens.scss), a única fonte de verdade.
+ * Claro e escuro vêm dos próprios tokens; não há paleta paralela aqui.
+ */
+:root {
+  --background: var(--erp-bg);
+  --foreground: var(--erp-text);
+  --card: var(--erp-surface);
+  --card-foreground: var(--erp-text);
+  --popover: var(--erp-surface);
+  --popover-foreground: var(--erp-text);
+  --primary: var(--erp-primary);
+  --primary-foreground: var(--erp-on-primary);
+  --secondary: var(--erp-surface-muted);
+  --secondary-foreground: var(--erp-text);
+  --muted: var(--erp-surface-muted);
+  --muted-foreground: var(--erp-text-muted);
+  --accent: var(--erp-surface-hover);
+  --accent-foreground: var(--erp-text);
+  --border: var(--erp-border);
+  --input: var(--erp-border-strong);
+  --ring: var(--erp-primary);
+  --destructive: var(--erp-danger);
+  --radius: var(--erp-radius-md);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-success: var(--erp-success);
+  --color-warning: var(--erp-warning);
+  --radius-sm: var(--erp-radius-sm);
+  --radius-md: var(--erp-radius-md);
+  --radius-lg: var(--erp-radius-lg);
+  --radius-xl: var(--erp-radius-xl);
+  --font-sans: var(--erp-font-family);
+  --font-mono: var(--erp-font-mono);
+}
+
+/* O Helm usa a variante dark: do Tailwind; o tema escuro do app é [data-theme='dark']. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
