@@ -16,4 +16,10 @@ export const UI_STRINGS = {
   unsavedChanges: 'Alterações não salvas',
   allSaved: 'Tudo salvo',
   openCalendar: 'Abrir calendário',
+  clearSearch: 'Limpar busca',
+  select: 'Selecionar…',
+  searchPlaceholder: 'Buscar…',
+  typeToSearch: 'Digite para buscar.',
+  noResults: 'Nada encontrado.',
+  clearSelection: 'Limpar seleção',
 } as const;

@@ -1,81 +1,87 @@
-<form novalidate (submit)="save($event)">
-  <h2 mat-dialog-title>{{ strings.dialog.title }}</h2>
-  <mat-dialog-content>
-    @if (fixedProduct) {
-      <div class="fixed-product">
-        <span class="sku">{{ product()?.sku }}</span>
-        <strong>{{ product()?.name }}</strong>
-      </div>
-    } @else {
-      <erp-product-picker [(selected)]="product" [error]="productError()" />
-    }
+<form class="grid gap-4" novalidate (submit)="save($event)">
+  <hlm-dialog-header>
+    <h3 hlmDialogTitle>{{ strings.dialog.title }}</h3>
+  </hlm-dialog-header>
 
-    @if (currentQuantity() !== null) {
-      <p class="current">
-        {{ strings.dialog.current((currentQuantity() | number: '1.0-3') ?? '0') }}
-        {{ product()?.unitCode ?? '' }}
-      </p>
-    }
-
-    <div class="type">
-      <span class="label">{{ strings.dialog.type }}</span>
-      <erp-segmented-control
-        [options]="typeOptions"
-        [value]="model().type"
-        (valueChange)="setType($event)"
-        [label]="strings.dialog.type"
-      />
+  @if (fixedProduct) {
+    <div class="flex flex-col rounded-md bg-muted px-4 py-3">
+      <span class="font-mono text-label text-muted-foreground">{{ product()?.sku }}</span>
+      <strong class="font-medium">{{ product()?.name }}</strong>
     </div>
+  } @else {
+    <erp-product-picker [(selected)]="product" [error]="productError()" />
+  }
 
-    <div class="fields">
-      <mat-form-field>
-        <mat-label>
-          {{ model().type === 'Adjustment' ? strings.dialog.counted : strings.dialog.quantity }}
-        </mat-label>
-        <input matInput type="number" step="0.001" [formField]="movementForm.quantity" />
-        @if (model().type === 'Adjustment') {
-          <mat-hint>{{ strings.dialog.countedHint }}</mat-hint>
-        }
-        @if (movementForm.quantity().errors()[0]; as error) {
-          <mat-error>{{ error.message }}</mat-error>
-        }
-      </mat-form-field>
+  @if (currentQuantity() !== null) {
+    <p class="m-0 text-sm text-muted-foreground">
+      {{ strings.dialog.current((currentQuantity() | number: '1.0-3') ?? '0') }}
+      {{ product()?.unitCode ?? '' }}
+    </p>
+  }
 
-      @if (!movementForm.unitCost().hidden()) {
-        <mat-form-field>
-          <mat-label>{{ strings.dialog.unitCost }}</mat-label>
-          <erp-money-input [formField]="movementForm.unitCost" />
-          @if (movementForm.unitCost().errors()[0]; as error) {
-            <mat-error>{{ error.message }}</mat-error>
-          }
-        </mat-form-field>
-      }
-    </div>
+  <div class="flex flex-wrap items-center gap-3">
+    <span class="text-label font-medium text-muted-foreground">{{ strings.dialog.type }}</span>
+    <erp-segmented-control
+      [options]="typeOptions"
+      [value]="model().type"
+      (valueChange)="setType($event)"
+      [label]="strings.dialog.type"
+    />
+  </div>
 
-    <mat-form-field class="note">
-      <mat-label>
-        {{ model().type === 'Adjustment' ? strings.dialog.noteRequired : strings.dialog.note }}
-      </mat-label>
-      <textarea matInput rows="2" [formField]="movementForm.note"></textarea>
-      @if (movementForm.note().errors()[0]; as error) {
-        <mat-error>{{ error.message }}</mat-error>
-      }
-    </mat-form-field>
-
-    @for (error of formErrors(); track $index) {
-      <p class="error" role="alert">{{ error.message }}</p>
-    }
-  </mat-dialog-content>
-
-  <mat-dialog-actions align="end">
-    <button matButton type="button" mat-dialog-close>{{ strings.dialog.cancel }}</button>
-    <button
-      matButton="filled"
-      class="erp-primary-action"
-      type="submit"
-      [disabled]="movementForm().submitting()"
+  <div class="grid gap-4 sm:grid-cols-2">
+    <erp-field-shell
+      [label]="model().type === 'Adjustment' ? strings.dialog.counted : strings.dialog.quantity"
+      [required]="true"
+      [hint]="model().type === 'Adjustment' ? strings.dialog.countedHint : null"
+      [error]="
+        movementForm.quantity().touched()
+          ? (movementForm.quantity().errors()[0]?.message ?? null)
+          : null
+      "
     >
+      <input
+        hlmInput
+        type="number"
+        step="0.001"
+        class="tabular-nums"
+        [formField]="movementForm.quantity"
+      />
+    </erp-field-shell>
+
+    @if (!movementForm.unitCost().hidden()) {
+      <erp-field-shell
+        [label]="strings.dialog.unitCost"
+        [error]="
+          movementForm.unitCost().touched()
+            ? (movementForm.unitCost().errors()[0]?.message ?? null)
+            : null
+        "
+      >
+        <erp-money-input [formField]="movementForm.unitCost" />
+      </erp-field-shell>
+    }
+  </div>
+
+  <erp-field-shell
+    [label]="model().type === 'Adjustment' ? strings.dialog.noteRequired : strings.dialog.note"
+    [error]="
+      movementForm.note().touched() ? (movementForm.note().errors()[0]?.message ?? null) : null
+    "
+  >
+    <textarea hlmTextarea class="min-h-16" rows="2" [formField]="movementForm.note"></textarea>
+  </erp-field-shell>
+
+  @for (error of formErrors(); track $index) {
+    <p class="m-0 text-sm text-destructive" role="alert">{{ error.message }}</p>
+  }
+
+  <hlm-dialog-footer>
+    <button hlmBtn variant="outline" type="button" hlmDialogClose>
+      {{ strings.dialog.cancel }}
+    </button>
+    <button hlmBtn type="submit" [disabled]="movementForm().submitting()">
       {{ movementForm().submitting() ? strings.dialog.saving : strings.dialog.save }}
     </button>
-  </mat-dialog-actions>
+  </hlm-dialog-footer>
 </form>

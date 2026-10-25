@@ -17,10 +17,6 @@ import {
   submit,
   validate,
 } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { Api } from '../../../api/api';
 import { createStockMovement } from '../../../api/fn/stock/create-stock-movement';
 import { listStockBalances } from '../../../api/fn/stock/list-stock-balances';
@@ -35,6 +31,12 @@ import {
   SegmentedOption,
 } from '../../../shared/ui/segmented-control/segmented-control';
 import { STOCK_STRINGS } from '../stock.strings';
+import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmDialogImports } from '@spartan-ng/helm/dialog';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmTextarea } from '@spartan-ng/helm/textarea';
+import { FieldShell } from '../../../shared/ui/field-shell/field-shell';
 
 /** Tipos que o usuário lança à mão; estorno sai do histórico. */
 export type ManualMovementType = 'Entry' | 'Exit' | 'Adjustment';
@@ -87,24 +89,24 @@ const movementSchema = schema<MovementModel>((path) => {
   selector: 'erp-movement-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HlmButton,
+    HlmDialogImports,
+    HlmInput,
+    HlmTextarea,
+    FieldShell,
     DecimalPipe,
     FormField,
-    MatButtonModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
     MoneyInput,
     ProductPicker,
     SegmentedControl,
   ],
   templateUrl: './movement-dialog.html',
-  styleUrl: './movement-dialog.scss',
 })
 export class MovementDialog {
   private readonly api = inject(Api);
   private readonly notifier = inject(Notifier);
-  private readonly dialogRef = inject<MatDialogRef<MovementDialog, boolean>>(MatDialogRef);
-  private readonly data = inject<MovementDialogData>(MAT_DIALOG_DATA);
+  private readonly dialogRef = inject<BrnDialogRef<boolean>>(BrnDialogRef);
+  private readonly data = injectBrnDialogContext<MovementDialogData>();
 
   protected readonly strings = STOCK_STRINGS;
   protected readonly fixedProduct = this.data.product !== null;

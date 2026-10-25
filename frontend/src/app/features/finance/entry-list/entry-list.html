@@ -1,11 +1,11 @@
 <erp-page-header [title]="texts().title" [subtitle]="texts().subtitle">
-  <a matButton="outlined" class="erp-secondary-action" routerLink="/finance/categories">
-    <mat-icon>sell</mat-icon>
+  <a hlmBtn variant="outline" routerLink="/finance/categories">
+    <erp-icon name="tag" />
     {{ strings.list.categories }}
   </a>
   @if (canWrite()) {
-    <a matButton="filled" class="erp-primary-action" routerLink="edit">
-      <mat-icon>add</mat-icon>
+    <a hlmBtn routerLink="edit">
+      <erp-icon name="plus" />
       {{ texts().newEntry }}
     </a>
   }
@@ -29,81 +29,46 @@
   (retry)="entries.reload()"
   (rowActivate)="open($event)"
 >
-  <section tableToolbar class="erp-toolbar" [attr.aria-label]="strings.list.searchLabel">
-    <mat-form-field class="grow" subscriptSizing="dynamic">
-      <mat-icon matPrefix>search</mat-icon>
-      <input
-        matInput
-        erpSlashFocus
-        type="search"
-        [attr.aria-label]="strings.list.searchLabel"
-        [placeholder]="strings.list.searchLabel"
-        [value]="search()"
-        (input)="onSearchInput($event)"
-      />
-      <span matSuffix class="erp-kbd" aria-hidden="true">/</span>
-    </mat-form-field>
-
-    <mat-form-field subscriptSizing="dynamic">
-      <span matTextPrefix class="erp-filter-label">{{ strings.list.categoryFilter }}</span>
-      <mat-select
-        [value]="categoryId() ?? 0"
-        [aria-label]="strings.list.categoryFilter"
-        (valueChange)="categoryId.set($event || null)"
-      >
-        <mat-option [value]="0">{{ strings.list.allCategories }}</mat-option>
-        @for (category of categoryOptions(); track category.id) {
-          <mat-option [value]="category.id">{{ category.name }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field subscriptSizing="dynamic" class="date">
-      <span matTextPrefix class="erp-filter-label">{{ strings.list.dueFrom }}</span>
-      <input
-        #dateField1
-        matInput
-        type="date"
-        [attr.aria-label]="strings.list.dueFrom"
-        [value]="dueFrom()"
-        (change)="onDate('dueFrom', $event)"
-      />
-      <button matSuffix [erpDatePickerToggle]="dateField1"></button>
-    </mat-form-field>
-
-    <mat-form-field subscriptSizing="dynamic" class="date">
-      <span matTextPrefix class="erp-filter-label">{{ strings.list.dueTo }}</span>
-      <input
-        #dateField2
-        matInput
-        type="date"
-        [attr.aria-label]="strings.list.dueTo"
-        [value]="dueTo()"
-        (change)="onDate('dueTo', $event)"
-      />
-      <button matSuffix [erpDatePickerToggle]="dateField2"></button>
-    </mat-form-field>
-
+  <section
+    tableToolbar
+    class="flex flex-wrap items-center gap-2.5 border-b border-border p-3.5"
+    [attr.aria-label]="strings.list.searchLabel"
+  >
+    <erp-search-field [label]="strings.list.searchLabel" [(value)]="search" />
+    <erp-filter-select
+      [label]="strings.list.categoryFilter"
+      [options]="categoryFilterOptions()"
+      [value]="categoryId() ?? 0"
+      (valueChange)="categoryId.set($event || null)"
+    />
+    <erp-date-field [label]="strings.list.dueFrom" [(value)]="dueFrom" />
+    <erp-date-field [label]="strings.list.dueTo" [(value)]="dueTo" />
     <erp-segmented-control
       [options]="statusOptions"
       [(value)]="status"
       [label]="strings.list.statusFilter"
     />
-
     @if (hasFilters()) {
-      <button matButton type="button" (click)="clearFilters()">
-        <mat-icon>filter_alt_off</mat-icon>
+      <button hlmBtn variant="ghost" type="button" (click)="clearFilters()">
+        <erp-icon name="filter-x" />
         {{ strings.list.clearFilters }}
       </button>
     }
-    <span class="erp-count">{{ strings.list.results((total() | number) ?? '0') }}</span>
+    <erp-result-count>{{ strings.list.results((total() | number) ?? '0') }}</erp-result-count>
   </section>
+
   <ng-template erpCell="dueDate" [erpCellOf]="rows()" let-entry>
-    <span class="due erp-mono">{{ entry.dueDate | date: 'dd/MM/yyyy' }}</span>
+    <span class="font-mono whitespace-nowrap tabular-nums">{{
+      entry.dueDate | date: 'dd/MM/yyyy'
+    }}</span>
   </ng-template>
 
   <ng-template erpCell="description" [erpCellOf]="rows()" let-entry>
-    <a class="description" [routerLink]="['edit', entry.id]">{{ entry.description }}</a>
+    <a
+      class="mr-2 font-medium text-foreground no-underline hover:underline"
+      [routerLink]="['edit', entry.id]"
+      >{{ entry.description }}</a
+    >
     @if (entry.installmentTotal > 1) {
       <erp-status-chip
         [label]="strings.installment(entry.installmentNo, entry.installmentTotal)"
@@ -124,7 +89,9 @@
   <ng-template erpCell="amount" [erpCellOf]="rows()" let-entry>
     {{ entry.amount | currency }}
     @if (entry.paidAmount !== null && entry.paidAmount !== entry.amount) {
-      <small class="paid">{{ texts().paidChip }}: {{ entry.paidAmount | currency }}</small>
+      <small class="block text-label text-muted-foreground"
+        >{{ texts().paidChip }}: {{ entry.paidAmount | currency }}</small
+      >
     }
   </ng-template>
 
@@ -133,48 +100,56 @@
   </ng-template>
 
   <ng-template erpCell="actions" [erpCellOf]="rows()" let-entry>
-    <div class="erp-row-actions">
+    <div class="inline-flex items-center gap-1">
       @if (canWrite() && entry.status === 'Open') {
         <button
-          class="erp-row-action success"
+          hlmBtn
+          variant="ghost"
+          size="icon"
           type="button"
-          [matTooltip]="texts().pay"
+          [hlmTooltip]="texts().pay"
           [attr.aria-label]="texts().pay + ' ' + entry.description"
           (click)="pay(entry)"
         >
-          <mat-icon>payments</mat-icon>
+          <erp-icon name="banknote" />
         </button>
       }
       @if (canWrite() && entry.status === 'Paid') {
         <button
-          class="erp-row-action danger"
+          hlmBtn
+          variant="ghost"
+          size="icon"
           type="button"
-          [matTooltip]="strings.list.reverse"
+          class="text-destructive hover:text-destructive"
+          [hlmTooltip]="strings.list.reverse"
           [attr.aria-label]="strings.list.reverse + ' ' + entry.description"
           (click)="reversePayment(entry)"
         >
-          <mat-icon>undo</mat-icon>
+          <erp-icon name="undo" />
         </button>
       }
       <a
-        class="erp-row-action"
+        hlmBtn
+        variant="ghost"
+        size="icon"
         [routerLink]="['edit', entry.id]"
-        [matTooltip]="canWrite() && entry.status === 'Open' ? strings.list.edit : strings.list.view"
+        [hlmTooltip]="canWrite() && entry.status === 'Open' ? strings.list.edit : strings.list.view"
         [attr.aria-label]="strings.list.view + ' ' + entry.description"
       >
-        <mat-icon>{{
-          canWrite() && entry.status === 'Open' ? 'edit_square' : 'visibility'
-        }}</mat-icon>
+        <erp-icon [name]="canWrite() && entry.status === 'Open' ? 'pencil' : 'eye'" />
       </a>
       @if (canWrite() && entry.status === 'Open') {
         <button
-          class="erp-row-action danger"
+          hlmBtn
+          variant="ghost"
+          size="icon"
           type="button"
-          [matTooltip]="strings.list.cancel"
+          class="text-destructive hover:text-destructive"
+          [hlmTooltip]="strings.list.cancel"
           [attr.aria-label]="strings.list.cancel + ' ' + entry.description"
           (click)="cancel(entry)"
         >
-          <mat-icon>block</mat-icon>
+          <erp-icon name="ban" />
         </button>
       }
     </div>

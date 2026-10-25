@@ -9,12 +9,6 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Api } from '../../../api/api';
 import { activatePartner } from '../../../api/fn/partners/activate-partner';
@@ -42,9 +36,15 @@ import {
 import { DataTableCell } from '../../../shared/ui/data-table/data-table-templates';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { KpiItem, KpiStrip } from '../../../shared/ui/kpi-strip/kpi-strip';
-import { SlashFocus } from '../../../shared/ui/slash-focus';
 import { formatDocument } from '../partner-rules';
 import { PARTNERS_STRINGS } from '../partners.strings';
+import { HlmBadge } from '@spartan-ng/helm/badge';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmTooltip } from '@spartan-ng/helm/tooltip';
+import { FilterSelect, FilterOption } from '../../../shared/ui/filter-select/filter-select';
+import { Icon } from '../../../shared/ui/icon/icon';
+import { ResultCount } from '../../../shared/ui/result-count/result-count';
+import { SearchField } from '../../../shared/ui/search-field/search-field';
 
 type StatusFilter = 'all' | 'active' | 'inactive';
 
@@ -62,22 +62,21 @@ const DEFAULT_SORT: DataTableSort = { field: 'name', direction: 'asc' };
   selector: 'erp-partner-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HlmBadge,
+    HlmButton,
+    HlmTooltip,
+    FilterSelect,
+    Icon,
+    ResultCount,
+    SearchField,
     DecimalPipe,
     RouterLink,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-    MatTooltipModule,
     DataTable,
     DataTableCell,
     KpiStrip,
     PageHeader,
-    SlashFocus,
   ],
   templateUrl: './partner-list.html',
-  styleUrl: './partner-list.scss',
 })
 export class PartnerList {
   private readonly api = inject(Api);
@@ -90,7 +89,13 @@ export class PartnerList {
 
   protected readonly strings = PARTNERS_STRINGS;
   protected readonly canWrite = this.auth.canWrite;
-  protected readonly typeOptions = PARTNER_TYPES;
+  protected readonly typeOptions: readonly FilterOption<string>[] = [
+    { value: 'all', label: PARTNERS_STRINGS.list.allTypes },
+    { value: 'Customer', label: PARTNERS_STRINGS.list.customers },
+    { value: 'Supplier', label: PARTNERS_STRINGS.list.suppliers },
+    { value: 'Both', label: PARTNERS_STRINGS.types.Both },
+  ];
+  protected readonly readType = readType;
   protected readonly columns: readonly DataTableColumn[] = [
     { key: 'name', header: PARTNERS_STRINGS.columns.name, sortable: true, role: 'title' },
     {
@@ -240,10 +245,6 @@ export class PartnerList {
         ),
       });
     });
-  }
-
-  protected onSearchInput(event: Event): void {
-    this.search.set((event.target as HTMLInputElement).value);
   }
 
   protected clearFilters(): void {

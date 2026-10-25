@@ -87,7 +87,9 @@ describe('MovementHistory', () => {
     }));
     await render();
 
-    expect(element.querySelectorAll('.erp-row-action.danger').length).toBe(1);
+    expect(
+      element.querySelectorAll(`button[aria-label^="${STOCK_STRINGS.history.reverse}"]`).length,
+    ).toBe(1);
     expect(element.textContent).toContain(STOCK_STRINGS.history.reversed);
     expect(element.textContent).toContain(STOCK_STRINGS.history.reversalOf(2));
   });
@@ -96,6 +98,8 @@ describe('MovementHistory', () => {
     api = new FakeApi().on(listStockMovements, () => ({ items: [movement(3)], nextCursor: null }));
     await render('Viewer');
 
-    expect(element.querySelector('.erp-row-action.danger')).toBeNull();
+    expect(
+      element.querySelector(`button[aria-label^="${STOCK_STRINGS.history.reverse}"]`),
+    ).toBeNull();
   });
 });

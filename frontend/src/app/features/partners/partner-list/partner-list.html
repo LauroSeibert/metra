@@ -1,7 +1,7 @@
 <erp-page-header [title]="strings.list.title" [subtitle]="strings.list.subtitle">
   @if (canWrite()) {
-    <a matButton="filled" class="erp-primary-action" routerLink="edit">
-      <mat-icon>add</mat-icon>
+    <a hlmBtn routerLink="edit">
+      <erp-icon name="plus" />
       {{ strings.list.newPartner }}
     </a>
   }
@@ -26,93 +26,82 @@
   (retry)="partners.reload()"
   (rowActivate)="openPartner($event)"
 >
-  <section tableToolbar class="erp-toolbar" [attr.aria-label]="strings.list.searchLabel">
-    <mat-form-field class="grow" subscriptSizing="dynamic">
-      <mat-icon matPrefix>search</mat-icon>
-      <input
-        matInput
-        erpSlashFocus
-        type="search"
-        [attr.aria-label]="strings.list.searchLabel"
-        [placeholder]="strings.list.searchLabel"
-        [value]="search()"
-        (input)="onSearchInput($event)"
-      />
-      <span matSuffix class="erp-kbd" aria-hidden="true">/</span>
-    </mat-form-field>
-
-    <mat-form-field subscriptSizing="dynamic">
-      <span matTextPrefix class="erp-filter-label">{{ strings.list.typeFilter }}</span>
-      <mat-select
-        [value]="type() ?? 'all'"
-        [aria-label]="strings.list.typeFilter"
-        (valueChange)="type.set($event === 'all' ? null : $event)"
-      >
-        <mat-option value="all">{{ strings.list.allTypes }}</mat-option>
-        <mat-option value="Customer">{{ strings.list.customers }}</mat-option>
-        <mat-option value="Supplier">{{ strings.list.suppliers }}</mat-option>
-        <mat-option value="Both">{{ strings.types.Both }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-
+  <section
+    tableToolbar
+    class="flex flex-wrap items-center gap-2.5 border-b border-border p-3.5"
+    [attr.aria-label]="strings.list.searchLabel"
+  >
+    <erp-search-field [label]="strings.list.searchLabel" [(value)]="search" />
+    <erp-filter-select
+      [label]="strings.list.typeFilter"
+      [options]="typeOptions"
+      [value]="type() ?? 'all'"
+      (valueChange)="type.set(readType($event))"
+    />
     @if (hasFilters()) {
-      <button matButton type="button" (click)="clearFilters()">
-        <mat-icon>filter_alt_off</mat-icon>
+      <button hlmBtn variant="ghost" type="button" (click)="clearFilters()">
+        <erp-icon name="filter-x" />
         {{ strings.list.clearFilters }}
       </button>
     }
-    <span class="erp-count">{{ strings.list.results((total() | number) ?? '0') }}</span>
+    <erp-result-count>{{ strings.list.results((total() | number) ?? '0') }}</erp-result-count>
   </section>
 
   <ng-template erpCell="name" [erpCellOf]="rows()" let-partner>
-    <a class="partner-name" [routerLink]="['edit', partner.id]">{{ partner.name }}</a>
-    <span class="secondary">{{ strings.types[partner.type] }}</span>
+    <a
+      class="block font-medium text-foreground no-underline hover:underline"
+      [routerLink]="['edit', partner.id]"
+      >{{ partner.name }}</a
+    >
+    <span class="block text-label text-muted-foreground">{{ strings.types[partner.type] }}</span>
   </ng-template>
 
   <ng-template erpCell="document" [erpCellOf]="rows()" let-partner>
-    <span class="document">{{ formatDocument(partner.document) }}</span>
+    <span class="font-mono text-sm whitespace-nowrap text-muted-foreground">{{
+      formatDocument(partner.document)
+    }}</span>
   </ng-template>
 
   <ng-template erpCell="contact" [erpCellOf]="rows()" let-partner>
     @if (partner.email || partner.phone) {
-      <span class="contact">{{ partner.email ?? '' }}</span>
-      <span class="secondary">{{ partner.phone ?? '' }}</span>
+      <span class="block">{{ partner.email ?? '' }}</span>
+      <span class="block text-label text-muted-foreground">{{ partner.phone ?? '' }}</span>
     } @else {
-      <span class="missing">—</span>
+      <span class="text-muted-foreground">—</span>
     }
   </ng-template>
 
   <ng-template erpCell="active" [erpCellOf]="rows()" let-partner>
-    @if (partner.active) {
-      <span class="erp-dot" [attr.aria-label]="strings.status.activeChip"></span>
-    } @else {
-      <span class="erp-dot off">{{ strings.status.inactiveChip }}</span>
-    }
+    <span hlmBadge [variant]="partner.active ? 'ok' : 'off'">{{
+      partner.active ? strings.status.activeChip : strings.status.inactiveChip
+    }}</span>
   </ng-template>
 
   <ng-template erpCell="actions" [erpCellOf]="rows()" let-partner>
-    <div class="erp-row-actions">
+    <div class="inline-flex items-center gap-1">
       <a
-        class="erp-row-action"
+        hlmBtn
+        variant="ghost"
+        size="icon"
         [routerLink]="['edit', partner.id]"
-        [matTooltip]="strings.list.edit"
+        [hlmTooltip]="strings.list.edit"
         [attr.aria-label]="strings.list.edit + ' ' + partner.name"
       >
-        <mat-icon>{{ canWrite() ? 'edit_square' : 'visibility' }}</mat-icon>
+        <erp-icon [name]="canWrite() ? 'pencil' : 'eye'" />
       </a>
       @if (canWrite()) {
         <button
-          class="erp-row-action"
+          hlmBtn
+          variant="ghost"
+          size="icon"
           type="button"
-          [class.danger]="partner.active"
-          [class.success]="!partner.active"
-          [matTooltip]="partner.active ? strings.list.deactivate : strings.list.activate"
+          [hlmTooltip]="partner.active ? strings.list.deactivate : strings.list.activate"
           [attr.aria-label]="
             (partner.active ? strings.list.deactivate : strings.list.activate) + ' ' + partner.name
           "
           (click)="toggleActive(partner)"
         >
-          <mat-icon>{{ partner.active ? 'pause_circle' : 'play_circle' }}</mat-icon>
+          <erp-icon [name]="partner.active ? 'circle-pause' : 'circle-play'" />
         </button>
       }
     </div>

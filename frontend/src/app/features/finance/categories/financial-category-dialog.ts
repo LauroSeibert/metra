@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { form, FormField, maxLength, required, submit } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmDialogImports } from '@spartan-ng/helm/dialog';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { Api } from '../../../api/api';
 import { createFinancialCategory } from '../../../api/fn/financial-categories/create-financial-category';
 import { updateFinancialCategory } from '../../../api/fn/financial-categories/update-financial-category';
@@ -13,73 +13,70 @@ import { FinancialCategoryKind } from '../../../api/models/financial-category-ki
 import { toApiProblem } from '../../../core/http/api-problem';
 import { toServerErrors } from '../../../core/http/server-errors';
 import { Notifier } from '../../../core/notifications/notifier';
+import { FieldShell } from '../../../shared/ui/field-shell/field-shell';
 import { FINANCE_STRINGS } from '../finance.strings';
 
 const NAME_MAX_LENGTH = 100;
+
+/** Dados passados a quem abre o diálogo: `null` cria, uma categoria edita. */
+export interface FinancialCategoryDialogContext {
+  readonly category: FinancialCategoryDto | null;
+}
 
 /** Cria ou edita uma categoria financeira. Fecha com `true` quando salva. */
 @Component({
   selector: 'erp-financial-category-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    FormField,
-    MatButtonModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-  ],
+  imports: [FormField, HlmButton, HlmDialogImports, HlmInput, HlmSelectImports, FieldShell],
   template: `
-    <form novalidate (submit)="save($event)">
-      <h2 mat-dialog-title>{{ category ? strings.editCategory : strings.newCategory }}</h2>
-      <mat-dialog-content>
-        <mat-form-field>
-          <mat-label>{{ strings.name }}</mat-label>
-          <input matInput cdkFocusInitial [formField]="categoryForm.name" />
-          @if (categoryForm.name().errors()[0]; as error) {
-            <mat-error>{{ error.message }}</mat-error>
-          }
-        </mat-form-field>
-        <mat-form-field>
-          <mat-label>{{ strings.kind }}</mat-label>
-          <mat-select [formField]="categoryForm.kind">
-            <mat-option value="Revenue">{{ strings.Revenue }}</mat-option>
-            <mat-option value="Expense">{{ strings.Expense }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        @for (error of categoryForm().errors(); track $index) {
-          <p class="error" role="alert">{{ error.message }}</p>
-        }
-      </mat-dialog-content>
-      <mat-dialog-actions align="end">
-        <button matButton type="button" mat-dialog-close>{{ strings.cancel }}</button>
-        <button
-          matButton="filled"
-          class="erp-primary-action"
-          type="submit"
-          [disabled]="categoryForm().submitting()"
+    <form class="grid gap-4" novalidate (submit)="save($event)">
+      <hlm-dialog-header>
+        <h3 hlmDialogTitle>{{ category ? strings.editCategory : strings.newCategory }}</h3>
+      </hlm-dialog-header>
+
+      <erp-field-shell
+        [label]="strings.name"
+        [required]="true"
+        [error]="
+          categoryForm.name().touched() ? (categoryForm.name().errors()[0]?.message ?? null) : null
+        "
+      >
+        <input hlmInput autocomplete="off" [formField]="categoryForm.name" />
+      </erp-field-shell>
+      <erp-field-shell [label]="strings.kind">
+        <hlm-select
+          [value]="model().kind"
+          [itemToString]="kindLabel"
+          (valueChange)="setKind($event)"
         >
+          <hlm-select-trigger class="w-full">
+            <hlm-select-value />
+          </hlm-select-trigger>
+          <hlm-select-content *hlmSelectPortal>
+            <hlm-select-item value="Revenue">{{ strings.Revenue }}</hlm-select-item>
+            <hlm-select-item value="Expense">{{ strings.Expense }}</hlm-select-item>
+          </hlm-select-content>
+        </hlm-select>
+      </erp-field-shell>
+      @for (error of categoryForm().errors(); track $index) {
+        <p class="m-0 text-sm text-destructive" role="alert">{{ error.message }}</p>
+      }
+
+      <hlm-dialog-footer>
+        <button hlmBtn variant="outline" type="button" hlmDialogClose>{{ strings.cancel }}</button>
+        <button hlmBtn type="submit" [disabled]="categoryForm().submitting()">
           {{ strings.save }}
         </button>
-      </mat-dialog-actions>
+      </hlm-dialog-footer>
     </form>
-  `,
-  styles: `
-    mat-form-field {
-      width: 100%;
-    }
-    .error {
-      margin: 0;
-      color: var(--erp-danger);
-    }
   `,
 })
 export class FinancialCategoryDialog {
   private readonly api = inject(Api);
   private readonly notifier = inject(Notifier);
-  private readonly dialogRef = inject<MatDialogRef<FinancialCategoryDialog, boolean>>(MatDialogRef);
+  private readonly dialogRef = inject<BrnDialogRef<boolean>>(BrnDialogRef);
 
-  protected readonly category = inject<FinancialCategoryDto | null>(MAT_DIALOG_DATA);
+  protected readonly category = injectBrnDialogContext<FinancialCategoryDialogContext>().category;
   protected readonly strings = FINANCE_STRINGS.categories;
   protected readonly model = signal<{ name: string; kind: FinancialCategoryKind }>({
     name: this.category?.name ?? '',
@@ -91,6 +88,14 @@ export class FinancialCategoryDialog {
       message: FINANCE_STRINGS.validation.maxLength(NAME_MAX_LENGTH),
     });
   });
+
+  protected readonly kindLabel = (kind: FinancialCategoryKind): string => this.strings[kind];
+
+  protected setKind(kind: FinancialCategoryKind | null | undefined): void {
+    if (kind) {
+      this.model.update((value) => ({ ...value, kind }));
+    }
+  }
 
   protected async save(event: Event): Promise<void> {
     event.preventDefault();

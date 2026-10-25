@@ -113,17 +113,21 @@ describe('EntryList', () => {
 
     expect(rows[0].textContent).toContain(FINANCE_STRINGS.status.overdue(3));
     expect(rows[0].textContent).toContain('2/3');
-    expect(rows[0].querySelector('.erp-row-action.success')).not.toBeNull(); // pagar
+    expect(
+      rows[0].querySelector(`button[aria-label^="${FINANCE_STRINGS.kinds.Payable.pay}"]`),
+    ).not.toBeNull();
     expect(rows[1].textContent).toContain(FINANCE_STRINGS.kinds.Payable.paidChip);
-    expect(rows[1].querySelector('.erp-row-action.danger mat-icon')?.textContent).toContain('undo');
+    expect(
+      rows[1].querySelector(`button[aria-label^="${FINANCE_STRINGS.list.reverse}"]`),
+    ).not.toBeNull();
     expect(rows[2].textContent).toContain(FINANCE_STRINGS.status.Cancelled);
-    expect(rows[2].querySelectorAll('button.erp-row-action').length).toBe(0);
+    expect(rows[2].querySelectorAll('button').length).toBe(0);
   });
 
   it('is read-only for the Viewer profile', async () => {
     await render('Viewer');
 
-    expect(element.querySelectorAll('button.erp-row-action').length).toBe(0);
+    expect(element.querySelectorAll('tr.row button').length).toBe(0);
     expect(element.textContent).not.toContain(FINANCE_STRINGS.kinds.Payable.newEntry);
   });
 });

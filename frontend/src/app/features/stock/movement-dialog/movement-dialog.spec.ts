@@ -1,6 +1,7 @@
 import { WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { DIALOG_DATA } from '@angular/cdk/dialog';
+import { BrnDialogRef } from '@spartan-ng/brain/dialog';
 import { createStockMovement } from '../../../api/fn/stock/create-stock-movement';
 import { FakeApi } from '../../../shared/testing/fake-api';
 import { STOCK_STRINGS } from '../stock.strings';
@@ -29,8 +30,8 @@ describe('MovementDialog', () => {
     TestBed.configureTestingModule({
       providers: [
         api.provide(),
-        { provide: MAT_DIALOG_DATA, useValue: data },
-        { provide: MatDialogRef, useValue: { close } },
+        { provide: DIALOG_DATA, useValue: data },
+        { provide: BrnDialogRef, useValue: { close } },
       ],
     });
     fixture = TestBed.createComponent(MovementDialog);
