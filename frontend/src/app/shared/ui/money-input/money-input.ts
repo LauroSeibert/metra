@@ -11,11 +11,15 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormValueControl, ValidationError } from '@angular/forms/signals';
-import { MatFormFieldControl } from '@angular/material/form-field';
+import { MAT_FORM_FIELD, MatFormFieldControl } from '@angular/material/form-field';
 import { Subject } from 'rxjs';
 
 /** Até 9.999.999.999.999,99: cabe no DECIMAL(18,2) do servidor e em inteiro seguro do JS. */
 const MAX_DIGITS = 15;
+
+/** Fora de um mat-form-field o campo tem o visual dos inputs do Spartan; dentro, o Material o contorna. */
+const STANDALONE_CLASS =
+  'h-control w-full min-w-0 rounded-md border border-input bg-card px-3 text-sm tabular-nums outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:shadow-focus disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive';
 
 const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -51,6 +55,7 @@ export function formatMoney(value: number | null): string {
       type="text"
       inputmode="numeric"
       autocomplete="off"
+      [class]="inputClass"
       [value]="text(value())"
       [disabled]="disabled()"
       [readOnly]="readonly()"
@@ -67,14 +72,17 @@ export function formatMoney(value: number | null): string {
     }
 
     input {
+      font: inherit;
+      color: inherit;
+      font-variant-numeric: tabular-nums;
+    }
+
+    input.embedded {
       width: 100%;
       padding: 0;
       border: 0;
       outline: 0;
       background: transparent;
-      color: inherit;
-      font: inherit;
-      font-variant-numeric: tabular-nums;
     }
   `,
 })
@@ -88,6 +96,9 @@ export class MoneyInput implements FormValueControl<number | null> {
   readonly touch = output<void>();
 
   readonly inputId = `erp-money-input-${nextId++}`;
+  protected readonly inputClass = inject(MAT_FORM_FIELD, { optional: true })
+    ? 'embedded'
+    : STANDALONE_CLASS;
   readonly control = new MoneyFieldControl(this);
   protected readonly describedBy = signal<string | null>(null);
   protected readonly text = formatMoney;

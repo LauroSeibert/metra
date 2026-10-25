@@ -1,0 +1,167 @@
+<erp-page-header [title]="strings.title" [subtitle]="strings.subtitle">
+  <button hlmBtn variant="outline" type="button" (click)="toggleTheme()">
+    <erp-icon [name]="dark() ? 'sun' : 'moon'" />
+    {{ strings.toggleTheme }}
+  </button>
+</erp-page-header>
+
+<p class="mb-6 text-label text-muted-foreground">{{ strings.focus }}</p>
+
+<div class="mx-auto flex max-w-7xl flex-col gap-6">
+  <section hlmCard>
+    <div hlmCardHeader>
+      <h2 hlmCardTitle>{{ strings.buttons }}</h2>
+      <p hlmCardDescription>{{ strings.buttonsHint }}</p>
+    </div>
+    <div hlmCardContent>
+      <div class="flex flex-wrap items-center gap-3">
+        <button hlmBtn type="button"><erp-icon name="plus" />{{ strings.withIcon }}</button>
+        <button hlmBtn variant="outline" type="button">{{ strings.outline }}</button>
+        <button hlmBtn variant="ghost" type="button">{{ strings.ghost }}</button>
+        <button hlmBtn variant="destructive" type="button">
+          <erp-icon name="trash" />{{ strings.destructive }}
+        </button>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <button hlmBtn size="sm" type="button">{{ strings.small }}</button>
+        <button hlmBtn size="sm" variant="outline" type="button">{{ strings.small }}</button>
+        <button
+          hlmBtn
+          size="icon"
+          variant="outline"
+          type="button"
+          [attr.aria-label]="strings.ghost"
+        >
+          <erp-icon name="pencil" />
+        </button>
+        <button hlmBtn size="icon" variant="ghost" type="button" [attr.aria-label]="strings.ghost">
+          <erp-icon name="ellipsis" />
+        </button>
+        <button hlmBtn type="button" disabled>{{ strings.disabled }}</button>
+        <button hlmBtn variant="outline" type="button" disabled>{{ strings.disabled }}</button>
+      </div>
+    </div>
+  </section>
+
+  <section hlmCard>
+    <div hlmCardHeader>
+      <h2 hlmCardTitle>{{ strings.badges }}</h2>
+      <p hlmCardDescription>{{ strings.badgesHint }}</p>
+    </div>
+    <div hlmCardContent>
+      <div class="flex flex-wrap items-center gap-3">
+        <span hlmBadge variant="ok">{{ strings.ok }}</span>
+        <span hlmBadge variant="off">{{ strings.off }}</span>
+        <span hlmBadge variant="warn">{{ strings.warn }}</span>
+        <span hlmBadge variant="danger">{{ strings.danger }}</span>
+        <span hlmBadge variant="outline">{{ strings.outlineBadge }}</span>
+        <span hlmBadge variant="code">UN</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <erp-status-chip label="Pago" tone="success" />
+        <erp-status-chip label="Vencido" tone="danger" />
+        <erp-status-chip label="A vencer" tone="warning" />
+        <erp-status-chip label="Administrador" tone="primary" />
+        <erp-status-chip label="Rascunho" />
+        <erp-status-chip label="KG" [plain]="true" />
+      </div>
+    </div>
+  </section>
+
+  <section hlmCard>
+    <div hlmCardHeader>
+      <h2 hlmCardTitle>{{ strings.fields }}</h2>
+      <p hlmCardDescription>{{ strings.fieldsHint }}</p>
+    </div>
+    <div hlmCardContent>
+      <div class="grid gap-4 md:grid-cols-2">
+        <erp-field-shell [label]="strings.name" [hint]="strings.nameHint" [required]="true">
+          <input hlmInput type="text" [placeholder]="strings.namePlaceholder" />
+        </erp-field-shell>
+        <erp-field-shell [label]="strings.sku" [error]="strings.skuError" [required]="true">
+          <input hlmInput class="font-mono" type="text" value="CAF-0001" />
+        </erp-field-shell>
+        <erp-field-shell [label]="strings.price" [hint]="strings.priceHint">
+          <erp-money-input [(value)]="price" />
+        </erp-field-shell>
+        <erp-field-shell [label]="strings.small2">
+          <input hlmInput class="h-control-sm" type="text" />
+        </erp-field-shell>
+        <erp-field-shell [label]="strings.locked">
+          <input hlmInput type="text" value="—" disabled />
+        </erp-field-shell>
+      </div>
+      <div class="flex items-center justify-between gap-4 rounded-md border border-border p-4">
+        <div>
+          <p class="text-sm font-medium">{{ strings.switchTitle }}</p>
+          <p class="text-label text-muted-foreground">{{ strings.switchText }}</p>
+        </div>
+        <hlm-switch [aria-label]="strings.switchTitle" />
+      </div>
+    </div>
+  </section>
+
+  <section hlmCard>
+    <div hlmCardHeader class="flex items-center gap-3">
+      <div class="icon-block flex shrink-0 items-center justify-center rounded-md bg-accent">
+        <erp-icon name="building" [size]="18" />
+      </div>
+      <div class="flex-1">
+        <h2 hlmCardTitle>{{ strings.cardTitle }}</h2>
+        <p hlmCardDescription>{{ strings.cardText }}</p>
+      </div>
+      <button hlmBtn size="sm" type="button">
+        <erp-icon name="save" />{{ strings.cardAction }}
+      </button>
+    </div>
+    <div hlmCardContent>
+      <div class="flex items-center gap-3">
+        <hlm-avatar><span hlmAvatarFallback>LS</span></hlm-avatar>
+        <div>
+          <p class="text-sm font-medium">Lauro Seibert</p>
+          <p class="font-mono text-caption text-muted-foreground">lauro&#64;erp.local</p>
+        </div>
+        <span hlmBadge variant="ok" class="ml-auto">{{ strings.ok }}</span>
+      </div>
+      <div hlmSeparator></div>
+      <div class="flex flex-col gap-2">
+        <div hlmSkeleton class="h-4 w-2/3"></div>
+        <div hlmSkeleton class="h-4 w-1/2"></div>
+      </div>
+    </div>
+  </section>
+
+  <section hlmCard>
+    <div hlmCardHeader>
+      <h2 hlmCardTitle>{{ strings.empty }}</h2>
+    </div>
+    <div hlmCardContent>
+      <div hlmEmpty>
+        <div hlmEmptyHeader>
+          <div hlmEmptyMedia variant="icon"><erp-icon name="inbox" [size]="20" /></div>
+          <h3 hlmEmptyTitle>{{ strings.emptyTitle }}</h3>
+          <p hlmEmptyDescription>{{ strings.emptyText }}</p>
+        </div>
+        <div hlmEmptyContent>
+          <button hlmBtn variant="outline" type="button">{{ strings.emptyAction }}</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section hlmCard>
+    <div hlmCardHeader>
+      <h2 hlmCardTitle>{{ strings.icons }}</h2>
+    </div>
+    <div hlmCardContent>
+      <div class="flex flex-wrap gap-4 text-muted-foreground">
+        @for (name of iconNames; track name) {
+          <span class="flex w-24 flex-col items-center gap-1 text-caption">
+            <erp-icon [name]="name" [size]="18" />
+            {{ name }}
+          </span>
+        }
+      </div>
+    </div>
+  </section>
+</div>

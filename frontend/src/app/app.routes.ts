@@ -55,6 +55,12 @@ export const routes: Routes = [
           import('./features/settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
       },
       {
+        // Temporária (redesign, fase 2): removida na fase 9.
+        path: 'design-lab',
+        data: { breadcrumb: 'Design lab' },
+        loadComponent: () => import('./features/design-lab/design-lab').then((m) => m.DesignLab),
+      },
+      {
         path: 'profile',
         data: { breadcrumb: LAYOUT_STRINGS.breadcrumbs.profile },
         loadChildren: () => import('./features/access/access.routes').then((m) => m.PROFILE_ROUTES),

@@ -46,6 +46,8 @@
   --erp-font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', 'SFMono-Regular', monospace;
   --erp-font-size-xs: 0.6875rem;
   --erp-font-size-sm: 0.75rem;
+  --erp-font-size-caption: 0.78125rem;
+  --erp-font-size-label: 0.8125rem;
   --erp-font-size-md: 0.875rem;
   --erp-font-size-lg: 1rem;
   --erp-font-size-xl: 1.25rem;
@@ -104,6 +106,10 @@
   --erp-control-h-sm: 32px;
   --erp-button-h: 36px;
   --erp-thead-h: 40px;
+  --erp-badge-h: 22px;
+  --erp-switch-w: 38px;
+  --erp-switch-h: 22px;
+  --erp-icon-block: 36px;
   --erp-row-height: 52px;
   --erp-page-padding-y: 28px;
   --erp-page-padding: var(--erp-space-6);

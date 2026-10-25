@@ -53,8 +53,19 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-destructive: var(--destructive);
+  --color-border-strong: var(--erp-border-strong);
+  --color-subtle-foreground: var(--erp-text-subtle);
   --color-success: var(--erp-success);
+  --color-success-soft: var(--erp-success-soft);
   --color-warning: var(--erp-warning);
+  --color-warning-soft: var(--erp-warning-soft);
+  --color-warning-text: var(--erp-warning-text);
+  --color-danger-soft: var(--erp-danger-soft);
+  --text-label: var(--erp-font-size-label);
+  --text-caption: var(--erp-font-size-caption);
+  --shadow-xs: var(--erp-shadow-xs);
+  --shadow-overlay: var(--erp-shadow-overlay);
+  --shadow-focus: var(--erp-focus-ring);
   --radius-sm: var(--erp-radius-sm);
   --radius-md: var(--erp-radius-md);
   --radius-lg: var(--erp-radius-lg);
@@ -65,3 +76,38 @@
 
 /* O Helm usa a variante dark: do Tailwind; o tema escuro do app é [data-theme='dark']. */
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* Medidas dos tokens como utilitários (sem valores arbitrários nos componentes). */
+@utility h-control {
+  height: var(--erp-control-h);
+}
+@utility h-control-sm {
+  height: var(--erp-control-h-sm);
+}
+@utility h-button {
+  height: var(--erp-button-h);
+}
+@utility h-badge {
+  height: var(--erp-badge-h);
+}
+@utility h-thead {
+  height: var(--erp-thead-h);
+}
+@utility h-row {
+  height: var(--erp-row-height);
+}
+@utility icon-block {
+  width: var(--erp-icon-block);
+  height: var(--erp-icon-block);
+}
+@utility switch-track {
+  width: var(--erp-switch-w);
+  height: var(--erp-switch-h);
+}
+@utility switch-thumb {
+  width: calc(var(--erp-switch-h) - 4px);
+  height: calc(var(--erp-switch-h) - 4px);
+}
+@utility thumb-on {
+  transform: translateX(calc(var(--erp-switch-w) - var(--erp-switch-h) + 2px));
+}
