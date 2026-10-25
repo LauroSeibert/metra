@@ -141,7 +141,8 @@
 
           <mat-form-field>
             <mat-label>{{ isEdit() ? strings.form.dueDateEdit : strings.form.dueDate }}</mat-label>
-            <input matInput type="date" [formField]="entryForm.dueDate" />
+            <input #dateField1 matInput type="date" [formField]="entryForm.dueDate" />
+            <button matSuffix [erpDatePickerToggle]="dateField1"></button>
             @if (entryForm.dueDate().errors()[0]; as error) {
               <mat-error>{{ error.message }}</mat-error>
             }

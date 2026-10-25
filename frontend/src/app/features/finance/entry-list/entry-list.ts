@@ -1,3 +1,4 @@
+import { DatePickerToggle } from '../../../shared/ui/date-picker-toggle/date-picker-toggle';
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -83,6 +84,7 @@ const DEFAULT_SORT: DataTableSort = { field: 'dueDate', direction: 'asc' };
   selector: 'erp-entry-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePickerToggle,
     CurrencyPipe,
     DatePipe,
     DecimalPipe,

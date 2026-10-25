@@ -79,24 +79,6 @@ tr.row {
   &.muted td:not(.role-actions) {
     color: var(--erp-text-subtle);
   }
-
-  // Ações aparecem no hover e no foco do teclado; em telas de toque, sempre.
-  td .actions-slot {
-    opacity: 0;
-    transition: opacity var(--erp-duration-fast) var(--erp-easing);
-  }
-
-  &:hover td .actions-slot,
-  &:focus-within td .actions-slot,
-  &.expanded td .actions-slot {
-    opacity: 1;
-  }
-}
-
-@media (hover: none) {
-  tr.row td .actions-slot {
-    opacity: 1;
-  }
 }
 
 .align-start {
@@ -185,6 +167,19 @@ td.align-end {
   &:focus-visible {
     outline: none;
     box-shadow: var(--erp-focus-ring);
+  }
+}
+
+// Detalhe expandido entra com fade e leve deslocamento (o <tr> é criado ao expandir).
+tr.detail td > * {
+  display: block;
+  animation: detail-in var(--erp-duration-base) var(--erp-easing);
+}
+
+@keyframes detail-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
   }
 }
 
@@ -289,10 +284,6 @@ tr.skeleton-row {
 
     &:hover td {
       background: none;
-    }
-
-    td .actions-slot {
-      opacity: 1;
     }
   }
 

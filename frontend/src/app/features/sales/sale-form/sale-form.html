@@ -98,7 +98,8 @@
 
             <mat-form-field>
               <mat-label>{{ strings.form.issuedAt }}</mat-label>
-              <input matInput type="date" [formField]="saleForm.issuedAt" />
+              <input #dateField1 matInput type="date" [formField]="saleForm.issuedAt" />
+              <button matSuffix [erpDatePickerToggle]="dateField1"></button>
             </mat-form-field>
 
             <mat-form-field>
@@ -251,10 +252,14 @@
           <dl>
             <dt>{{ strings.form.gross }}</dt>
             <dd>{{ totals().gross | currency }}</dd>
-            <dt>{{ strings.form.itemDiscounts }}</dt>
-            <dd>− {{ totals().itemDiscounts | currency }}</dd>
-            <dt>{{ strings.form.saleDiscount }}</dt>
-            <dd>− {{ totals().discount | currency }}</dd>
+            @if (totals().itemDiscounts > 0) {
+              <dt>{{ strings.form.itemDiscounts }}</dt>
+              <dd>− {{ totals().itemDiscounts | currency }}</dd>
+            }
+            @if (totals().discount > 0) {
+              <dt>{{ strings.form.saleDiscount }}</dt>
+              <dd>− {{ totals().discount | currency }}</dd>
+            }
             <dt class="grand">{{ strings.form.total }}</dt>
             <dd class="grand">{{ totals().total | currency }}</dd>
           </dl>

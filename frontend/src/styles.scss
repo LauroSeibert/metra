@@ -257,6 +257,20 @@ body {
     flex: 3 1 280px;
   }
 
+  // Lupa e atalho "/" centralizados na altura do campo e dentro dele.
+  .mat-mdc-form-field-icon-prefix,
+  .mat-mdc-form-field-icon-suffix {
+    display: flex;
+    align-items: center;
+    align-self: center;
+    height: var(--mat-form-field-container-height);
+    padding-block: 0;
+  }
+
+  .mat-mdc-form-field-icon-suffix {
+    padding-inline: var(--erp-space-2) var(--erp-space-3);
+  }
+
   // Contagem de resultados, empurrada para a direita.
   .erp-count {
     margin-left: auto;
@@ -297,4 +311,43 @@ body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+// Campos de data: o ícone de calendário é o botão do mat-form-field (DatePickerToggle).
+input[type='date']::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+.erp-date-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--erp-radius-sm);
+  background: none;
+  color: var(--erp-text-muted);
+  cursor: pointer;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+
+  &:hover {
+    background: var(--erp-surface-sunken);
+    color: var(--erp-text);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--erp-focus-ring);
+  }
+}
+
+// Rótulo flutuante de campos em diálogos não pode ser cortado pelo topo do conteúdo.
+mat-dialog-content.mat-mdc-dialog-content {
+  padding-top: var(--erp-space-2);
 }

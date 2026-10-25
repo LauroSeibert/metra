@@ -61,23 +61,27 @@
     <mat-form-field subscriptSizing="dynamic" class="date">
       <span matTextPrefix class="erp-filter-label">{{ strings.list.dueFrom }}</span>
       <input
+        #dateField1
         matInput
         type="date"
         [attr.aria-label]="strings.list.dueFrom"
         [value]="dueFrom()"
         (change)="onDate('dueFrom', $event)"
       />
+      <button matSuffix [erpDatePickerToggle]="dateField1"></button>
     </mat-form-field>
 
     <mat-form-field subscriptSizing="dynamic" class="date">
       <span matTextPrefix class="erp-filter-label">{{ strings.list.dueTo }}</span>
       <input
+        #dateField2
         matInput
         type="date"
         [attr.aria-label]="strings.list.dueTo"
         [value]="dueTo()"
         (change)="onDate('dueTo', $event)"
       />
+      <button matSuffix [erpDatePickerToggle]="dateField2"></button>
     </mat-form-field>
 
     <erp-segmented-control
@@ -120,7 +124,7 @@
   <ng-template erpCell="amount" [erpCellOf]="rows()" let-entry>
     {{ entry.amount | currency }}
     @if (entry.paidAmount !== null && entry.paidAmount !== entry.amount) {
-      <small class="paid">{{ entry.paidAmount | currency }}</small>
+      <small class="paid">{{ texts().paidChip }}: {{ entry.paidAmount | currency }}</small>
     }
   </ng-template>
 

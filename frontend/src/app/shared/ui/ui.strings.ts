@@ -13,4 +13,5 @@ export const UI_STRINGS = {
   save: 'Salvar',
   edit: 'Editar',
   delete: 'Excluir',
+  openCalendar: 'Abrir calendário',
 } as const;

@@ -31,9 +31,9 @@
             >
               {{ column.header }}
               @if (sortDirection(column) !== 'none') {
-                <mat-icon aria-hidden="true">
-                  {{ sortDirection(column) === 'ascending' ? 'arrow_upward' : 'arrow_downward' }}
-                </mat-icon>
+                <mat-icon aria-hidden="true">{{
+                  sortDirection(column) === 'ascending' ? 'arrow_upward' : 'arrow_downward'
+                }}</mat-icon>
               }
             </button>
           } @else {

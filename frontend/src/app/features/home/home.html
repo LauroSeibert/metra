@@ -30,7 +30,7 @@
           <div
             class="bar"
             role="listitem"
-            [title]="barLabel(day.date, day.total, day.count)"
+            [attr.data-tip]="barLabel(day.date, day.total, day.count)"
             [attr.aria-label]="barLabel(day.date, day.total, day.count)"
           >
             <span [style.height.%]="day.height"></span>

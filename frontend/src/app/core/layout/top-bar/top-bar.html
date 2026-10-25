@@ -41,6 +41,19 @@
     <mat-icon>notifications</mat-icon>
   </button>
   <button
+    matIconButton
+    type="button"
+    class="theme-toggle"
+    [class.dark]="isDark()"
+    [title]="isDark() ? strings.toLightTheme : strings.toDarkTheme"
+    [attr.aria-label]="isDark() ? strings.toLightTheme : strings.toDarkTheme"
+    [disabled]="savingTheme()"
+    (click)="toggleTheme()"
+  >
+    <mat-icon class="sun" aria-hidden="true">light_mode</mat-icon>
+    <mat-icon class="moon" aria-hidden="true">dark_mode</mat-icon>
+  </button>
+  <button
     type="button"
     class="profile"
     [attr.aria-label]="strings.profile"

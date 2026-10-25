@@ -1,3 +1,4 @@
+import { DatePickerToggle } from '../../../shared/ui/date-picker-toggle/date-picker-toggle';
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -59,6 +60,7 @@ const PAGE_SIZE = 50;
   selector: 'erp-movement-history',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePickerToggle,
     CurrencyPipe,
     DatePipe,
     DecimalPipe,

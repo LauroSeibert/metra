@@ -1,3 +1,4 @@
+import { DatePickerToggle } from '../../../shared/ui/date-picker-toggle/date-picker-toggle';
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -54,6 +55,7 @@ const STATUS_TONE: Record<SaleStatus, StatusTone> = {
   selector: 'erp-sale-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePickerToggle,
     CurrencyPipe,
     DatePipe,
     DecimalPipe,

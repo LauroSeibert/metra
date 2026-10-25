@@ -1,3 +1,4 @@
+import { DatePickerToggle } from '../../../shared/ui/date-picker-toggle/date-picker-toggle';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -113,6 +114,7 @@ function lineTotal(line: SaleLine): number {
   selector: 'erp-sale-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePickerToggle,
     CurrencyPipe,
     DatePipe,
     RouterLink,

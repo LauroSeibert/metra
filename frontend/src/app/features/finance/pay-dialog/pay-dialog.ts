@@ -1,3 +1,4 @@
+import { DatePickerToggle } from '../../../shared/ui/date-picker-toggle/date-picker-toggle';
 import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { form, FormField, required, submit, validate } from '@angular/forms/signals';
@@ -36,6 +37,7 @@ export function todayIso(): string {
   selector: 'erp-pay-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePickerToggle,
     CurrencyPipe,
     FormField,
     MatButtonModule,
@@ -54,7 +56,8 @@ export function todayIso(): string {
         </p>
         <mat-form-field>
           <mat-label>{{ strings.paidAt }}</mat-label>
-          <input matInput type="date" [formField]="payForm.paidAt" />
+          <input #dateField1 matInput type="date" [formField]="payForm.paidAt" />
+          <button matSuffix [erpDatePickerToggle]="dateField1"></button>
           @if (payForm.paidAt().errors()[0]; as error) {
             <mat-error>{{ error.message }}</mat-error>
           }

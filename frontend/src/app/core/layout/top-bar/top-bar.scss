@@ -70,6 +70,41 @@
   white-space: nowrap;
 }
 
+// Sol e lua no mesmo lugar: o ativo gira e cresce, o outro gira e some.
+.theme-toggle {
+  position: relative;
+
+  mat-icon {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    transition:
+      transform var(--erp-duration-slow) var(--erp-easing),
+      opacity var(--erp-duration-base) var(--erp-easing);
+  }
+
+  .sun {
+    color: var(--erp-warning-text);
+  }
+
+  .moon {
+    transform: rotate(-90deg) scale(0);
+    opacity: 0;
+  }
+
+  &.dark {
+    .sun {
+      transform: rotate(90deg) scale(0);
+      opacity: 0;
+    }
+
+    .moon {
+      transform: none;
+      opacity: 1;
+    }
+  }
+}
+
 .profile {
   display: flex;
   align-items: center;

@@ -1,12 +1,12 @@
 // Tokens de design do ERP. Toda cor, raio, espaçamento, sombra e medida de layout vem daqui.
 // Origem dos valores e regras de uso: docs/design-system.md (referência visual: docs/design/listagem.png).
 :root {
-  // Marca: verde-petróleo, usado com parcimônia (ação principal, item ativo, coluna ordenada).
-  --erp-primary: #0f6e5c;
-  --erp-primary-hover: #0c5c4d;
-  --erp-primary-strong: #0a4a3e;
-  --erp-primary-soft: #dcefea;
-  --erp-primary-softer: #ecf6f3;
+  // Marca: azul, usado com parcimônia (ação principal, item ativo, coluna ordenada).
+  --erp-primary: #0d80bf;
+  --erp-primary-hover: #0b6ca3;
+  --erp-primary-strong: #095887;
+  --erp-primary-soft: #d9edf8;
+  --erp-primary-softer: #ecf6fb;
   --erp-on-primary: #ffffff;
   --erp-on-primary-muted: rgb(255 255 255 / 72%);
   --erp-on-primary-subtle: rgb(255 255 255 / 14%);
@@ -79,12 +79,13 @@
   --erp-shadow-xs: 0 1px 2px rgb(16 24 22 / 5%);
   --erp-shadow-card: 0 1px 2px rgb(16 24 22 / 4%);
   --erp-shadow-raised: 0 4px 12px rgb(16 24 22 / 8%), 0 16px 40px rgb(16 24 22 / 10%);
-  --erp-focus-ring: 0 0 0 3px rgb(15 110 92 / 25%);
+  --erp-focus-ring: 0 0 0 3px rgb(13 128 191 / 25%);
   --erp-opacity-disabled: 0.45;
 
   // Movimento
   --erp-duration-fast: 120ms;
   --erp-duration-base: 200ms;
+  --erp-duration-slow: 400ms;
   --erp-easing: cubic-bezier(0.2, 0, 0, 1);
 
   // Estrutura da página
@@ -120,12 +121,12 @@
 // Tema escuro (preferência do usuário em "Meu perfil"): só as cores mudam; medidas e tipografia
 // são as mesmas. Aplicado com data-theme="dark" no <html> (core/auth/theme.ts).
 :root[data-theme='dark'] {
-  --erp-primary: #3fb59c;
-  --erp-primary-hover: #57c3ac;
-  --erp-primary-strong: #8adbc9;
-  --erp-primary-soft: #173a33;
-  --erp-primary-softer: #122c27;
-  --erp-on-primary: #08201b;
+  --erp-primary: #4db3e6;
+  --erp-primary-hover: #6cc2ec;
+  --erp-primary-strong: #9bd6f3;
+  --erp-primary-soft: #12303f;
+  --erp-primary-softer: #0e2530;
+  --erp-on-primary: #04202f;
 
   --erp-bg: #101413;
   --erp-surface: #171c1b;

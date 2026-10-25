@@ -80,6 +80,44 @@
   &:hover span {
     background: var(--erp-primary);
   }
+
+  // Balão com data, total e nº de vendas ao passar o mouse ou focar a barra.
+  position: relative;
+
+  &::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: 0;
+    left: 50%;
+    z-index: var(--erp-z-sticky);
+    padding: var(--erp-space-2) var(--erp-space-3);
+    border-radius: var(--erp-radius-sm);
+    background: var(--erp-text);
+    box-shadow: var(--erp-shadow-raised);
+    color: var(--erp-surface);
+    font-size: var(--erp-font-size-sm);
+    white-space: nowrap;
+    transform: translateX(-50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--erp-duration-fast) var(--erp-easing);
+  }
+
+  &:hover::after {
+    opacity: 1;
+  }
+
+  // Barras das pontas: o balão não ultrapassa o cartão.
+  &:nth-child(-n + 5)::after {
+    left: 0;
+    transform: none;
+  }
+
+  &:nth-last-child(-n + 5)::after {
+    right: 0;
+    left: auto;
+    transform: none;
+  }
 }
 
 .axis {

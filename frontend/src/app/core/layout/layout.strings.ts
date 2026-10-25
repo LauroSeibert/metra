@@ -15,6 +15,8 @@ export const LAYOUT_STRINGS = {
   comingSoon: 'Em breve',
   notifications: 'Notificações',
   help: 'Ajuda',
+  toLightTheme: 'Mudar para o tema claro',
+  toDarkTheme: 'Mudar para o tema escuro',
   profile: 'Perfil do usuário',
   myProfile: 'Meu perfil',
   logout: 'Sair',

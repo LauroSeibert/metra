@@ -52,23 +52,27 @@
     <mat-form-field subscriptSizing="dynamic" class="date">
       <span matTextPrefix class="erp-filter-label">{{ strings.list.issuedFrom }}</span>
       <input
+        #dateField1
         matInput
         type="date"
         [attr.aria-label]="strings.list.issuedFrom"
         [value]="issuedFrom()"
         (change)="onDate('issuedFrom', $event)"
       />
+      <button matSuffix [erpDatePickerToggle]="dateField1"></button>
     </mat-form-field>
 
     <mat-form-field subscriptSizing="dynamic" class="date">
       <span matTextPrefix class="erp-filter-label">{{ strings.list.issuedTo }}</span>
       <input
+        #dateField2
         matInput
         type="date"
         [attr.aria-label]="strings.list.issuedTo"
         [value]="issuedTo()"
         (change)="onDate('issuedTo', $event)"
       />
+      <button matSuffix [erpDatePickerToggle]="dateField2"></button>
     </mat-form-field>
 
     @if (hasFilters()) {

@@ -39,23 +39,27 @@
     <mat-form-field subscriptSizing="dynamic" class="date">
       <span matTextPrefix class="erp-filter-label">{{ strings.history.from }}</span>
       <input
+        #dateField1
         matInput
         type="date"
         [attr.aria-label]="strings.history.from"
         [value]="from()"
         (change)="onDate('from', $event)"
       />
+      <button matSuffix [erpDatePickerToggle]="dateField1"></button>
     </mat-form-field>
 
     <mat-form-field subscriptSizing="dynamic" class="date">
       <span matTextPrefix class="erp-filter-label">{{ strings.history.to }}</span>
       <input
+        #dateField2
         matInput
         type="date"
         [attr.aria-label]="strings.history.to"
         [value]="to()"
         (change)="onDate('to', $event)"
       />
+      <button matSuffix [erpDatePickerToggle]="dateField2"></button>
     </mat-form-field>
 
     @if (hasFilters()) {

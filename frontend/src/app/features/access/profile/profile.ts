@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   linkedSignal,
   signal,
@@ -25,24 +24,17 @@ import { MatSelectModule } from '@angular/material/select';
 import { Api } from '../../../api/api';
 import { changeMyPassword } from '../../../api/fn/profile/change-my-password';
 import { updateMyProfile } from '../../../api/fn/profile/update-my-profile';
-import { ThemePreference } from '../../../api/models/theme-preference';
 import { AuthService } from '../../../core/auth/auth.service';
-import { applyTheme } from '../../../core/auth/theme';
 import { API_ERROR_CODES, toApiProblem } from '../../../core/http/api-problem';
 import { toServerErrors } from '../../../core/http/server-errors';
 import { Notifier } from '../../../core/notifications/notifier';
 import { Card } from '../../../shared/ui/card/card';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
-import {
-  SegmentedControl,
-  SegmentedOption,
-} from '../../../shared/ui/segmented-control/segmented-control';
 import { StatusChip } from '../../../shared/ui/status-chip/status-chip';
 import { ACCESS_STRINGS } from '../access.strings';
 
 interface ProfileModel {
   fullName: string;
-  theme: ThemePreference;
   pageSize: number;
 }
 
@@ -79,7 +71,7 @@ const passwordSchema = schema<PasswordModel>((path) => {
 
 const EMPTY_PASSWORD: PasswordModel = { currentPassword: '', newPassword: '', confirmPassword: '' };
 
-/** "Meu perfil": dados, preferências (tema e itens por página) e troca de senha. */
+/** "Meu perfil": dados, preferências (itens por página) e troca de senha. */
 @Component({
   selector: 'erp-profile',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -92,7 +84,6 @@ const EMPTY_PASSWORD: PasswordModel = { currentPassword: '', newPassword: '', co
     MatSelectModule,
     Card,
     PageHeader,
-    SegmentedControl,
     StatusChip,
   ],
   templateUrl: './profile.html',
@@ -105,10 +96,6 @@ export class Profile {
 
   protected readonly strings = ACCESS_STRINGS.profile;
   protected readonly pageSizes = PROFILE_RULES.pageSizes;
-  protected readonly themeOptions: readonly SegmentedOption<ThemePreference>[] = [
-    { value: 'Light', label: ACCESS_STRINGS.profile.light },
-    { value: 'Dark', label: ACCESS_STRINGS.profile.dark },
-  ];
 
   protected readonly profile = this.auth.profile;
   protected readonly roleName = computed(() => {
@@ -119,7 +106,6 @@ export class Profile {
     const profile = this.profile();
     return {
       fullName: profile?.fullName ?? '',
-      theme: profile?.theme ?? 'Light',
       pageSize: profile?.pageSize ?? 20,
     };
   });
@@ -131,22 +117,6 @@ export class Profile {
   protected readonly passwordForm = form(this.password, passwordSchema);
   protected readonly passwordErrors = computed(() => this.passwordForm().errors());
 
-  constructor() {
-    // Prévia de tema não salva não sobrevive à saída da tela.
-    inject(DestroyRef).onDestroy(() => {
-      const profile = this.auth.profile();
-      if (profile) {
-        applyTheme(profile.theme);
-      }
-    });
-  }
-
-  /** O tema muda na hora, como prévia; só vira preferência ao salvar. */
-  protected previewTheme(theme: ThemePreference): void {
-    this.model.update((value) => ({ ...value, theme }));
-    applyTheme(theme);
-  }
-
   protected async save(event: Event): Promise<void> {
     event.preventDefault();
     this.conflict.set(false);
@@ -156,9 +126,14 @@ export class Profile {
     }
     await submit(this.profileForm, async () => {
       try {
-        const { fullName, theme, pageSize } = this.model();
+        const { fullName, pageSize } = this.model();
         const updated = await this.api.invoke(updateMyProfile, {
-          body: { fullName: fullName.trim(), theme, pageSize, version: current.version },
+          body: {
+            fullName: fullName.trim(),
+            theme: current.theme,
+            pageSize,
+            version: current.version,
+          },
         });
         this.auth.profile.set(updated);
         this.notifier.success(this.strings.saved);

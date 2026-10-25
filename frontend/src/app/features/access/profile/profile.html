@@ -56,16 +56,6 @@
       </header>
 
       <div class="fields">
-        <div class="readonly">
-          <span>{{ strings.theme }}</span>
-          <erp-segmented-control
-            [options]="themeOptions"
-            [value]="model().theme"
-            (valueChange)="previewTheme($event)"
-            [label]="strings.theme"
-          />
-        </div>
-
         <mat-form-field class="span-2">
           <mat-label>{{ strings.pageSize }}</mat-label>
           <mat-select [formField]="profileForm.pageSize">

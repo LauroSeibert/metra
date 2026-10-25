@@ -1,7 +1,7 @@
 # Design system
 
 **Referência visual: `docs/design/listagem.png`** (listagem de produtos). Identidade sóbria: fundo cinza quase
-neutro, cartões brancos planos com borda fina, verde-petróleo só onde importa (ação principal, item ativo,
+neutro, cartões brancos planos com borda fina, azul só onde importa (ação principal, item ativo,
 coluna ordenada, filtro escolhido) e números em fonte monoespaçada.
 
 Toda cor, raio, espaçamento e sombra vem de `frontend/src/app/styles/tokens.scss`; o tema do Angular Material
@@ -25,7 +25,7 @@ Falta um valor? Crie o token primeiro. Nenhum componente usa cor, raio ou espaç
 ## Moldura
 
 - **Menu lateral na altura toda**: marca no topo (quadrado escuro com "E", nome e subtítulo), "Início" sem título
-  de grupo, grupos em caixa alta (Cadastros, Operação, Financeiro), item ativo com fundo verde suave, módulos
+  de grupo, grupos em caixa alta (Cadastros, Operação, Financeiro), item ativo com fundo azul suave, módulos
   futuros com "Em breve". No rodapé, separados por uma linha: Configurações e Recolher.
 - **Barra superior branca** só sobre o conteúdo: trilha com o grupo do menu ("Cadastros › Produtos"), busca global
   "Buscar ou ir para…" (Ctrl K), selo "Ambiente de demonstração", ajuda, notificações e avatar com nome e perfil.
@@ -37,7 +37,7 @@ Falta um valor? Crie o token primeiro. Nenhum componente usa cor, raio ou espaç
 | --- | --- |
 | `AppShell` | moldura: menu lateral na altura toda, barra superior e conteúdo |
 | `PageHeader` | título, subtítulo e ações à direita |
-| `KpiStrip` | faixa de indicadores num cartão só, dividido em células; células `selectable` são filtro (a escolhida fica verde suave) |
+| `KpiStrip` | faixa de indicadores num cartão só, dividido em células; células `selectable` são filtro (a escolhida fica azul suave) |
 | `DataTable` | tabela em cartão com os filtros dentro (slot `[tableToolbar]`), ordenação e paginação no servidor, linha expansível, ações no hover, `rowMuted`, rodapé "Mostrando a–b de N" com Anterior/Próxima, estados carregando/vazio/erro, `(rowActivate)` no duplo clique |
 | `Card` | cartão branco com borda fina |
 | `MoneyInput` | campo monetário (`<erp-money-input [formField]>`) que preenche pelos centavos: 1, 0, 0 → R$ 1,00 |
@@ -65,7 +65,7 @@ Classes globais (`src/styles.scss`):
 ## Padrões de tela
 
 - **Listagem** (referência: `features/products/product-list`):
-  1. `PageHeader` com ações secundárias em contorno e a principal preenchida em verde-petróleo.
+  1. `PageHeader` com ações secundárias em contorno e a principal preenchida em azul.
   2. `KpiStrip` com as contagens; as que servem de filtro (Todos/Ativos/Inativos) são `selectable`.
   3. `DataTable` com `<section tableToolbar class="erp-toolbar">`: busca com `erpSlashFocus` e `<span matSuffix
      class="erp-kbd">/</span>`, selects com `erp-filter-label` (opção "Todas" com valor sentinela, não `null`,
