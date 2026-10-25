@@ -29,6 +29,12 @@ body {
   box-sizing: border-box;
 }
 
+// O "x" nativo dos campos de busca some: cada tela desenha o seu botão de limpar.
+input[type='search']::-webkit-search-cancel-button {
+  appearance: none;
+  display: none;
+}
+
 // Troca de tema (ver core/auth/theme.ts): nada anima as cores no instante da troca.
 .theme-switching,
 .theme-switching *,

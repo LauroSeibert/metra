@@ -18,6 +18,7 @@ export const PRODUCTS_STRINGS = {
     allCategories: 'Todas',
     statusFilter: 'Situação',
     clearFilters: 'Limpar filtros',
+    clearSearch: 'Limpar busca',
     emptyDescription: 'Nenhum produto corresponde à busca e aos filtros escolhidos.',
     searchCategory: 'Buscar categoria',
     noCategoryFound: 'Nenhuma categoria encontrada.',

@@ -287,6 +287,11 @@ export class ProductList {
     this.search.set((event.target as HTMLInputElement).value);
   }
 
+  protected clearSearch(input: HTMLInputElement): void {
+    this.search.set('');
+    input.focus();
+  }
+
   protected clearFilters(): void {
     this.search.set('');
     this.status.set('all');
