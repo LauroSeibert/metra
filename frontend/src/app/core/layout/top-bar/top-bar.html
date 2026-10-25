@@ -27,20 +27,7 @@
   </ol>
 </nav>
 
-<button
-  hlmBtn
-  variant="outline"
-  type="button"
-  class="hidden h-button w-full max-w-sm shrink justify-between font-normal text-muted-foreground sm:inline-flex"
-  aria-keyshortcuts="Control+K Meta+K"
-  [attr.aria-label]="strings.palette.open"
-  (click)="palette.toggle()"
->
-  <span class="flex items-center gap-2"
-    ><erp-icon name="search" />{{ strings.palette.placeholder }}</span
-  >
-  <span class="erp-kbd" aria-hidden="true">Ctrl K</span>
-</button>
+<erp-command-search class="hidden w-full max-w-sm shrink sm:block" />
 <div class="flex flex-1 basis-0 items-center justify-end gap-1">
   <button
     hlmBtn

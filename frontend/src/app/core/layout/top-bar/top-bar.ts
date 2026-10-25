@@ -10,6 +10,7 @@ import { ACCESS_STRINGS } from '../../../features/access/access.strings';
 import { AuthService } from '../../auth/auth.service';
 import { ThemeService } from '../../auth/theme.service';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { CommandSearch } from '../command-palette/command-search';
 import { CommandPaletteService } from '../command-palette/command-palette.service';
 import { LAYOUT_STRINGS } from '../layout.strings';
 import { navGroupOf } from '../nav-items';
@@ -17,7 +18,15 @@ import { navGroupOf } from '../nav-items';
 @Component({
   selector: 'erp-top-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [HlmAvatar, HlmAvatarFallback, HlmBadge, HlmButton, HlmDropdownMenuImports, Icon],
+  imports: [
+    CommandSearch,
+    HlmAvatar,
+    HlmAvatarFallback,
+    HlmBadge,
+    HlmButton,
+    HlmDropdownMenuImports,
+    Icon,
+  ],
   templateUrl: './top-bar.html',
   host: {
     class:
