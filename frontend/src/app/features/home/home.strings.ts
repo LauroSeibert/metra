@@ -1,6 +1,6 @@
 /** Textos da tela inicial (dashboard). */
 export const HOME_STRINGS = {
-  title: 'Início',
+  title: 'Dashboard',
   subtitle: 'Como está o negócio hoje.',
   newSale: 'Nova venda',
   kpis: 'Indicadores',

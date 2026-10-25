@@ -54,6 +54,8 @@ export interface DataTablePage {
 type RowKey = string | number;
 
 const MAX_SKELETON_ROWS = 10;
+/** Mesma duração do --erp-duration-base (200 ms), usada na animação de fechar o detalhe. */
+const CLOSE_ANIMATION_MS = 200;
 /** Larguras das barras do skeleton, alternadas por coluna para não parecer um bloco só. */
 const SKELETON_WIDTHS = [70, 45, 55, 35] as const;
 /** Duplo clique nesses elementos é deles, não da linha. */
@@ -110,6 +112,8 @@ export class DataTable<T> {
   protected readonly cells = contentChildren(DataTableCell<T>);
   protected readonly expandedRow = contentChild(DataTableExpandedRow<T>);
   protected readonly expandedKeys = signal<ReadonlySet<RowKey>>(new Set());
+  /** Linhas recolhendo: ficam na tela até a animação de fechar terminar. */
+  protected readonly closingKeys = signal<ReadonlySet<RowKey>>(new Set());
 
   protected readonly cellTemplates = computed(
     () => new Map(this.cells().map((cell) => [cell.column(), cell.template])),
@@ -162,15 +166,29 @@ export class DataTable<T> {
     return this.expandedKeys().has(this.rowKey()(row));
   }
 
+  protected isClosing(row: T): boolean {
+    return this.closingKeys().has(this.rowKey()(row));
+  }
+
   protected toggleExpanded(row: T): void {
     const key = this.rowKey()(row);
-    const next = new Set(this.expandedKeys());
-    if (next.has(key)) {
-      next.delete(key);
-    } else {
-      next.add(key);
+    if (this.isClosing(row)) {
+      return;
     }
-    this.expandedKeys.set(next);
+    if (!this.expandedKeys().has(key)) {
+      this.expandedKeys.set(new Set(this.expandedKeys()).add(key));
+      return;
+    }
+    // Recolher: anima o fechamento e só então tira a linha de detalhe.
+    this.closingKeys.set(new Set(this.closingKeys()).add(key));
+    setTimeout(() => {
+      const expanded = new Set(this.expandedKeys());
+      expanded.delete(key);
+      this.expandedKeys.set(expanded);
+      const closing = new Set(this.closingKeys());
+      closing.delete(key);
+      this.closingKeys.set(closing);
+    }, CLOSE_ANIMATION_MS);
   }
 
   protected skeletonWidth(index: number): number {

@@ -110,9 +110,10 @@
         {{ strings.list.clearFilters }}
       </button>
     }
-    <span class="ml-auto text-label whitespace-nowrap text-muted-foreground tabular-nums">{{
-      strings.list.results((total() | number) ?? '0')
-    }}</span>
+    <span
+      class="ml-auto inline-flex h-control items-center rounded-md border border-border bg-muted px-3 text-sm whitespace-nowrap text-muted-foreground tabular-nums"
+      >{{ strings.list.results((total() | number) ?? '0') }}</span
+    >
   </section>
 
   <ng-template erpCell="name" [erpCellOf]="rows()" let-product>
@@ -178,12 +179,13 @@
           variant="ghost"
           size="icon"
           type="button"
-          [hlmDropdownMenuTrigger]="rowMenu"
-          [hlmDropdownMenuTriggerData]="{ product }"
-          align="end"
-          [attr.aria-label]="strings.list.moreActions + ' ' + product.sku"
+          [title]="product.active ? strings.list.deactivate : strings.list.activate"
+          [attr.aria-label]="
+            (product.active ? strings.list.deactivate : strings.list.activate) + ' ' + product.sku
+          "
+          (click)="toggleActive(product)"
         >
-          <erp-icon name="ellipsis" />
+          <erp-icon [name]="product.active ? 'circle-pause' : 'circle-play'" />
         </button>
       }
     </div>
@@ -222,17 +224,3 @@
     </div>
   </ng-template>
 </erp-data-table>
-
-<!-- Menu "⋯" da linha: editar e ativar ou inativar (os endpoints que existem hoje). -->
-<ng-template #rowMenu let-product="product">
-  <div hlmDropdownMenu class="w-48">
-    <a hlmDropdownMenuItem [routerLink]="['edit', product.id]">
-      <erp-icon name="pencil" />
-      {{ strings.list.menuEdit }}
-    </a>
-    <button hlmDropdownMenuItem type="button" (click)="toggleActive(product)">
-      <erp-icon [name]="product.active ? 'circle-pause' : 'circle-play'" />
-      {{ product.active ? strings.list.deactivate : strings.list.activate }}
-    </button>
-  </div>
-</ng-template>

@@ -12,7 +12,7 @@ export class HlmInputGroupInput {
   constructor() {
     classes(
       () =>
-        `rounded-none border-0 bg-transparent text-sm outline-none shadow-none ring-0 focus-visible:ring-0 data-[matches-spartan-invalid=true]:ring-0 dark:bg-transparent flex-1`,
+        `rounded-none border-0 bg-transparent text-sm outline-none shadow-none! focus-visible:shadow-none! ring-0 focus-visible:ring-0 data-[matches-spartan-invalid=true]:ring-0 dark:bg-transparent flex-1`,
     );
   }
 }

@@ -29,6 +29,14 @@ body {
   box-sizing: border-box;
 }
 
+// Troca de tema (ver core/auth/theme.ts): nada anima as cores no instante da troca.
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+}
+
 // Sem o preflight do Tailwind (ver src/tailwind.css), os controles nativos não herdam a fonte: ficariam na fonte
 // do sistema, mais fina que a Inter. Sai junto com o preflight, na fase 9.
 button,

@@ -104,7 +104,7 @@
         @for (row of rows(); track rowKey()(row)) {
           <tr
             class="row"
-            [class.expanded]="isExpanded(row)"
+            [class.expanded]="isExpanded(row) && !isClosing(row)"
             [class.muted]="isMuted(row)"
             (dblclick)="onRowDblClick($event, row)"
           >
@@ -113,8 +113,10 @@
                 <button
                   type="button"
                   class="expand"
-                  [attr.aria-expanded]="isExpanded(row)"
-                  [attr.aria-label]="isExpanded(row) ? strings.collapse : strings.expand"
+                  [attr.aria-expanded]="isExpanded(row) && !isClosing(row)"
+                  [attr.aria-label]="
+                    isExpanded(row) && !isClosing(row) ? strings.collapse : strings.expand
+                  "
                   (click)="toggleExpanded(row)"
                 >
                   <erp-icon name="chevron-right" [size]="16" />
@@ -141,9 +143,15 @@
             @if (expandedRow(); as expanded) {
               <tr class="detail">
                 <td [attr.colspan]="columnCount()">
-                  <ng-container
-                    *ngTemplateOutlet="expanded.template; context: { $implicit: row }"
-                  />
+                  <div class="reveal" [class.closing]="isClosing(row)">
+                    <div class="reveal-clip">
+                      <div class="reveal-content">
+                        <ng-container
+                          *ngTemplateOutlet="expanded.template; context: { $implicit: row }"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </td>
               </tr>
             }

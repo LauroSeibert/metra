@@ -1,7 +1,7 @@
 export const LAYOUT_STRINGS = {
   appName: 'ERP Demo',
   appTagline: 'Gestão comercial',
-  home: 'Início',
+  home: 'Dashboard',
   /** Breadcrumb das rotas de primeiro nível (app.routes.ts), sem importar as strings da funcionalidade. */
   breadcrumbs: {
     products: 'Produtos',

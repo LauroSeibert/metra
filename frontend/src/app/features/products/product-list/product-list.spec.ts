@@ -63,7 +63,7 @@ describe('ProductList', () => {
     expect(element.textContent).not.toContain(PRODUCTS_STRINGS.list.newProduct);
     expect(element.querySelector(`a[aria-label^="${PRODUCTS_STRINGS.list.view}"]`)).not.toBeNull();
     expect(
-      element.querySelector(`button[aria-label^="${PRODUCTS_STRINGS.list.moreActions}"]`),
+      element.querySelector(`button[aria-label^="${PRODUCTS_STRINGS.list.deactivate}"]`),
     ).toBeNull();
   });
 
@@ -125,13 +125,7 @@ describe('ProductList', () => {
     const callsBefore = api.callsTo(listProducts).length;
 
     element
-      .querySelector<HTMLButtonElement>(
-        `button[aria-label^="${PRODUCTS_STRINGS.list.moreActions}"]`,
-      )
-      ?.click();
-    await settle();
-    Array.from(document.querySelectorAll<HTMLButtonElement>('[hlmDropdownMenuItem]'))
-      .find((item) => item.textContent?.includes(PRODUCTS_STRINGS.list.deactivate))
+      .querySelector<HTMLButtonElement>(`button[aria-label^="${PRODUCTS_STRINGS.list.deactivate}"]`)
       ?.click();
     await settle();
     await settle();

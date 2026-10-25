@@ -12,7 +12,6 @@ import {
 import { HlmBadge } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmComboboxImports } from '@spartan-ng/helm/combobox';
-import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -77,7 +76,6 @@ const DEFAULT_SORT: DataTableSort = { field: 'name', direction: 'asc' };
     HlmBadge,
     HlmButton,
     HlmComboboxImports,
-    HlmDropdownMenuImports,
     HlmInput,
     HlmSelectImports,
     Icon,

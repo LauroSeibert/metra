@@ -9,7 +9,7 @@ export interface NavItem {
 }
 
 export interface NavGroup {
-  /** Vazio: grupo sem título (Início). O título também abre o breadcrumb ("Cadastros › Produtos"). */
+  /** Vazio: grupo sem título (Dashboard). O título também abre o breadcrumb ("Cadastros › Produtos"). */
   readonly label: string;
   readonly items: readonly NavItem[];
 }
@@ -17,7 +17,7 @@ export interface NavGroup {
 export const NAV_GROUPS: readonly NavGroup[] = [
   {
     label: '',
-    items: [{ label: 'Início', icon: 'dashboard', path: '/', available: true }],
+    items: [{ label: 'Dashboard', icon: 'dashboard', path: '/', available: true }],
   },
   {
     label: 'Cadastros',

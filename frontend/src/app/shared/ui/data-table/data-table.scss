@@ -174,22 +174,52 @@ tr.row {
   }
 }
 
-// Detalhe expandido entra com fade e leve deslocamento (o <tr> é criado ao expandir).
-tr.detail td > * {
-  display: block;
-  animation: detail-in var(--erp-duration-base) var(--erp-easing);
+// Detalhe expandido: abre e fecha animando a altura (grid de 0fr para 1fr) junto com um fade.
+.reveal {
+  display: grid;
+  grid-template-rows: 1fr;
+  animation: reveal-open var(--erp-duration-base) var(--erp-easing);
+
+  &.closing {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    animation: reveal-close var(--erp-duration-base) var(--erp-easing);
+  }
 }
 
-@keyframes detail-in {
+.reveal-clip {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.reveal-content {
+  padding: var(--erp-space-2) var(--erp-space-5) var(--erp-space-5);
+}
+
+@keyframes reveal-open {
   from {
+    grid-template-rows: 0fr;
     opacity: 0;
-    transform: translateY(-6px);
+  }
+}
+
+@keyframes reveal-close {
+  from {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal.closing {
+    animation: none;
   }
 }
 
 tr.detail td {
   height: auto;
-  padding: var(--erp-space-2) var(--erp-space-5) var(--erp-space-5);
+  padding: 0;
   background: var(--erp-surface-hover);
 }
 
