@@ -44,6 +44,11 @@ Módulo de referência: novos módulos copiam sua estrutura (skills `new-endpoin
 
 ### Busca em duas colunas (SKU ou nome)
 
+> **Mudança (redesign):** `search` agora casa em qualquer parte do SKU e do nome (`%termo%`), porque os nomes começam com
+> adjetivos ("Ergonômico", "Fantástico") e a busca por prefixo não achava "Aço". Sem índice: no seed completo, contar os
+> 20.766 casamentos de "Aço" leva ~22 ms de varredura. A estrutura em UNION abaixo continua válida; os tempos da tabela
+> são da busca por prefixo anterior.
+
 Testamos três formas para `search` no seed completo. Tempos no MySQL, pior caso entre prefixos de 2 letras:
 
 | Forma | Itens | Contagem | Problema |
