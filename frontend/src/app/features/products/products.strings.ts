@@ -102,6 +102,8 @@ export const PRODUCTS_STRINGS = {
     costPriceShort: 'Custo',
     activeLabel: 'Ativo',
     backToList: 'Produtos',
+    moreActions: 'Mais ações',
+    viewMovements: 'Ver movimentações de estoque',
     activeHint: 'Disponível nas vendas',
     inactiveHint: 'Fora das vendas',
     searchOption: 'Buscar…',

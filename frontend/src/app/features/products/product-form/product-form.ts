@@ -23,6 +23,7 @@ import {
   HlmEmptyMedia,
   HlmEmptyTitle,
 } from '@spartan-ng/helm/empty';
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 import { HlmSwitch } from '@spartan-ng/helm/switch';
@@ -70,6 +71,7 @@ import {
     HlmButton,
     HlmCard,
     HlmComboboxImports,
+    HlmDropdownMenuImports,
     HlmEmpty,
     HlmEmptyContent,
     HlmEmptyHeader,

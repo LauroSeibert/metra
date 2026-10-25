@@ -27,7 +27,7 @@
     }
   </div>
 } @else {
-  <form class="flex flex-col gap-5" novalidate (submit)="save($event)">
+  <form class="mx-auto flex w-full max-w-page flex-col gap-5" novalidate (submit)="save($event)">
     <header class="flex flex-col gap-3">
       <a
         class="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground no-underline hover:text-foreground"
@@ -67,14 +67,28 @@
           }
         </div>
 
-        @if (canWrite()) {
-          <erp-action-bar [dirty]="dirty()" [showSaved]="isEdit()">
-            <button hlmBtn type="submit" [disabled]="productForm().submitting()">
-              <erp-icon name="check" />
-              {{ productForm().submitting() ? strings.form.saving : strings.form.save }}
+        <div class="flex items-center gap-2">
+          @if (canWrite()) {
+            <erp-action-bar [dirty]="dirty()" [showSaved]="isEdit()">
+              <button hlmBtn type="submit" [disabled]="productForm().submitting()">
+                <erp-icon name="check" />
+                {{ productForm().submitting() ? strings.form.saving : strings.form.save }}
+              </button>
+            </erp-action-bar>
+          }
+          @if (product.hasValue()) {
+            <button
+              hlmBtn
+              variant="ghost"
+              size="icon"
+              type="button"
+              [hlmDropdownMenuTrigger]="moreActions"
+              [attr.aria-label]="strings.form.moreActions"
+            >
+              <erp-icon name="ellipsis" />
             </button>
-          </erp-action-bar>
-        }
+          }
+        </div>
       </div>
     </header>
 
@@ -296,4 +310,18 @@
       </aside>
     </div>
   </form>
+
+  <ng-template #moreActions>
+    <div hlmDropdownMenu class="min-w-64">
+      <a
+        hlmDropdownMenuItem
+        class="no-underline"
+        routerLink="/stock/movements"
+        [queryParams]="{ productId: productId() }"
+      >
+        <erp-icon name="history" />
+        {{ strings.form.viewMovements }}
+      </a>
+    </div>
+  </ng-template>
 }
