@@ -30,7 +30,10 @@
   <form class="mx-auto flex w-full max-w-page flex-col gap-5" novalidate (submit)="save($event)">
     <header class="flex flex-col gap-3">
       <a
-        class="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground no-underline hover:text-foreground"
+        hlmBtn
+        variant="ghost"
+        size="sm"
+        class="-ml-2.5 w-fit text-muted-foreground hover:text-foreground"
         routerLink="/products"
       >
         <erp-icon name="arrow-left" [size]="16" />
