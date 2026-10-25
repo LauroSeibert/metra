@@ -34,9 +34,9 @@ const CONTROL_SELECTOR = 'input, select, textarea, [role="combobox"]';
     </label>
     <ng-content />
     @if (error(); as message) {
-      <p [id]="errorId" class="text-caption text-destructive" role="alert">{{ message }}</p>
+      <p [id]="errorId" class="m-0 text-caption text-destructive" role="alert">{{ message }}</p>
     } @else if (hint(); as text) {
-      <p [id]="hintId" class="text-caption text-muted-foreground">{{ text }}</p>
+      <p [id]="hintId" class="m-0 text-caption text-muted-foreground">{{ text }}</p>
     }
   `,
 })

@@ -8,6 +8,6 @@ import { classes } from '@spartan-ng/helm/utils';
 })
 export class HlmEmptyTitle {
   constructor() {
-    classes(() => 'text-base font-semibold');
+    classes(() => 'm-0 text-base font-semibold');
   }
 }

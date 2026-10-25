@@ -8,6 +8,6 @@ import { classes } from '@spartan-ng/helm/utils';
 })
 export class HlmCardTitle {
   constructor() {
-    classes(() => 'text-base leading-snug font-semibold');
+    classes(() => 'm-0 text-base leading-snug font-semibold');
   }
 }

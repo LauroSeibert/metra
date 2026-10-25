@@ -40,7 +40,7 @@
   @if (canCollapse()) {
     <button
       type="button"
-      class="item collapse"
+      class="item collapse-toggle"
       [attr.aria-label]="compact() ? strings.expandMenu : strings.collapseMenu"
       [attr.aria-expanded]="!compact()"
       [attr.title]="compact() ? strings.expandMenu : null"
