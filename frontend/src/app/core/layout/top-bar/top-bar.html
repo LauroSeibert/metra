@@ -12,7 +12,7 @@
   </button>
 }
 
-<nav class="min-w-0" [attr.aria-label]="strings.breadcrumb">
+<nav class="min-w-0 flex-1 basis-0" [attr.aria-label]="strings.breadcrumb">
   <ol class="m-0 flex list-none items-center gap-1.5 p-0 text-sm whitespace-nowrap">
     @for (label of breadcrumb(); track $index; let first = $first; let last = $last) {
       <li class="flex items-center gap-1.5" [attr.aria-current]="last ? 'page' : null">
@@ -27,21 +27,21 @@
   </ol>
 </nav>
 
-<div class="ml-auto flex items-center gap-1">
-  <button
-    hlmBtn
-    variant="outline"
-    type="button"
-    class="mr-2 hidden w-72 justify-between font-normal text-muted-foreground sm:inline-flex"
-    aria-keyshortcuts="Control+K Meta+K"
-    [attr.aria-label]="strings.palette.open"
-    (click)="palette.toggle()"
+<button
+  hlmBtn
+  variant="outline"
+  type="button"
+  class="hidden w-full max-w-md shrink justify-between font-normal text-muted-foreground sm:inline-flex"
+  aria-keyshortcuts="Control+K Meta+K"
+  [attr.aria-label]="strings.palette.open"
+  (click)="palette.toggle()"
+>
+  <span class="flex items-center gap-2"
+    ><erp-icon name="search" />{{ strings.palette.placeholder }}</span
   >
-    <span class="flex items-center gap-2"
-      ><erp-icon name="search" />{{ strings.palette.placeholder }}</span
-    >
-    <span class="erp-kbd" aria-hidden="true">Ctrl K</span>
-  </button>
+  <span class="erp-kbd" aria-hidden="true">Ctrl K</span>
+</button>
+<div class="flex flex-1 basis-0 items-center justify-end gap-1">
   <button
     hlmBtn
     variant="ghost"
@@ -92,13 +92,15 @@
 
   <button
     type="button"
-    class="ml-1 flex cursor-pointer items-center gap-2 rounded-md border-0 bg-transparent p-1 text-left outline-none hover:bg-accent focus-visible:shadow-focus"
+    class="ml-2 flex cursor-pointer items-center gap-2 rounded-md border border-border bg-card py-1 pr-3 pl-1 text-left outline-none hover:bg-accent focus-visible:shadow-focus"
     align="end"
     [hlmDropdownMenuTrigger]="account"
     [attr.aria-label]="strings.profile"
   >
     <hlm-avatar size="sm"
-      ><span hlmAvatarFallback>{{ initials() }}</span></hlm-avatar
+      ><span hlmAvatarFallback class="bg-primary text-xs font-medium text-primary-foreground">{{
+        initials()
+      }}</span></hlm-avatar
     >
     <span class="hidden flex-col leading-tight md:flex">
       <strong class="text-sm font-medium">{{ profile()?.fullName }}</strong>
