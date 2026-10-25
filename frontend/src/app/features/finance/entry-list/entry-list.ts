@@ -44,7 +44,7 @@ import {
   readText,
   toSortParam,
 } from '../../../shared/data/list-url-state';
-import { ConfirmDialog, ConfirmDialogData } from '../../../shared/ui/confirm-dialog/confirm-dialog';
+import { ConfirmService } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import {
   DataTable,
   DataTableColumn,
@@ -111,6 +111,7 @@ export class EntryList {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
+  private readonly confirmService = inject(ConfirmService);
   private readonly notifier = inject(Notifier);
   private readonly auth = inject(AuthService);
   private readonly initial = this.route.snapshot.queryParamMap;
@@ -378,10 +379,12 @@ export class EntryList {
   }
 
   private async confirm(title: string, message: string, confirmLabel: string): Promise<boolean> {
-    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
-      data: { title, message, confirmLabel, cancelLabel: FINANCE_STRINGS.list.keep },
+    return this.confirmService.ask({
+      title,
+      message,
+      confirmLabel,
+      cancelLabel: FINANCE_STRINGS.list.keep,
     });
-    return (await firstValueFrom(ref.afterClosed())) === true;
   }
 
   private async run(action: () => Promise<unknown>, success: string): Promise<void> {

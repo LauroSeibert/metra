@@ -13,7 +13,6 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmTooltip } from '@spartan-ng/helm/tooltip';
-import { MatDialog } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { Api } from '../../../api/api';
@@ -24,7 +23,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { toApiProblem } from '../../../core/http/api-problem';
 import { Notifier } from '../../../core/notifications/notifier';
 import { debounced } from '../../../shared/data/debounced';
-import { ConfirmDialog, ConfirmDialogData } from '../../../shared/ui/confirm-dialog/confirm-dialog';
+import { ConfirmService } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import {
   DataTable,
   DataTableColumn,
@@ -57,8 +56,8 @@ import { UnitDialog, UnitDialogContext } from './unit-dialog';
 })
 export class UnitList {
   private readonly api = inject(Api);
-  private readonly dialog = inject(MatDialog);
   private readonly dialogs = inject(HlmDialogService);
+  private readonly confirm = inject(ConfirmService);
   private readonly notifier = inject(Notifier);
   private readonly auth = inject(AuthService);
 
@@ -126,15 +125,13 @@ export class UnitList {
   }
 
   protected async remove(unit: UnitDto): Promise<void> {
-    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
-      data: {
-        title: this.strings.deleteTitle,
-        message: this.strings.deleteMessage(unit.code),
-        confirmLabel: this.common.delete,
-        cancelLabel: this.common.cancel,
-      },
+    const confirmed = await this.confirm.ask({
+      title: this.strings.deleteTitle,
+      message: this.strings.deleteMessage(unit.code),
+      confirmLabel: this.common.delete,
+      cancelLabel: this.common.cancel,
     });
-    if (!(await firstValueFrom(ref.afterClosed()))) {
+    if (!confirmed) {
       return;
     }
 

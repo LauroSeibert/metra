@@ -22,7 +22,6 @@ import {
   validate,
 } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -45,7 +44,7 @@ import { toServerErrors } from '../../../core/http/server-errors';
 import { Notifier } from '../../../core/notifications/notifier';
 import { delayedFlag } from '../../../shared/data/delayed-flag';
 import { Card } from '../../../shared/ui/card/card';
-import { ConfirmDialog, ConfirmDialogData } from '../../../shared/ui/confirm-dialog/confirm-dialog';
+import { ConfirmService } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import { MoneyInput } from '../../../shared/ui/money-input/money-input';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { StatusChip, StatusTone } from '../../../shared/ui/status-chip/status-chip';
@@ -140,7 +139,7 @@ export class SaleForm {
   private readonly api = inject(Api);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly dialog = inject(MatDialog);
+  private readonly confirm = inject(ConfirmService);
   private readonly notifier = inject(Notifier);
 
   readonly id = input<string>();
@@ -401,10 +400,12 @@ export class SaleForm {
   }
 
   private async ask(title: string, message: string): Promise<boolean> {
-    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
-      data: { title, message, confirmLabel: title, cancelLabel: SALES_STRINGS.actions.keep },
+    return this.confirm.ask({
+      title,
+      message,
+      confirmLabel: title,
+      cancelLabel: SALES_STRINGS.actions.keep,
     });
-    return (await firstValueFrom(ref.afterClosed())) === true;
   }
 
   private async run(action: () => Promise<SaleDto>, success: string): Promise<void> {

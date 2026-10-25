@@ -21,7 +21,7 @@ import { FinancialCategoryDto } from '../../../api/models/financial-category-dto
 import { AuthService } from '../../../core/auth/auth.service';
 import { toApiProblem } from '../../../core/http/api-problem';
 import { Notifier } from '../../../core/notifications/notifier';
-import { ConfirmDialog, ConfirmDialogData } from '../../../shared/ui/confirm-dialog/confirm-dialog';
+import { ConfirmService } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import {
   DataTable,
   DataTableColumn,
@@ -117,6 +117,7 @@ import { FinancialCategoryDialog } from './financial-category-dialog';
 export class FinancialCategoryList {
   private readonly api = inject(Api);
   private readonly dialog = inject(MatDialog);
+  private readonly confirm = inject(ConfirmService);
   private readonly notifier = inject(Notifier);
   private readonly auth = inject(AuthService);
 
@@ -165,15 +166,13 @@ export class FinancialCategoryList {
   }
 
   protected async remove(category: FinancialCategoryDto): Promise<void> {
-    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
-      data: {
-        title: this.strings.deleteTitle,
-        message: this.strings.deleteMessage(category.name),
-        confirmLabel: this.strings.delete,
-        cancelLabel: this.strings.cancel,
-      },
+    const confirmed = await this.confirm.ask({
+      title: this.strings.deleteTitle,
+      message: this.strings.deleteMessage(category.name),
+      confirmLabel: this.strings.delete,
+      cancelLabel: this.strings.cancel,
     });
-    if (!(await firstValueFrom(ref.afterClosed()))) {
+    if (!confirmed) {
       return;
     }
     try {
