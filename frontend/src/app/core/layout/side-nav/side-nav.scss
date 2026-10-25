@@ -68,10 +68,8 @@ ul {
   margin: 0 0 var(--erp-space-2);
   padding: 0 var(--erp-space-2);
   color: var(--erp-text-subtle);
-  font-size: var(--erp-font-size-xs);
+  font-size: var(--erp-font-size-sm);
   font-weight: var(--erp-font-weight-medium);
-  letter-spacing: var(--erp-letter-spacing-caps);
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -94,16 +92,14 @@ ul {
     background var(--erp-duration-fast) var(--erp-easing),
     color var(--erp-duration-fast) var(--erp-easing);
 
-  mat-icon {
-    flex: none;
-    width: var(--erp-icon-size);
-    height: var(--erp-icon-size);
+  position: relative;
+
+  erp-icon {
     color: var(--erp-text-muted);
-    font-size: var(--erp-icon-size);
   }
 
   &:hover:not(.disabled) {
-    background: var(--erp-surface-muted);
+    background: var(--erp-surface-hover);
   }
 
   &:focus-visible {
@@ -111,13 +107,25 @@ ul {
     box-shadow: var(--erp-focus-ring);
   }
 
+  // Ativo: fundo suave e barra de 3 px à esquerda.
   &.active {
-    background: var(--erp-primary-soft);
-    color: var(--erp-primary);
+    background: var(--erp-surface-hover);
+    color: var(--erp-text);
     font-weight: var(--erp-font-weight-medium);
 
-    mat-icon {
-      color: var(--erp-primary);
+    &::before {
+      content: '';
+      position: absolute;
+      top: var(--erp-space-2);
+      bottom: var(--erp-space-2);
+      left: calc(-1 * var(--erp-space-3));
+      width: 3px;
+      border-radius: 0 var(--erp-radius-xs) var(--erp-radius-xs) 0;
+      background: var(--erp-primary);
+    }
+
+    erp-icon {
+      color: var(--erp-text);
     }
   }
 
@@ -125,7 +133,7 @@ ul {
     color: var(--erp-text-subtle);
     cursor: default;
 
-    mat-icon {
+    erp-icon {
       color: var(--erp-text-subtle);
     }
   }
@@ -176,5 +184,9 @@ ul {
   .item {
     justify-content: center;
     padding: 0;
+
+    &.active::before {
+      left: calc(-1 * var(--erp-space-2));
+    }
   }
 }

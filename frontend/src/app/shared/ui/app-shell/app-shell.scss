@@ -39,6 +39,11 @@
   padding: var(--erp-page-padding-y) var(--erp-page-padding);
 }
 
+.page {
+  max-width: var(--erp-form-max-width);
+  margin-inline: auto;
+}
+
 // Mobile: o menu sai da grade e vira gaveta sobre o conteúdo.
 :host(.mobile) {
   grid-template-columns: minmax(0, 1fr);

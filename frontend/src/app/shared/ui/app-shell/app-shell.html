@@ -5,4 +5,6 @@
 <aside class="side" [attr.aria-hidden]="mobile() && !navOpen() ? true : null">
   <ng-content select="[shellNav]" />
 </aside>
-<main class="content"><ng-content /></main>
+<main class="content">
+  <div class="page"><ng-content /></div>
+</main>

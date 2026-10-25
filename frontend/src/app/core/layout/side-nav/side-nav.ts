@@ -1,14 +1,14 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Icon } from '../../../shared/ui/icon/icon';
 import { LAYOUT_STRINGS } from '../layout.strings';
 import { NAV_FOOTER, NAV_GROUPS } from '../nav-items';
 
 @Component({
   selector: 'erp-side-nav',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet, MatIconModule, RouterLink, RouterLinkActive],
+  imports: [NgTemplateOutlet, Icon, RouterLink, RouterLinkActive],
   templateUrl: './side-nav.html',
   styleUrl: './side-nav.scss',
   host: { '[class.compact]': 'compact()' },

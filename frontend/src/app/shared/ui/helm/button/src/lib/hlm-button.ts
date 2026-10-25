@@ -22,6 +22,7 @@ export const buttonVariants = cva(
         default: 'h-button gap-2 px-4',
         sm: 'h-control-sm gap-1.5 px-3',
         icon: 'size-8',
+        'icon-sm': 'size-7',
       },
     },
     defaultVariants: {

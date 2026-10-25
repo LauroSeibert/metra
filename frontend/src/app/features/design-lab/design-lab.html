@@ -151,6 +151,69 @@
 
   <section hlmCard>
     <div hlmCardHeader>
+      <h2 hlmCardTitle>{{ strings.overlays }}</h2>
+      <p hlmCardDescription>{{ strings.overlaysHint }}</p>
+    </div>
+    <div hlmCardContent>
+      <div class="flex flex-wrap items-center gap-3">
+        <hlm-dialog>
+          <button hlmBtn variant="outline" type="button" hlmDialogTrigger>
+            {{ strings.openDialog }}
+          </button>
+          <hlm-dialog-content *hlmDialogPortal="let ctx">
+            <hlm-dialog-header>
+              <h3 hlmDialogTitle>{{ strings.dialogTitle }}</h3>
+              <p hlmDialogDescription>{{ strings.dialogText }}</p>
+            </hlm-dialog-header>
+            <erp-field-shell [label]="strings.name">
+              <input hlmInput type="text" />
+            </erp-field-shell>
+            <hlm-dialog-footer>
+              <button hlmBtn variant="outline" type="button" hlmDialogClose>
+                {{ strings.cancel }}
+              </button>
+              <button hlmBtn type="button" hlmDialogClose>{{ strings.cardAction }}</button>
+            </hlm-dialog-footer>
+          </hlm-dialog-content>
+        </hlm-dialog>
+
+        <button
+          hlmBtn
+          variant="outline"
+          size="icon"
+          type="button"
+          [hlmDropdownMenuTrigger]="rowMenu"
+          [attr.aria-label]="strings.menu"
+        >
+          <erp-icon name="ellipsis" />
+        </button>
+        <ng-template #rowMenu>
+          <div hlmDropdownMenu class="w-44">
+            <button hlmDropdownMenuItem type="button">
+              <erp-icon name="pencil" />{{ strings.menuEdit }}
+            </button>
+            <button hlmDropdownMenuItem type="button">
+              <erp-icon name="copy" />{{ strings.menuDuplicate }}
+            </button>
+            <div hlmDropdownMenuSeparator></div>
+            <button hlmDropdownMenuItem type="button">
+              <erp-icon name="x" />{{ strings.menuToggle }}
+            </button>
+          </div>
+        </ng-template>
+
+        <button hlmBtn variant="outline" type="button" (click)="toastSuccess()">
+          {{ strings.toastSuccess }}
+        </button>
+        <button hlmBtn variant="outline" type="button" (click)="toastError()">
+          {{ strings.toastError }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section hlmCard>
+    <div hlmCardHeader>
       <h2 hlmCardTitle>{{ strings.icons }}</h2>
     </div>
     <div hlmCardContent>

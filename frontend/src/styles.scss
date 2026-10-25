@@ -136,18 +136,6 @@ textarea {
   gap: var(--erp-space-1);
 }
 
-// ---------- Retorno ----------
-.erp-snack-success {
-  --mat-snack-bar-container-color: var(--erp-success);
-  --mat-snack-bar-supporting-text-color: var(--erp-on-primary);
-}
-
-.erp-snack-error {
-  --mat-snack-bar-container-color: var(--erp-danger);
-  --mat-snack-bar-supporting-text-color: var(--erp-on-primary);
-  --mat-snack-bar-button-color: var(--erp-on-primary);
-}
-
 // ---------- Diálogos ----------
 .mat-mdc-dialog-container {
   --mat-dialog-container-shape: var(--erp-radius-card);

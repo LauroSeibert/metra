@@ -63,6 +63,9 @@
   --color-danger-soft: var(--erp-danger-soft);
   --text-label: var(--erp-font-size-label);
   --text-caption: var(--erp-font-size-caption);
+  --text-title: var(--erp-font-size-2xl);
+  --tracking-title: var(--erp-letter-spacing-title);
+  --color-backdrop: var(--erp-backdrop);
   --shadow-xs: var(--erp-shadow-xs);
   --shadow-overlay: var(--erp-shadow-overlay);
   --shadow-focus: var(--erp-focus-ring);
@@ -110,4 +113,13 @@
 }
 @utility thumb-on {
   transform: translateX(calc(var(--erp-switch-w) - var(--erp-switch-h) + 2px));
+}
+@utility h-topbar {
+  height: var(--erp-topbar-height);
+}
+@utility px-page {
+  padding-inline: var(--erp-page-padding);
+}
+@utility max-w-page {
+  max-width: var(--erp-form-max-width);
 }

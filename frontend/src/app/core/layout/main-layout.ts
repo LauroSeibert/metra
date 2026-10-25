@@ -12,6 +12,7 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { AppShell } from '../../shared/ui/app-shell/app-shell';
 import { BREAKPOINTS } from '../../styles/breakpoints';
+import { CommandPalette } from './command-palette/command-palette';
 import { SideNav } from './side-nav/side-nav';
 import { TopBar } from './top-bar/top-bar';
 
@@ -21,7 +22,7 @@ const COLLAPSED_KEY = 'erp.nav.collapsed';
 @Component({
   selector: 'erp-main-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AppShell, SideNav, TopBar, RouterOutlet],
+  imports: [AppShell, CommandPalette, SideNav, TopBar, RouterOutlet],
   template: `
     <erp-app-shell
       [compact]="compact()"
@@ -43,6 +44,7 @@ const COLLAPSED_KEY = 'erp.nav.collapsed';
       />
       <router-outlet />
     </erp-app-shell>
+    <erp-command-palette />
   `,
 })
 export class MainLayout {

@@ -46,7 +46,7 @@
       [attr.title]="compact() ? strings.expandMenu : null"
       (click)="toggleCollapse.emit()"
     >
-      <mat-icon>{{ compact() ? 'left_panel_open' : 'left_panel_close' }}</mat-icon>
+      <erp-icon [name]="compact() ? 'panel-left-open' : 'panel-left-close'" [size]="18" />
       <span class="label">{{ strings.collapse }}</span>
     </button>
   }
@@ -61,7 +61,7 @@
       [routerLinkActiveOptions]="{ exact: item.path === '/' }"
       [attr.title]="compact() ? item.label : null"
     >
-      <mat-icon>{{ item.icon }}</mat-icon>
+      <erp-icon [name]="item.icon" [size]="18" />
       <span class="label">{{ item.label }}</span>
     </a>
   } @else {
@@ -71,7 +71,7 @@
       [attr.title]="compact() ? item.label + ' · ' + strings.comingSoon : null"
       [attr.aria-label]="item.label + ' (' + strings.comingSoon + ')'"
     >
-      <mat-icon>{{ item.icon }}</mat-icon>
+      <erp-icon [name]="item.icon" [size]="18" />
       <span class="label">{{ item.label }}</span>
       <span class="soon">{{ strings.comingSoon }}</span>
     </span>

@@ -27,12 +27,16 @@ export const LAYOUT_STRINGS = {
   collapseMenu: 'Recolher menu',
   collapse: 'Recolher',
   demoBadge: 'Ambiente de demonstração',
-  search: {
+  palette: {
+    title: 'Paleta de comandos',
+    description: 'Busque uma tela ou ação e tecle Enter.',
     placeholder: 'Buscar ou ir para...',
-    label: 'Buscar ou ir para uma tela',
+    open: 'Abrir a busca e os comandos',
     empty: 'Nada encontrado.',
     goTo: 'Ir para',
     create: 'Criar',
+    actions: 'Ações',
   },
+  accountMenu: 'Menu da conta',
   expandMenu: 'Expandir menu',
 } as const;
