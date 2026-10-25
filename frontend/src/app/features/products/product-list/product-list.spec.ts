@@ -61,10 +61,10 @@ describe('ProductList', () => {
     await render('Viewer');
 
     expect(element.textContent).not.toContain(PRODUCTS_STRINGS.list.newProduct);
-    expect(element.querySelector('.erp-row-action.danger')).toBeNull();
-    expect(element.querySelector('.erp-row-action mat-icon')?.textContent?.trim()).toBe(
-      'visibility',
-    );
+    expect(element.querySelector(`a[aria-label^="${PRODUCTS_STRINGS.list.view}"]`)).not.toBeNull();
+    expect(
+      element.querySelector(`button[aria-label^="${PRODUCTS_STRINGS.list.moreActions}"]`),
+    ).toBeNull();
   });
 
   it('starts with the page size chosen in the profile', async () => {
@@ -125,7 +125,13 @@ describe('ProductList', () => {
     const callsBefore = api.callsTo(listProducts).length;
 
     element
-      .querySelector<HTMLButtonElement>(`button[aria-label^="${PRODUCTS_STRINGS.list.deactivate}"]`)
+      .querySelector<HTMLButtonElement>(
+        `button[aria-label^="${PRODUCTS_STRINGS.list.moreActions}"]`,
+      )
+      ?.click();
+    await settle();
+    Array.from(document.querySelectorAll<HTMLButtonElement>('[hlmDropdownMenuItem]'))
+      .find((item) => item.textContent?.includes(PRODUCTS_STRINGS.list.deactivate))
       ?.click();
     await settle();
     await settle();

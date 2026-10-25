@@ -1,146 +1,172 @@
 <!-- Filtros da listagem dentro do cartão (busca, selects, contagem). Vazio quando a tela não projeta nada. -->
 <div class="toolbar"><ng-content select="[tableToolbar]" /></div>
 
-<div class="progress">
+<div class="progress" aria-hidden="true">
   @if (showLoading()) {
-    <mat-progress-bar mode="indeterminate" />
+    <div class="bar"></div>
   }
 </div>
 
-<table [class.dimmed]="showLoading() && rows().length > 0" [attr.aria-busy]="loading()">
-  <thead>
-    <tr>
-      @if (expandedRow()) {
-        <th class="expander" scope="col">
-          <span class="erp-sr-only">{{ strings.expand }}</span>
-        </th>
-      }
-      @for (column of columns(); track column.key) {
-        <th
-          scope="col"
-          [class]="cellClass(column)"
-          [attr.aria-sort]="column.sortable ? sortDirection(column) : null"
-        >
-          @if (column.sortable) {
-            <button
-              type="button"
-              class="sort"
-              [class.sorted]="sortDirection(column) !== 'none'"
-              [attr.aria-label]="strings.sortBy + ' ' + column.header"
-              (click)="toggleSort(column)"
-            >
-              {{ column.header }}
-              @if (sortDirection(column) !== 'none') {
-                <mat-icon aria-hidden="true">{{
-                  sortDirection(column) === 'ascending' ? 'arrow_upward' : 'arrow_downward'
-                }}</mat-icon>
-              }
-            </button>
-          } @else {
-            {{ column.header }}
-          }
-        </th>
-      }
-    </tr>
-  </thead>
-
-  <tbody>
-    @if (showSkeleton()) {
-      <!-- Enquanto o atraso não vence, as linhas ocupam o espaço mas ficam invisíveis. -->
-      @for (line of skeletonRows(); track line) {
-        <tr class="skeleton-row" [class.pending]="!showLoading()" aria-hidden="true">
-          @if (expandedRow()) {
-            <td class="expander"><span class="erp-skeleton dot"></span></td>
-          }
-          @for (column of columns(); track column.key; let index = $index) {
-            <td [class]="cellClass(column)">
-              <span class="erp-skeleton" [style.width.%]="skeletonWidth(index + line)"></span>
-            </td>
-          }
-        </tr>
-      }
-    } @else if (error(); as error) {
-      <tr class="state">
-        <td [attr.colspan]="columnCount()">
-          <span class="state-icon danger"><mat-icon>cloud_off</mat-icon></span>
-          <strong>{{ error }}</strong>
-          <button matButton="outlined" type="button" (click)="retry.emit()">
-            <mat-icon>refresh</mat-icon>
-            {{ strings.retry }}
-          </button>
-        </td>
-      </tr>
-    } @else if (showEmpty()) {
-      <tr class="state">
-        <td [attr.colspan]="columnCount()">
-          <span class="state-icon"><mat-icon>search_off</mat-icon></span>
-          <strong>{{ emptyMessage() }}</strong>
-        </td>
-      </tr>
-    } @else {
-      @for (row of rows(); track rowKey()(row)) {
-        <tr
-          class="row"
-          [class.expanded]="isExpanded(row)"
-          [class.muted]="isMuted(row)"
-          (dblclick)="onRowDblClick($event, row)"
-        >
-          @if (expandedRow()) {
-            <td class="expander">
+<!-- A tabela rola na horizontal dentro do cartão quando a largura é estreita. -->
+<div class="scroll">
+  <table [class.dimmed]="showLoading() && rows().length > 0" [attr.aria-busy]="loading()">
+    <thead>
+      <tr>
+        @if (expandedRow()) {
+          <th class="expander" scope="col">
+            <span class="erp-sr-only">{{ strings.expand }}</span>
+          </th>
+        }
+        @for (column of columns(); track column.key) {
+          <th
+            scope="col"
+            [class]="cellClass(column)"
+            [attr.aria-sort]="column.sortable ? sortDirection(column) : null"
+          >
+            @if (column.sortable) {
               <button
                 type="button"
-                class="expand"
-                [attr.aria-expanded]="isExpanded(row)"
-                [attr.aria-label]="isExpanded(row) ? strings.collapse : strings.expand"
-                (click)="toggleExpanded(row)"
+                class="sort"
+                [class.sorted]="sortDirection(column) !== 'none'"
+                [attr.aria-label]="strings.sortBy + ' ' + column.header"
+                (click)="toggleSort(column)"
               >
-                <mat-icon>chevron_right</mat-icon>
-              </button>
-            </td>
-          }
-          @for (column of columns(); track column.key) {
-            <td [class]="cellClass(column)" [attr.data-label]="column.header">
-              @if (cellTemplates().get(column.key); as template) {
-                @if (column.role === 'actions') {
-                  <!-- Envoltório próprio: as ações somem/aparecem sem esconder a borda da célula. -->
-                  <span class="actions-slot">
-                    <ng-container *ngTemplateOutlet="template; context: { $implicit: row }" />
-                  </span>
-                } @else {
-                  <ng-container *ngTemplateOutlet="template; context: { $implicit: row }" />
+                {{ column.header }}
+                @if (sortDirection(column) !== 'none') {
+                  <erp-icon
+                    [name]="sortDirection(column) === 'ascending' ? 'arrow-up' : 'arrow-down'"
+                    [size]="14"
+                  />
                 }
-              } @else {
-                {{ value(row, column.key) }}
-              }
-            </td>
-          }
-        </tr>
-        @if (isExpanded(row)) {
-          @if (expandedRow(); as expanded) {
-            <tr class="detail">
-              <td [attr.colspan]="columnCount()">
-                <ng-container *ngTemplateOutlet="expanded.template; context: { $implicit: row }" />
+              </button>
+            } @else {
+              {{ column.header }}
+            }
+          </th>
+        }
+      </tr>
+    </thead>
+
+    <tbody>
+      @if (showSkeleton()) {
+        <!-- Enquanto o atraso não vence, as linhas ocupam o espaço mas ficam invisíveis. -->
+        @for (line of skeletonRows(); track line) {
+          <tr class="skeleton-row" [class.pending]="!showLoading()" aria-hidden="true">
+            @if (expandedRow()) {
+              <td class="expander"><span hlmSkeleton class="dot"></span></td>
+            }
+            @for (column of columns(); track column.key; let index = $index) {
+              <td [class]="cellClass(column)">
+                <span hlmSkeleton class="bone" [style.width.%]="skeletonWidth(index + line)"></span>
               </td>
-            </tr>
+            }
+          </tr>
+        }
+      } @else if (error(); as error) {
+        <tr class="state">
+          <td [attr.colspan]="columnCount()">
+            <div hlmEmpty>
+              <div hlmEmptyHeader>
+                <div hlmEmptyMedia variant="icon"><erp-icon name="cloud-off" [size]="20" /></div>
+                <h3 hlmEmptyTitle>{{ error }}</h3>
+              </div>
+              <div hlmEmptyContent>
+                <button hlmBtn variant="outline" type="button" (click)="retry.emit()">
+                  <erp-icon name="refresh" />
+                  {{ strings.retry }}
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      } @else if (showEmpty()) {
+        <tr class="state">
+          <td [attr.colspan]="columnCount()">
+            <div hlmEmpty>
+              <div hlmEmptyHeader>
+                <div hlmEmptyMedia variant="icon"><erp-icon name="search-x" [size]="20" /></div>
+                <h3 hlmEmptyTitle>{{ emptyMessage() }}</h3>
+                @if (emptyDescription(); as description) {
+                  <p hlmEmptyDescription>{{ description }}</p>
+                }
+              </div>
+              @if (emptyActionLabel(); as label) {
+                <div hlmEmptyContent>
+                  <button hlmBtn variant="outline" type="button" (click)="emptyAction.emit()">
+                    {{ label }}
+                  </button>
+                </div>
+              }
+            </div>
+          </td>
+        </tr>
+      } @else {
+        @for (row of rows(); track rowKey()(row)) {
+          <tr
+            class="row"
+            [class.expanded]="isExpanded(row)"
+            [class.muted]="isMuted(row)"
+            (dblclick)="onRowDblClick($event, row)"
+          >
+            @if (expandedRow()) {
+              <td class="expander">
+                <button
+                  type="button"
+                  class="expand"
+                  [attr.aria-expanded]="isExpanded(row)"
+                  [attr.aria-label]="isExpanded(row) ? strings.collapse : strings.expand"
+                  (click)="toggleExpanded(row)"
+                >
+                  <erp-icon name="chevron-right" [size]="16" />
+                </button>
+              </td>
+            }
+            @for (column of columns(); track column.key) {
+              <td [class]="cellClass(column)" [attr.data-label]="column.header">
+                @if (cellTemplates().get(column.key); as template) {
+                  @if (column.role === 'actions') {
+                    <span class="actions-slot">
+                      <ng-container *ngTemplateOutlet="template; context: { $implicit: row }" />
+                    </span>
+                  } @else {
+                    <ng-container *ngTemplateOutlet="template; context: { $implicit: row }" />
+                  }
+                } @else {
+                  {{ value(row, column.key) }}
+                }
+              </td>
+            }
+          </tr>
+          @if (isExpanded(row)) {
+            @if (expandedRow(); as expanded) {
+              <tr class="detail">
+                <td [attr.colspan]="columnCount()">
+                  <ng-container
+                    *ngTemplateOutlet="expanded.template; context: { $implicit: row }"
+                  />
+                </td>
+              </tr>
+            }
           }
         }
       }
-    }
-  </tbody>
-</table>
+    </tbody>
+  </table>
+</div>
 
 @if (total() > 0) {
   <footer class="pager">
     <span>
       {{ strings.showing }}
-      <span class="erp-mono">{{ firstShown() | number }}–{{ lastShown() | number }}</span>
+      <span class="num">{{ firstShown() | number }}–{{ lastShown() | number }}</span>
       {{ strings.of }}
-      <span class="erp-mono">{{ total() | number }}</span>
+      <span class="num">{{ total() | number }}</span>
     </span>
     <div class="pages">
       <button
-        matButton="outlined"
-        class="erp-secondary-action"
+        hlmBtn
+        variant="outline"
+        size="sm"
         type="button"
         [disabled]="page() <= 1"
         (click)="goTo(page() - 1)"
@@ -148,8 +174,9 @@
         {{ strings.previous }}
       </button>
       <button
-        matButton="outlined"
-        class="erp-secondary-action"
+        hlmBtn
+        variant="outline"
+        size="sm"
         type="button"
         [disabled]="page() >= pageCount()"
         (click)="goTo(page() + 1)"

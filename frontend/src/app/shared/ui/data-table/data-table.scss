@@ -1,8 +1,6 @@
-// Tabela em cartão, com os filtros dentro (referência: docs/design/listagem.png). Abaixo de 720 px de
-// largura disponível vira lista de cartões (container query): igual em celular, painel ou diálogo.
+// Tabela em cartão, com os filtros dentro. Em largura estreita a tabela rola na horizontal dentro do
+// cartão (sem virar lista de cartões).
 :host {
-  container: data-table / inline-size;
-
   display: block;
   overflow: clip;
   border: var(--erp-border-width) solid var(--erp-border);
@@ -15,13 +13,39 @@
   display: none;
 }
 
+// Barra de progresso fina e indeterminada no topo da tabela.
 .progress {
+  position: relative;
+  overflow: hidden;
   height: 2px;
   margin-top: -2px;
+
+  .bar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 35%;
+    background: var(--erp-primary);
+    animation: progress-slide 1.1s var(--erp-easing) infinite;
+  }
+}
+
+@keyframes progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(300%);
+  }
+}
+
+.scroll {
+  overflow-x: auto;
 }
 
 table {
   width: 100%;
+  min-width: var(--erp-table-min-width);
   border-collapse: separate;
   border-spacing: 0;
   transition: opacity var(--erp-duration-base) var(--erp-easing);
@@ -32,24 +56,19 @@ table {
 }
 
 thead th {
-  position: sticky;
-  top: var(--erp-topbar-height);
-  z-index: var(--erp-z-sticky);
-  height: 40px;
+  height: var(--erp-thead-h);
   padding: 0 var(--erp-space-4);
   border-top: var(--erp-border-width) solid var(--erp-border);
   border-bottom: var(--erp-border-width) solid var(--erp-border);
   background: var(--erp-surface-muted);
   color: var(--erp-text-muted);
-  font-size: var(--erp-font-size-xs);
+  font-size: var(--erp-font-size-caption);
   font-weight: var(--erp-font-weight-medium);
-  letter-spacing: var(--erp-letter-spacing-caps);
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
 // Sem filtros no cartão, o cabeçalho é a primeira linha: sem borda dupla em cima.
-.toolbar:empty + .progress + table thead th {
+.toolbar:empty + .progress + .scroll thead th {
   border-top: 0;
 }
 
@@ -72,7 +91,7 @@ tr.row {
 
   &.expanded td {
     border-bottom-color: transparent;
-    background: var(--erp-primary-softer);
+    background: var(--erp-surface-hover);
   }
 
   // Registro inativo: texto esmaecido, ações continuam disponíveis.
@@ -85,14 +104,10 @@ tr.row {
   text-align: left;
 }
 
+// Números à direita, alinhados pelos dígitos (Inter tabular; mono fica para SKU e códigos).
 .align-end {
   font-variant-numeric: tabular-nums;
   text-align: right;
-}
-
-// Números em monoespaçada só nas células (o cabeçalho segue a fonte do texto).
-td.align-end {
-  font-family: var(--erp-font-mono);
 }
 
 .align-center {
@@ -116,14 +131,11 @@ td.align-end {
   color: var(--erp-text-muted);
   cursor: pointer;
 
-  mat-icon {
-    width: 20px;
-    height: 20px;
-    font-size: 20px;
+  erp-icon {
     transition: transform var(--erp-duration-fast) var(--erp-easing);
   }
 
-  &[aria-expanded='true'] mat-icon {
+  &[aria-expanded='true'] erp-icon {
     transform: rotate(90deg);
   }
 
@@ -149,19 +161,11 @@ td.align-end {
   background: none;
   color: inherit;
   font: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
   cursor: pointer;
-
-  mat-icon {
-    width: 14px;
-    height: 14px;
-    font-size: 14px;
-  }
 
   &:hover,
   &.sorted {
-    color: var(--erp-primary);
+    color: var(--erp-text);
   }
 
   &:focus-visible {
@@ -186,41 +190,14 @@ tr.detail td > * {
 tr.detail td {
   height: auto;
   padding: var(--erp-space-2) var(--erp-space-5) var(--erp-space-5);
-  background: var(--erp-primary-softer);
+  background: var(--erp-surface-hover);
 }
 
+// Estados vazio e de erro: o cartão de estado ocupa a largura visível, não a da tabela.
 tr.state td {
   height: auto;
-  padding: var(--erp-space-8) var(--erp-space-4);
-  text-align: center;
-
-  strong {
-    display: block;
-    margin: var(--erp-space-4) 0;
-    color: var(--erp-text-muted);
-    font-weight: var(--erp-font-weight-medium);
-  }
-}
-
-.state-icon {
-  display: inline-grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--erp-surface-sunken);
-  color: var(--erp-text-muted);
-
-  &.danger {
-    background: var(--erp-danger-soft);
-    color: var(--erp-danger);
-  }
-
-  mat-icon {
-    width: 26px;
-    height: 26px;
-    font-size: 26px;
-  }
+  padding: var(--erp-space-6) var(--erp-space-4);
+  border-bottom: 0;
 }
 
 // Linhas fantasma com a mesma altura e as mesmas colunas das linhas reais.
@@ -229,13 +206,14 @@ tr.skeleton-row {
     visibility: hidden;
   }
 
-  .erp-skeleton {
+  .bone {
     display: inline-block;
     height: 12px;
     vertical-align: middle;
   }
 
   .dot {
+    display: inline-block;
     width: var(--erp-space-4);
     height: var(--erp-space-4);
   }
@@ -250,143 +228,14 @@ tr.skeleton-row {
   padding: var(--erp-space-3) var(--erp-space-4);
   border-top: var(--erp-border-width) solid var(--erp-border);
   color: var(--erp-text-muted);
+  font-size: var(--erp-font-size-label);
+
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
 
   .pages {
     display: flex;
     gap: var(--erp-space-2);
-  }
-}
-
-// Colunas secundárias somem antes de a tabela apertar o conteúdo principal.
-@container data-table (max-width: 1000px) {
-  .optional {
-    display: none;
-  }
-}
-
-// ---- Lista de cartões em larguras estreitas ----
-@container data-table (max-width: 720px) {
-  thead {
-    display: none;
-  }
-
-  table,
-  tbody {
-    display: block;
-  }
-
-  tr.row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: var(--erp-space-2) var(--erp-space-4);
-    padding: var(--erp-space-4);
-    border-bottom: var(--erp-border-width) solid var(--erp-border);
-
-    &:hover td {
-      background: none;
-    }
-  }
-
-  tr.row td,
-  tr.row td.optional {
-    display: flex;
-    grid-column: 1 / -1;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--erp-space-4);
-    height: auto;
-    padding: 0;
-    border: 0;
-    text-align: right;
-
-    &::before {
-      content: attr(data-label);
-      color: var(--erp-text-subtle);
-      font-family: var(--erp-font-family);
-      font-size: var(--erp-font-size-sm);
-      font-weight: var(--erp-font-weight-medium);
-      text-align: left;
-    }
-  }
-
-  tr.row td.role-title {
-    order: -2;
-    grid-row: 1;
-    grid-column: 1;
-    justify-content: flex-start;
-    font-size: var(--erp-font-size-lg);
-    font-weight: var(--erp-font-weight-semibold);
-    text-align: left;
-
-    &::before {
-      display: none;
-    }
-  }
-
-  tr.row td.role-subtitle {
-    order: -1;
-    justify-content: flex-start;
-    margin-top: calc(-1 * var(--erp-space-2));
-    color: var(--erp-text-muted);
-    font-size: var(--erp-font-size-sm);
-    text-align: left;
-
-    &::before {
-      display: none;
-    }
-  }
-
-  tr.row td.role-actions {
-    order: 10;
-    justify-content: flex-end;
-    padding-top: var(--erp-space-2);
-    border-top: var(--erp-border-width) dashed var(--erp-border);
-
-    &::before {
-      display: none;
-    }
-  }
-
-  tr.row td.expander {
-    order: -2;
-    grid-row: 1;
-    grid-column: 2;
-    width: auto;
-
-    &::before {
-      display: none;
-    }
-  }
-
-  tr.detail,
-  tr.state,
-  tr.skeleton-row {
-    display: block;
-
-    td {
-      display: block;
-      border: 0;
-    }
-  }
-
-  // No modo cartão, o fantasma mostra só título e subtítulo de cada cartão.
-  tr.skeleton-row {
-    padding: var(--erp-space-4);
-    border-bottom: var(--erp-border-width) solid var(--erp-border);
-
-    td {
-      height: auto;
-      padding: var(--erp-space-1) 0;
-      text-align: left;
-    }
-
-    td.expander,
-    td:nth-child(n + 4) {
-      display: none;
-    }
-  }
-
-  tr.detail td {
-    padding: 0 var(--erp-space-4) var(--erp-space-4);
   }
 }

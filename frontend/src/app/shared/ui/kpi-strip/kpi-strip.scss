@@ -18,7 +18,7 @@
   flex-direction: column;
   gap: var(--erp-space-1);
   min-width: 0;
-  padding: var(--erp-space-4) var(--erp-space-5);
+  padding: var(--erp-space-4) var(--erp-space-5) var(--erp-space-3);
   border: 0;
   border-left: var(--erp-border-width) solid var(--erp-border);
   background: none;
@@ -31,11 +31,12 @@
   }
 
   &.selectable {
+    position: relative;
     cursor: pointer;
     transition: background var(--erp-duration-fast) var(--erp-easing);
 
     &:hover:not(.selected) {
-      background: var(--erp-surface-hover);
+      background: var(--erp-surface-muted);
     }
 
     &:focus-visible {
@@ -44,27 +45,33 @@
     }
   }
 
+  // Escolhida: fundo accent e linha de 2 px na cor primária embaixo.
   &.selected {
-    background: var(--erp-primary-softer);
-    color: var(--erp-primary);
+    background: var(--erp-surface-hover);
 
-    .hint {
-      color: var(--erp-primary);
+    &::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background: var(--erp-primary);
     }
   }
 }
 
 .label {
-  font-size: var(--erp-font-size-md);
-  font-weight: var(--erp-font-weight-medium);
+  color: var(--erp-text-muted);
+  font-size: var(--erp-font-size-label);
 }
 
 .value {
-  font-family: var(--erp-font-mono);
   font-size: var(--erp-font-size-2xl);
   font-variant-numeric: tabular-nums;
-  font-weight: var(--erp-font-weight-medium);
-  line-height: var(--erp-line-height-tight);
+  font-weight: var(--erp-font-weight-semibold);
+  letter-spacing: var(--erp-letter-spacing-title);
+  line-height: 1.25;
 
   &.erp-skeleton {
     width: 60%;
@@ -75,7 +82,7 @@
 .hint {
   overflow: hidden;
   color: var(--erp-text-muted);
-  font-size: var(--erp-font-size-md);
+  font-size: var(--erp-font-size-caption);
   text-overflow: ellipsis;
   white-space: nowrap;
 }

@@ -6,7 +6,7 @@ import type { ClassValue } from 'clsx';
 import { injectBrnButtonConfig } from './hlm-button.token';
 
 export const buttonVariants = cva(
-  'group/button inline-flex shrink-0 cursor-pointer bg-transparent items-center justify-center rounded-md border border-transparent text-sm font-medium whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:shadow-focus active:translate-y-px data-disabled:pointer-events-none data-disabled:opacity-50 data-[matches-spartan-invalid=true]:border-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0',
+  'group/button inline-flex shrink-0 cursor-pointer bg-transparent text-foreground no-underline items-center justify-center rounded-md border border-transparent text-sm font-medium whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:shadow-focus active:translate-y-px data-disabled:pointer-events-none data-disabled:opacity-50 data-[matches-spartan-invalid=true]:border-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0',
   {
     variants: {
       variant: {
@@ -23,6 +23,10 @@ export const buttonVariants = cva(
         sm: 'h-control-sm gap-1.5 px-3',
         icon: 'size-8',
         'icon-sm': 'size-7',
+        'icon-xs': 'size-6',
+        xs: 'h-6 gap-1 px-2 text-xs',
+        lg: 'h-control gap-2 px-5',
+        'icon-lg': 'size-10',
       },
     },
     defaultVariants: {
