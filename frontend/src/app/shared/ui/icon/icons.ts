@@ -1,4 +1,7 @@
 import {
+  LucideArrowLeft,
+  LucideBanknote,
+  LucideIdCard,
   LucideBell,
   LucideBuilding2,
   LucideCheck,
@@ -58,6 +61,9 @@ import {
 
 /** Ícones disponíveis no `erp-icon`. Para usar outro, importe-o aqui (mantém o bundle enxuto). */
 export const ICONS = {
+  'arrow-left': LucideArrowLeft.icon,
+  banknote: LucideBanknote.icon,
+  'id-card': LucideIdCard.icon,
   bell: LucideBell.icon,
   building: LucideBuilding2.icon,
   check: LucideCheck.icon,
