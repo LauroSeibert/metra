@@ -1,3 +1,4 @@
+import { HlmTooltip } from '@spartan-ng/helm/tooltip';
 import { DatePickerToggle } from '../../../shared/ui/date-picker-toggle/date-picker-toggle';
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import {
@@ -55,6 +56,7 @@ const STATUS_TONE: Record<SaleStatus, StatusTone> = {
   selector: 'erp-sale-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HlmTooltip,
     DatePickerToggle,
     CurrencyPipe,
     DatePipe,

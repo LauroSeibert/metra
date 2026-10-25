@@ -168,7 +168,7 @@
         variant="ghost"
         size="icon"
         [routerLink]="['edit', product.id]"
-        [title]="canWrite() ? strings.list.edit : strings.list.view"
+        [hlmTooltip]="canWrite() ? strings.list.edit : strings.list.view"
         [attr.aria-label]="(canWrite() ? strings.list.edit : strings.list.view) + ' ' + product.sku"
       >
         <erp-icon [name]="canWrite() ? 'pencil' : 'eye'" />
@@ -179,7 +179,7 @@
           variant="ghost"
           size="icon"
           type="button"
-          [title]="product.active ? strings.list.deactivate : strings.list.activate"
+          [hlmTooltip]="product.active ? strings.list.deactivate : strings.list.activate"
           [attr.aria-label]="
             (product.active ? strings.list.deactivate : strings.list.activate) + ' ' + product.sku
           "

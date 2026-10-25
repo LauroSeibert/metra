@@ -116,7 +116,7 @@
         <button
           class="erp-row-action success"
           type="button"
-          [title]="strings.list.confirm"
+          [hlmTooltip]="strings.list.confirm"
           [attr.aria-label]="strings.list.confirm + ' #' + sale.number"
           (click)="confirm(sale)"
         >
@@ -126,7 +126,7 @@
       <a
         class="erp-row-action"
         [routerLink]="['edit', sale.id]"
-        [title]="canWrite() && sale.status === 'Draft' ? strings.list.open : strings.list.view"
+        [hlmTooltip]="canWrite() && sale.status === 'Draft' ? strings.list.open : strings.list.view"
         [attr.aria-label]="strings.list.view + ' #' + sale.number"
       >
         <mat-icon>{{
@@ -137,7 +137,7 @@
         <button
           class="erp-row-action danger"
           type="button"
-          [title]="strings.list.cancel"
+          [hlmTooltip]="strings.list.cancel"
           [attr.aria-label]="strings.list.cancel + ' #' + sale.number"
           (click)="cancel(sale)"
         >

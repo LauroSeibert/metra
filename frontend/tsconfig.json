@@ -33,7 +33,8 @@
       "@spartan-ng/helm/sonner": ["./src/app/shared/ui/helm/sonner/src/index.ts"],
       "@spartan-ng/helm/popover": ["./src/app/shared/ui/helm/popover/src/index.ts"],
       "@spartan-ng/helm/select": ["./src/app/shared/ui/helm/select/src/index.ts"],
-      "@spartan-ng/helm/combobox": ["./src/app/shared/ui/helm/combobox/src/index.ts"]
+      "@spartan-ng/helm/combobox": ["./src/app/shared/ui/helm/combobox/src/index.ts"],
+      "@spartan-ng/helm/tooltip": ["./src/app/shared/ui/helm/tooltip/src/index.ts"]
     }
   },
   "angularCompilerOptions": {

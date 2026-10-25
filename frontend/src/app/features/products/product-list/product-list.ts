@@ -15,6 +15,7 @@ import { HlmComboboxImports } from '@spartan-ng/helm/combobox';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HlmTooltip } from '@spartan-ng/helm/tooltip';
 import { Api } from '../../../api/api';
 import { activateProduct } from '../../../api/fn/products/activate-product';
 import { deactivateProduct } from '../../../api/fn/products/deactivate-product';
@@ -68,6 +69,7 @@ const DEFAULT_SORT: DataTableSort = { field: 'name', direction: 'asc' };
   selector: 'erp-product-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HlmTooltip,
     CurrencyPipe,
     DatePipe,
     DecimalPipe,

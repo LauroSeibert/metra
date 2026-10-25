@@ -1,6 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { HlmTooltip } from '@spartan-ng/helm/tooltip';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { LAYOUT_STRINGS } from '../layout.strings';
 import { NAV_FOOTER, NAV_GROUPS } from '../nav-items';
@@ -8,7 +9,7 @@ import { NAV_FOOTER, NAV_GROUPS } from '../nav-items';
 @Component({
   selector: 'erp-side-nav',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet, Icon, RouterLink, RouterLinkActive],
+  imports: [HlmTooltip, NgTemplateOutlet, Icon, RouterLink, RouterLinkActive],
   templateUrl: './side-nav.html',
   styleUrl: './side-nav.scss',
   host: { '[class.compact]': 'compact()' },

@@ -50,7 +50,8 @@
     variant="ghost"
     size="icon"
     type="button"
-    [title]="strings.notifications"
+    position="bottom"
+    [hlmTooltip]="strings.notifications"
     [attr.aria-label]="strings.notifications"
   >
     <erp-icon name="bell" [size]="18" />
@@ -60,7 +61,8 @@
     variant="ghost"
     size="icon"
     type="button"
-    [title]="theme.isDark() ? strings.toLightTheme : strings.toDarkTheme"
+    position="bottom"
+    [hlmTooltip]="theme.isDark() ? strings.toLightTheme : strings.toDarkTheme"
     [attr.aria-label]="theme.isDark() ? strings.toLightTheme : strings.toDarkTheme"
     [disabled]="theme.saving()"
     (click)="theme.toggle()"

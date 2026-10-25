@@ -1,3 +1,4 @@
+import { HlmTooltip } from '@spartan-ng/helm/tooltip';
 import { DatePickerToggle } from '../../../shared/ui/date-picker-toggle/date-picker-toggle';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import {
@@ -114,6 +115,7 @@ function lineTotal(line: SaleLine): number {
   selector: 'erp-sale-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HlmTooltip,
     DatePickerToggle,
     CurrencyPipe,
     DatePipe,

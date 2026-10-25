@@ -6,6 +6,7 @@ import { HlmBadge } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { filter, map, startWith } from 'rxjs';
+import { HlmTooltip } from '@spartan-ng/helm/tooltip';
 import { ACCESS_STRINGS } from '../../../features/access/access.strings';
 import { AuthService } from '../../auth/auth.service';
 import { ThemeService } from '../../auth/theme.service';
@@ -19,6 +20,7 @@ import { navGroupOf } from '../nav-items';
   selector: 'erp-top-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HlmTooltip,
     CommandSearch,
     HlmAvatar,
     HlmAvatarFallback,
