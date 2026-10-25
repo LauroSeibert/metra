@@ -29,6 +29,17 @@ body {
   box-sizing: border-box;
 }
 
+// Sem o preflight do Tailwind (ver src/tailwind.css), os controles nativos não herdam a fonte: ficariam na fonte
+// do sistema, mais fina que a Inter. Sai junto com o preflight, na fase 9.
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-feature-settings: inherit;
+  letter-spacing: inherit;
+}
+
 // ---------- Botões ----------
 // Botões do Material com cantos discretos (não pílula), peso médio e 38 px de altura.
 .mat-mdc-button-base {
