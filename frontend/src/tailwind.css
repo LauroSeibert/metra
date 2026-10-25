@@ -53,6 +53,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-destructive: var(--destructive);
+  --color-accent-strong: var(--erp-surface-pressed);
   --color-border-strong: var(--erp-border-strong);
   --color-subtle-foreground: var(--erp-text-subtle);
   --color-success: var(--erp-success);
