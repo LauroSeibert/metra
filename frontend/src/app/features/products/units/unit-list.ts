@@ -8,12 +8,12 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
+import { HlmBadge } from '@spartan-ng/helm/badge';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmTooltip } from '@spartan-ng/helm/tooltip';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { Api } from '../../../api/api';
@@ -31,11 +31,11 @@ import {
   DataTablePage,
 } from '../../../shared/ui/data-table/data-table';
 import { DataTableCell } from '../../../shared/ui/data-table/data-table-templates';
+import { Icon } from '../../../shared/ui/icon/icon';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { SlashFocus } from '../../../shared/ui/slash-focus';
-import { StatusChip } from '../../../shared/ui/status-chip/status-chip';
 import { PRODUCTS_STRINGS } from '../products.strings';
-import { UnitDialog } from './unit-dialog';
+import { UnitDialog, UnitDialogContext } from './unit-dialog';
 
 @Component({
   selector: 'erp-unit-list',
@@ -43,21 +43,22 @@ import { UnitDialog } from './unit-dialog';
   imports: [
     DecimalPipe,
     RouterLink,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatTooltipModule,
+    HlmBadge,
+    HlmButton,
+    HlmInput,
+    HlmTooltip,
     DataTable,
     DataTableCell,
+    Icon,
     PageHeader,
-    StatusChip,
+    SlashFocus,
   ],
   templateUrl: './unit-list.html',
 })
 export class UnitList {
   private readonly api = inject(Api);
   private readonly dialog = inject(MatDialog);
+  private readonly dialogs = inject(HlmDialogService);
   private readonly notifier = inject(Notifier);
   private readonly auth = inject(AuthService);
 
@@ -104,17 +105,22 @@ export class UnitList {
     this.search.set((event.target as HTMLInputElement).value);
   }
 
+  protected clearSearch(input: HTMLInputElement): void {
+    this.search.set('');
+    input.focus();
+  }
+
   protected onPage(change: DataTablePage): void {
     this.pageSize.set(change.pageSize);
     this.page.set(change.page);
   }
 
   protected async open(unit: UnitDto | null): Promise<void> {
-    const ref = this.dialog.open<UnitDialog, UnitDto | null, boolean>(UnitDialog, {
-      data: unit,
-      width: '28rem',
+    const ref = this.dialogs.open<boolean, UnitDialogContext>(UnitDialog, {
+      context: { unit },
+      contentClass: 'sm:max-w-md',
     });
-    if (await firstValueFrom(ref.afterClosed())) {
+    if (await firstValueFrom(ref.closed$)) {
       this.units.reload();
     }
   }

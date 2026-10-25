@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { form, FormField, maxLength, required, submit } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmDialogImports } from '@spartan-ng/helm/dialog';
+import { HlmInput } from '@spartan-ng/helm/input';
 import { Api } from '../../../api/api';
 import { createUnit } from '../../../api/fn/units/create-unit';
 import { updateUnit } from '../../../api/fn/units/update-unit';
@@ -11,65 +11,63 @@ import { UnitDto } from '../../../api/models/unit-dto';
 import { toApiProblem } from '../../../core/http/api-problem';
 import { toServerErrors } from '../../../core/http/server-errors';
 import { Notifier } from '../../../core/notifications/notifier';
+import { FieldShell } from '../../../shared/ui/field-shell/field-shell';
 import { CATALOG_RULES } from '../product-rules';
 import { PRODUCTS_STRINGS } from '../products.strings';
 
-/** Cria ou edita uma unidade de medida. Fecha com `true` quando salva. */
+/** Dados passados a quem abre o diálogo: `null` cria, uma unidade edita. */
+export interface UnitDialogContext {
+  readonly unit: UnitDto | null;
+}
+
+/**
+ * Cria ou edita uma unidade de medida. Enter salva, Esc cancela. Fecha com `true` quando salva.
+ * Abra com `HlmDialogService.open(UnitDialog, { context: { unit } })`.
+ */
 @Component({
   selector: 'erp-unit-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormField, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule],
+  imports: [FormField, HlmButton, HlmDialogImports, HlmInput, FieldShell],
   template: `
-    <form novalidate (submit)="save($event)">
-      <h2 mat-dialog-title>{{ unit ? strings.editUnit : strings.newUnit }}</h2>
-      <mat-dialog-content>
-        <mat-form-field>
-          <mat-label>{{ strings.code }}</mat-label>
-          <input matInput cdkFocusInitial [formField]="unitForm.code" autocomplete="off" />
-          @if (unitForm.code().errors()[0]; as error) {
-            <mat-error>{{ error.message }}</mat-error>
-          }
-        </mat-form-field>
-        <mat-form-field>
-          <mat-label>{{ strings.name }}</mat-label>
-          <input matInput [formField]="unitForm.name" />
-          @if (unitForm.name().errors()[0]; as error) {
-            <mat-error>{{ error.message }}</mat-error>
-          }
-        </mat-form-field>
-        @for (error of unitForm().errors(); track $index) {
-          <p class="error" role="alert">{{ error.message }}</p>
-        }
-      </mat-dialog-content>
-      <mat-dialog-actions align="end">
-        <button matButton type="button" mat-dialog-close>{{ common.cancel }}</button>
-        <button
-          matButton="filled"
-          class="erp-primary-action"
-          type="submit"
-          [disabled]="unitForm().submitting()"
-        >
-          {{ common.save }}
+    <form class="grid gap-4" novalidate (submit)="save($event)">
+      <hlm-dialog-header>
+        <h3 hlmDialogTitle>{{ unit ? strings.editUnit : strings.newUnit }}</h3>
+        <p hlmDialogDescription>{{ strings.dialogHint }}</p>
+      </hlm-dialog-header>
+
+      <erp-field-shell
+        [label]="strings.code"
+        [required]="true"
+        [error]="unitForm.code().touched() ? (unitForm.code().errors()[0]?.message ?? null) : null"
+      >
+        <input hlmInput class="font-mono" autocomplete="off" [formField]="unitForm.code" />
+      </erp-field-shell>
+      <erp-field-shell
+        [label]="strings.name"
+        [required]="true"
+        [error]="unitForm.name().touched() ? (unitForm.name().errors()[0]?.message ?? null) : null"
+      >
+        <input hlmInput autocomplete="off" [formField]="unitForm.name" />
+      </erp-field-shell>
+      @for (error of unitForm().errors(); track $index) {
+        <p class="m-0 text-sm text-destructive" role="alert">{{ error.message }}</p>
+      }
+
+      <hlm-dialog-footer>
+        <button hlmBtn variant="outline" type="button" hlmDialogClose>{{ common.cancel }}</button>
+        <button hlmBtn type="submit" [disabled]="unitForm().submitting()">
+          {{ unitForm().submitting() ? strings.saving : common.save }}
         </button>
-      </mat-dialog-actions>
+      </hlm-dialog-footer>
     </form>
-  `,
-  styles: `
-    mat-form-field {
-      width: 100%;
-    }
-    .error {
-      margin: 0;
-      color: var(--erp-danger);
-    }
   `,
 })
 export class UnitDialog {
   private readonly api = inject(Api);
   private readonly notifier = inject(Notifier);
-  private readonly dialogRef = inject<MatDialogRef<UnitDialog, boolean>>(MatDialogRef);
+  private readonly dialogRef = inject<BrnDialogRef<boolean>>(BrnDialogRef);
 
-  protected readonly unit = inject<UnitDto | null>(MAT_DIALOG_DATA);
+  protected readonly unit = injectBrnDialogContext<UnitDialogContext>().unit;
   protected readonly strings = PRODUCTS_STRINGS.units;
   protected readonly common = PRODUCTS_STRINGS;
   protected readonly model = signal({ code: this.unit?.code ?? '', name: this.unit?.name ?? '' });
