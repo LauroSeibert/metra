@@ -11,7 +11,7 @@ Referência viva: `frontend/src/app/features/products/`. Pré-requisito: endpoin
 
 ```text
 features/<modulo>/
-├── <modulo>.routes.ts      # providers: [provideMaterialFormDefaults()] + rotas lazy
+├── <modulo>.routes.ts      # rotas lazy
 ├── <modulo>.strings.ts     # todos os textos pt-BR, inclusive mensagens de validação
 ├── <modulo>-rules.ts       # limites espelhados do domínio (.NET)
 ├── <x>-list/               # listagem
@@ -31,11 +31,11 @@ Registre a rota em `app.routes.ts` com `loadChildren` e `data: { breadcrumb }`, 
 - Perfil: `canWrite = inject(AuthService).canWrite`; sem ele, esconda criar/inativar e troque o ícone de
   editar por `visibility`. Itens por página padrão: `auth.pageSize()` (preferência do usuário).
 - Visual: `docs/design/listagem.png` e `docs/design-system.md` (Padrões de tela > Listagem).
-- `<erp-page-header>` com ações à direita (principal com `class="erp-primary-action"`) → `<erp-kpi-strip>` com as
-  contagens (as que filtram são `selectable`) → `<erp-data-table>` com os filtros em
-  `<section tableToolbar class="erp-toolbar">` (busca com `erpSlashFocus`, selects com `erp-filter-label` e opção
-  "Todas" de valor sentinela, contagem em `erp-count`), `erpCell`/`erpExpandedRow` tipados por `[erpCellOf]="rows()"`,
-  situação com `erp-dot` e `[rowMuted]` para inativos.
+- `<erp-page-header>` com ações à direita (`<a hlmBtn>`; a principal sem `variant`, as demais `variant="outline"`) →
+  `<erp-kpi-strip>` com as contagens (as que filtram são `selectable`) → `<erp-data-table>` com os filtros em
+  `<section tableToolbar>` (`erp-search-field`, `erp-filter-select`, "Limpar filtros" sempre visível e desabilitado sem
+  filtro, `erp-result-count`), `erpCell`/`erpExpandedRow` tipados por `[erpCellOf]="rows()"`, situação em badge e
+  `[rowMuted]` para inativos.
 
 ## Cadastro (copie `product-form/`)
 
@@ -45,7 +45,10 @@ Registre a rota em `app.routes.ts` com `loadChildren` e `data: { breadcrumb }`, 
 - Perfil Leitura: `form(model, (path) => { apply(path, schema); disabled(path, () => !canWrite()); })` e sem
   botão de salvar. Depois de salvar, a tela continua aberta (cadastro novo navega para `edit/:id`).
 - Edição envia `version`; em `concurrency_conflict` mostre o banner com "Recarregar dados".
-- Campos: `<mat-form-field>` + `[formField]` + `<mat-error>` com `campo().errors()[0]`.
+- Layout: `mx-auto max-w-page`, `erp-form-header` (com `erp-action-bar` e Salvar), seções em `erp-section-card`, erro
+  geral em `erp-form-banner` e falha de carga em `erp-load-error`.
+- Campos: `<erp-field-shell [label] [error]="fieldError(form.campo())">` + `<input hlmInput [formField]>`; selects com
+  `hlm-select`/`hlm-combobox` ligados à mão (`[value]` + `(valueChange)`).
 
 ## Antes de entregar
 

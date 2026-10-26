@@ -13,8 +13,7 @@ paths:
 - Formulários com Signal Forms (`form`, `schema`, `[formField]`, `submit`); erros do servidor com `toServerErrors`.
   Não use `min`/`max`/`required` no HTML de campos com `[formField]`: vêm do schema.
 - Texto da interface em `<feature>.strings.ts`; cores, raios e espaços só via `var(--erp-*)`.
-- Tokens do Material de formulário/paginador vão em `provideMaterialFormDefaults()` na rota lazy, nunca no `app.config`
-  (arrasta ~250 kB para o bundle inicial).
+- Estilo com Tailwind e Spartan (`shared/ui/helm`); nada de Angular Material. Ícones pelo `erp-icon`.
 - Receita completa: skill `new-feature-screen`. Módulo de referência: `src/app/features/products`.
 - Sessão e perfil só via `AuthService` (`canWrite`, `isAdmin`, `pageSize`); o token entra pelo `authInterceptor`.
   Esconder botão é conveniência: a API decide (403). Nos specs, `signInAs(role)` de `core/auth/testing.ts`.

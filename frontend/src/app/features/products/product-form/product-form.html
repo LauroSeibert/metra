@@ -1,20 +1,9 @@
 @if (loadError()) {
-  <section hlmCard role="alert">
-    <div class="p-5">
-      <div hlmEmpty>
-        <div hlmEmptyHeader>
-          <div hlmEmptyMedia variant="icon"><erp-icon name="cloud-off" [size]="20" /></div>
-          <h3 hlmEmptyTitle>{{ strings.form.loadError }}</h3>
-        </div>
-        <div hlmEmptyContent>
-          <button hlmBtn variant="outline" type="button" (click)="reload()">
-            <erp-icon name="refresh" />
-            {{ strings.form.reload }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
+  <erp-load-error
+    [message]="strings.form.loadError"
+    [retryLabel]="strings.form.reload"
+    (retry)="reload()"
+  />
 } @else if (loadingProduct()) {
   <!-- Skeleton só se a carga demorar; resposta rápida vai direto ao formulário, sem piscar. -->
   <div aria-busy="true">
@@ -28,91 +17,58 @@
   </div>
 } @else {
   <form class="mx-auto flex w-full max-w-page flex-col gap-5" novalidate (submit)="save($event)">
-    <header class="flex flex-col gap-3">
-      <a
-        hlmBtn
-        variant="ghost"
-        size="sm"
-        class="-ml-2.5 w-fit text-muted-foreground hover:text-foreground"
-        routerLink="/products"
-      >
-        <erp-icon name="arrow-left" [size]="16" />
-        {{ strings.form.backToList }}
-      </a>
-
-      <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div class="min-w-0">
-          <p class="m-0 text-sm text-muted-foreground">
-            {{ isEdit() ? strings.form.editTitle : strings.form.newTitle }}
-          </p>
-          <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <h1
-              class="m-0 text-title leading-tight font-semibold tracking-title wrap-anywhere text-foreground max-sm:text-xl"
-            >
-              {{ model().name.trim() || strings.form.unnamed }}
-            </h1>
-            <erp-status-chip
-              [label]="model().sku.trim().toUpperCase() || strings.form.noSku"
-              tone="primary"
-              [plain]="true"
-            />
-            @if (product.hasValue()) {
-              <erp-status-chip
-                [label]="
-                  product.value().active ? strings.status.activeChip : strings.status.inactiveChip
-                "
-                [tone]="product.value().active ? 'success' : 'neutral'"
-              />
-            }
-          </div>
-          @if (!canWrite()) {
-            <p class="m-0 mt-1 text-sm text-muted-foreground">{{ strings.form.readOnly }}</p>
-          }
-        </div>
-
-        <div class="flex items-center gap-2">
-          @if (canWrite()) {
-            <erp-action-bar [dirty]="dirty()" [showSaved]="isEdit()">
-              <button hlmBtn type="submit" [disabled]="productForm().submitting()">
-                <erp-icon name="check" />
-                {{ productForm().submitting() ? strings.form.saving : strings.form.save }}
-              </button>
-            </erp-action-bar>
-          }
-          @if (product.hasValue()) {
-            <button
-              hlmBtn
-              variant="ghost"
-              size="icon"
-              type="button"
-              [hlmDropdownMenuTrigger]="moreActions"
-              align="end"
-              [attr.aria-label]="strings.form.moreActions"
-            >
-              <erp-icon name="ellipsis" />
-            </button>
-          }
-        </div>
-      </div>
-    </header>
+    <erp-form-header
+      backLink="/products"
+      [backLabel]="strings.form.backToList"
+      [eyebrow]="isEdit() ? strings.form.editTitle : strings.form.newTitle"
+      [title]="model().name.trim() || strings.form.unnamed"
+      [subtitle]="canWrite() ? null : strings.form.readOnly"
+    >
+      <ng-container badges>
+        <erp-status-chip
+          [label]="model().sku.trim().toUpperCase() || strings.form.noSku"
+          tone="primary"
+          [plain]="true"
+        />
+        @if (product.hasValue()) {
+          <erp-status-chip
+            [label]="
+              product.value().active ? strings.status.activeChip : strings.status.inactiveChip
+            "
+            [tone]="product.value().active ? 'success' : 'neutral'"
+          />
+        }
+      </ng-container>
+      @if (canWrite()) {
+        <erp-action-bar [dirty]="dirty()" [showSaved]="isEdit()">
+          <button hlmBtn type="submit" [disabled]="productForm().submitting()">
+            <erp-icon name="check" />
+            {{ productForm().submitting() ? strings.form.saving : strings.form.save }}
+          </button>
+        </erp-action-bar>
+      }
+      @if (product.hasValue()) {
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          type="button"
+          [hlmDropdownMenuTrigger]="moreActions"
+          align="end"
+          [attr.aria-label]="strings.form.moreActions"
+        >
+          <erp-icon name="ellipsis" />
+        </button>
+      }
+    </erp-form-header>
 
     @if (formErrors().length > 0) {
-      <div
-        class="banner flex items-start gap-3 rounded-md bg-warning-soft px-4 py-3 text-warning-text"
-        role="alert"
-      >
-        <erp-icon name="triangle-alert" />
-        <div class="flex-1">
-          @for (error of formErrors(); track $index) {
-            <p class="m-0 text-sm">{{ error.message }}</p>
-          }
-        </div>
-        @if (conflict()) {
-          <button hlmBtn variant="outline" size="sm" type="button" (click)="reload()">
-            {{ strings.form.reload }}
-          </button>
-        }
-      </div>
+      <erp-form-banner
+        class="banner"
+        [errors]="formErrors()"
+        [reloadLabel]="conflict() ? strings.form.reload : null"
+        (reload)="reload()"
+      />
     }
 
     <div class="layout">
