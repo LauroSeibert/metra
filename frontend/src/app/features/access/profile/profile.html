@@ -1,8 +1,13 @@
-<erp-page-header [title]="strings.title" [subtitle]="strings.subtitle" />
+<div class="mx-auto w-full max-w-page">
+  <erp-page-header [title]="strings.title" [subtitle]="strings.subtitle">
+    <button hlmBtn type="submit" form="profile-form" [disabled]="profileForm().submitting()">
+      <erp-icon name="check" />
+      {{ profileForm().submitting() ? strings.saving : strings.save }}
+    </button>
+  </erp-page-header>
 
-<div class="mx-auto grid w-full max-w-page items-start gap-5 lg:grid-cols-2">
-  <form novalidate (submit)="save($event)">
-    <erp-section-card icon="user" [title]="strings.data" [description]="strings.dataHint">
+  <div class="grid items-start gap-4 lg:grid-cols-2">
+    <form id="profile-form" class="flex flex-col gap-4" novalidate (submit)="save($event)">
       @if (profileErrors().length > 0) {
         <erp-form-banner
           [errors]="profileErrors()"
@@ -11,99 +16,100 @@
         />
       }
 
-      <erp-field-shell
-        [label]="strings.fullName"
-        [required]="true"
-        [error]="fieldError(profileForm.fullName())"
-      >
-        <input hlmInput autocomplete="name" [formField]="profileForm.fullName" />
-      </erp-field-shell>
-
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div class="flex flex-col gap-1.5">
-          <span class="text-sm font-medium">{{ strings.role }}</span>
-          <div><erp-status-chip [label]="roleName()" tone="primary" /></div>
-        </div>
-        <div class="flex min-w-0 flex-col gap-1.5">
-          <span class="text-sm font-medium">{{ strings.email }}</span>
-          <strong class="font-medium wrap-anywhere">{{ profile()?.email }}</strong>
-        </div>
-      </div>
-
-      <erp-field-shell [label]="strings.pageSize" [hint]="strings.preferencesHint">
-        <hlm-select
-          [value]="model().pageSize"
-          [itemToString]="sizeLabel"
-          (valueChange)="setPageSize($event)"
+      <erp-section-card icon="user" [title]="strings.data" [description]="strings.dataHint">
+        <erp-field-shell
+          [label]="strings.fullName"
+          [required]="true"
+          [error]="fieldError(profileForm.fullName())"
         >
-          <hlm-select-trigger class="w-full">
-            <hlm-select-value />
-          </hlm-select-trigger>
-          <hlm-select-content *hlmSelectPortal>
-            @for (size of pageSizes; track size) {
-              <hlm-select-item [value]="size">{{ size }}</hlm-select-item>
-            }
-          </hlm-select-content>
-        </hlm-select>
-      </erp-field-shell>
+          <input hlmInput autocomplete="name" [formField]="profileForm.fullName" />
+        </erp-field-shell>
 
-      <div class="flex justify-end">
-        <button hlmBtn type="submit" [disabled]="profileForm().submitting()">
-          <erp-icon name="check" />
-          {{ profileForm().submitting() ? strings.saving : strings.save }}
-        </button>
-      </div>
-    </erp-section-card>
-  </form>
+        <dl class="m-0 divide-y divide-border rounded-md border border-border text-sm">
+          <div class="flex items-center justify-between gap-4 px-4 py-3">
+            <dt class="text-muted-foreground">{{ strings.email }}</dt>
+            <dd class="m-0 min-w-0 font-medium wrap-anywhere">{{ profile()?.email }}</dd>
+          </div>
+          <div class="flex items-center justify-between gap-4 px-4 py-3">
+            <dt class="text-muted-foreground">{{ strings.role }}</dt>
+            <dd class="m-0"><erp-status-chip [label]="roleName()" tone="primary" /></dd>
+          </div>
+        </dl>
+      </erp-section-card>
 
-  <form novalidate (submit)="changePassword($event)">
-    <erp-section-card icon="key" [title]="strings.password" [description]="strings.passwordHint">
-      <erp-field-shell
-        [label]="strings.currentPassword"
-        [required]="true"
-        [error]="fieldError(passwordForm.currentPassword())"
+      <erp-section-card
+        icon="sliders"
+        [title]="strings.preferences"
+        [description]="strings.preferencesHint"
       >
-        <input
-          hlmInput
-          type="password"
-          autocomplete="current-password"
-          [formField]="passwordForm.currentPassword"
-        />
-      </erp-field-shell>
+        <erp-field-shell [label]="strings.pageSize">
+          <hlm-select
+            [value]="model().pageSize"
+            [itemToString]="sizeLabel"
+            (valueChange)="setPageSize($event)"
+          >
+            <hlm-select-trigger class="w-full">
+              <hlm-select-value />
+            </hlm-select-trigger>
+            <hlm-select-content *hlmSelectPortal>
+              @for (size of pageSizes; track size) {
+                <hlm-select-item [value]="size">{{ size }}</hlm-select-item>
+              }
+            </hlm-select-content>
+          </hlm-select>
+        </erp-field-shell>
+      </erp-section-card>
+    </form>
 
-      <erp-field-shell
-        [label]="strings.newPassword"
-        [required]="true"
-        [hint]="strings.passwordRules"
-        [error]="fieldError(passwordForm.newPassword())"
-      >
-        <input
-          hlmInput
-          type="password"
-          autocomplete="new-password"
-          [formField]="passwordForm.newPassword"
-        />
-      </erp-field-shell>
+    <form novalidate (submit)="changePassword($event)">
+      <erp-section-card icon="key" [title]="strings.password" [description]="strings.passwordHint">
+        <erp-field-shell
+          [label]="strings.currentPassword"
+          [required]="true"
+          [error]="fieldError(passwordForm.currentPassword())"
+        >
+          <input
+            hlmInput
+            type="password"
+            autocomplete="current-password"
+            [formField]="passwordForm.currentPassword"
+          />
+        </erp-field-shell>
 
-      <erp-field-shell
-        [label]="strings.confirmPassword"
-        [required]="true"
-        [error]="fieldError(passwordForm.confirmPassword())"
-      >
-        <input
-          hlmInput
-          type="password"
-          autocomplete="new-password"
-          [formField]="passwordForm.confirmPassword"
-        />
-      </erp-field-shell>
+        <erp-field-shell
+          [label]="strings.newPassword"
+          [required]="true"
+          [hint]="strings.passwordRules"
+          [error]="fieldError(passwordForm.newPassword())"
+        >
+          <input
+            hlmInput
+            type="password"
+            autocomplete="new-password"
+            [formField]="passwordForm.newPassword"
+          />
+        </erp-field-shell>
 
-      <div class="flex justify-end">
-        <button hlmBtn variant="outline" type="submit" [disabled]="passwordForm().submitting()">
-          <erp-icon name="lock" />
-          {{ strings.changePassword }}
-        </button>
-      </div>
-    </erp-section-card>
-  </form>
+        <erp-field-shell
+          [label]="strings.confirmPassword"
+          [required]="true"
+          [error]="fieldError(passwordForm.confirmPassword())"
+        >
+          <input
+            hlmInput
+            type="password"
+            autocomplete="new-password"
+            [formField]="passwordForm.confirmPassword"
+          />
+        </erp-field-shell>
+
+        <div class="flex justify-end">
+          <button hlmBtn variant="outline" type="submit" [disabled]="passwordForm().submitting()">
+            <erp-icon name="lock" />
+            {{ strings.changePassword }}
+          </button>
+        </div>
+      </erp-section-card>
+    </form>
+  </div>
 </div>

@@ -1,178 +1,200 @@
-<erp-page-header
-  [title]="strings.title"
-  [subtitle]="isAdmin() ? strings.subtitle : strings.readOnly"
-/>
-
-@if (settings.status() === 'error') {
-  <section hlmCard role="alert">
-    <div class="p-5">
-      <div hlmEmpty>
-        <div hlmEmptyHeader>
-          <div hlmEmptyMedia variant="icon"><erp-icon name="cloud-off" [size]="20" /></div>
-          <h3 hlmEmptyTitle>{{ strings.loadError }}</h3>
-          <p hlmEmptyDescription>{{ strings.loadErrorHint }}</p>
-        </div>
-        <div hlmEmptyContent>
-          <button hlmBtn variant="outline" type="button" (click)="settings.reload()">
-            <erp-icon name="refresh" />
-            {{ strings.retry }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
-} @else {
-  <form class="flex flex-col gap-4" novalidate (submit)="save($event)">
-    @if (formErrors().length > 0) {
-      <div
-        class="flex items-start gap-3 rounded-md bg-warning-soft px-4 py-3 text-warning-text"
-        role="alert"
-      >
-        <erp-icon name="triangle-alert" />
-        <div>
-          @for (error of formErrors(); track $index) {
-            <p class="m-0 text-sm">{{ error.message }}</p>
-          }
-        </div>
-      </div>
+<div class="mx-auto w-full max-w-page">
+  <erp-page-header
+    [title]="strings.title"
+    [subtitle]="isAdmin() ? strings.subtitle : strings.readOnly"
+  >
+    @if (isAdmin() && settings.status() !== 'error') {
+      <button hlmBtn type="submit" form="settings-form" [disabled]="settingsForm().submitting()">
+        <erp-icon name="check" />
+        {{ settingsForm().submitting() ? strings.saving : strings.save }}
+      </button>
     }
+  </erp-page-header>
 
-    <div class="grid items-start gap-4 lg:grid-cols-2">
-      <erp-section-card
-        icon="building"
-        [title]="strings.company"
-        [description]="strings.companyHint"
-      >
-        <erp-field-shell
-          [label]="strings.companyName"
-          [required]="true"
-          [error]="
-            settingsForm.companyName().touched()
-              ? (settingsForm.companyName().errors()[0]?.message ?? null)
-              : null
-          "
+  @if (settings.status() === 'error') {
+    <section hlmCard role="alert">
+      <div class="p-5">
+        <div hlmEmpty>
+          <div hlmEmptyHeader>
+            <div hlmEmptyMedia variant="icon"><erp-icon name="cloud-off" [size]="20" /></div>
+            <h3 hlmEmptyTitle>{{ strings.loadError }}</h3>
+            <p hlmEmptyDescription>{{ strings.loadErrorHint }}</p>
+          </div>
+          <div hlmEmptyContent>
+            <button hlmBtn variant="outline" type="button" (click)="settings.reload()">
+              <erp-icon name="refresh" />
+              {{ strings.retry }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  } @else {
+    <form id="settings-form" class="flex flex-col gap-4" novalidate (submit)="save($event)">
+      @if (formErrors().length > 0) {
+        <div
+          class="flex items-start gap-3 rounded-md bg-warning-soft px-4 py-3 text-warning-text"
+          role="alert"
         >
-          <input hlmInput type="text" [formField]="settingsForm.companyName" />
-        </erp-field-shell>
-        <erp-field-shell
-          [label]="strings.companyDocument"
-          [hint]="strings.companyDocumentHint"
-          [error]="
-            settingsForm.companyDocument().touched()
-              ? (settingsForm.companyDocument().errors()[0]?.message ?? null)
-              : null
-          "
-        >
-          <input
-            hlmInput
-            class="font-mono"
-            type="text"
-            autocomplete="off"
-            [placeholder]="strings.companyDocumentPlaceholder"
-            [formField]="settingsForm.companyDocument"
-            (input)="maskDocument($event)"
-          />
-        </erp-field-shell>
-      </erp-section-card>
+          <erp-icon name="triangle-alert" />
+          <div>
+            @for (error of formErrors(); track $index) {
+              <p class="m-0 text-sm">{{ error.message }}</p>
+            }
+          </div>
+        </div>
+      }
 
-      <erp-section-card icon="sliders" [title]="strings.rules" [description]="strings.rulesHint">
-        <erp-field-shell
-          [label]="strings.maxDiscount"
-          [error]="
-            settingsForm.maxDiscountPercent().touched()
-              ? (settingsForm.maxDiscountPercent().errors()[0]?.message ?? null)
-              : null
-          "
+      <div class="grid gap-4 lg:grid-cols-2">
+        <erp-section-card
+          icon="building"
+          [title]="strings.company"
+          [description]="strings.companyHint"
         >
-          <div class="relative">
+          <erp-field-shell
+            [label]="strings.companyName"
+            [required]="true"
+            [error]="
+              settingsForm.companyName().touched()
+                ? (settingsForm.companyName().errors()[0]?.message ?? null)
+                : null
+            "
+          >
+            <input hlmInput type="text" [formField]="settingsForm.companyName" />
+          </erp-field-shell>
+          <erp-field-shell
+            [label]="strings.companyDocument"
+            [hint]="strings.companyDocumentHint"
+            [error]="
+              settingsForm.companyDocument().touched()
+                ? (settingsForm.companyDocument().errors()[0]?.message ?? null)
+                : null
+            "
+          >
             <input
               hlmInput
-              class="pr-9 tabular-nums"
-              type="number"
-              inputmode="decimal"
-              [formField]="settingsForm.maxDiscountPercent"
+              class="font-mono"
+              type="text"
+              autocomplete="off"
+              [placeholder]="strings.companyDocumentPlaceholder"
+              [formField]="settingsForm.companyDocument"
+              (input)="maskDocument($event)"
             />
-            <span
-              class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground"
-              aria-hidden="true"
-              >%</span
-            >
-          </div>
-        </erp-field-shell>
-        <div class="flex items-center justify-between gap-4 rounded-md border border-border p-4">
-          <div class="min-w-0">
-            <p id="allow-negative-title" class="m-0 text-sm font-medium">
-              {{ strings.allowNegative }}
-            </p>
-            <p id="allow-negative-hint" class="m-0 text-label text-muted-foreground">
-              {{ strings.allowNegativeHint }}
-            </p>
-          </div>
-          <hlm-switch
-            aria-labelledby="allow-negative-title"
-            aria-describedby="allow-negative-hint"
-            [checked]="model().allowNegativeStock"
-            [disabled]="!isAdmin()"
-            (checkedChange)="setAllowNegative($event)"
-          />
-        </div>
-      </erp-section-card>
-    </div>
+          </erp-field-shell>
+        </erp-section-card>
 
-    @if (isAdmin()) {
-      <div class="flex justify-end">
-        <button hlmBtn type="submit" [disabled]="settingsForm().submitting()">
-          <erp-icon name="check" />
-          {{ settingsForm().submitting() ? strings.saving : strings.save }}
-        </button>
+        <erp-section-card icon="sliders" [title]="strings.rules" [description]="strings.rulesHint">
+          <erp-field-shell
+            [label]="strings.maxDiscount"
+            [error]="
+              settingsForm.maxDiscountPercent().touched()
+                ? (settingsForm.maxDiscountPercent().errors()[0]?.message ?? null)
+                : null
+            "
+          >
+            <div class="relative">
+              <input
+                hlmInput
+                class="pr-9 tabular-nums"
+                type="number"
+                inputmode="decimal"
+                [formField]="settingsForm.maxDiscountPercent"
+              />
+              <span
+                class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground"
+                aria-hidden="true"
+                >%</span
+              >
+            </div>
+          </erp-field-shell>
+          <div class="flex items-center justify-between gap-4 rounded-md border border-border p-4">
+            <div class="min-w-0">
+              <p id="allow-negative-title" class="m-0 text-sm font-medium">
+                {{ strings.allowNegative }}
+              </p>
+              <p id="allow-negative-hint" class="m-0 text-label text-muted-foreground">
+                {{ strings.allowNegativeHint }}
+              </p>
+            </div>
+            <hlm-switch
+              aria-labelledby="allow-negative-title"
+              aria-describedby="allow-negative-hint"
+              [checked]="model().allowNegativeStock"
+              [disabled]="!isAdmin()"
+              (checkedChange)="setAllowNegative($event)"
+            />
+          </div>
+        </erp-section-card>
       </div>
-    }
-  </form>
-}
+    </form>
+  }
 
-<section class="mt-8 mb-3">
-  <h2 class="m-0 text-xl font-semibold">{{ strings.users }}</h2>
-  <p class="m-0 text-sm text-muted-foreground">
-    {{ isAdmin() ? strings.usersHint : strings.usersAdminOnly }}
-  </p>
-</section>
+  <section class="mt-8 mb-3">
+    <h2 class="m-0 text-xl font-semibold">{{ strings.users }}</h2>
+    <p class="m-0 text-sm text-muted-foreground">
+      {{ isAdmin() ? strings.usersHint : strings.usersAdminOnly }}
+    </p>
+  </section>
 
-@if (isAdmin()) {
-  <erp-data-table
-    [columns]="columns"
-    [rows]="userRows()"
-    [rowKey]="userKey"
-    [rowMuted]="inactive"
-    [loading]="users.isLoading()"
-    [error]="usersError()"
-    [emptyMessage]="strings.usersEmpty"
-    [total]="userTotal()"
-    [page]="1"
-    [pageSize]="100"
-    (retry)="users.reload()"
-  >
-    <ng-template erpCell="fullName" [erpCellOf]="userRows()" let-user>
-      <span class="flex items-center gap-3">
-        <hlm-avatar size="sm"
-          ><span hlmAvatarFallback>{{ initials(user.fullName) }}</span></hlm-avatar
-        >
-        <span class="font-medium">{{ user.fullName }}</span>
-      </span>
-    </ng-template>
-    <ng-template erpCell="email" [erpCellOf]="userRows()" let-user>
-      <span class="font-mono text-caption text-muted-foreground">{{ user.email }}</span>
-    </ng-template>
-    <ng-template erpCell="role" [erpCellOf]="userRows()" let-user>
-      <span hlmBadge variant="outline">{{ strings.roles[user.role] ?? user.role }}</span>
-    </ng-template>
-    <ng-template erpCell="status" [erpCellOf]="userRows()" let-user>
-      @if (user.lockedOut) {
-        <span hlmBadge variant="danger">{{ strings.locked }}</span>
-      } @else {
-        <span hlmBadge [variant]="user.active ? 'ok' : 'off'">{{
-          user.active ? strings.active : strings.inactive
-        }}</span>
+  @if (isAdmin()) {
+    <erp-data-table
+      [columns]="columns"
+      [rows]="userRows()"
+      [rowKey]="userKey"
+      [rowMuted]="inactive"
+      [loading]="users.isLoading()"
+      [error]="usersError()"
+      [emptyMessage]="strings.usersNoMatch"
+      [total]="userTotal()"
+      [page]="1"
+      [pageSize]="100"
+      (retry)="users.reload()"
+    >
+      <section
+        tableToolbar
+        class="flex flex-wrap items-center gap-2.5 border-b border-border p-3.5"
+        [attr.aria-label]="strings.usersSearch"
+      >
+        <erp-search-field [label]="strings.usersSearch" [(value)]="userSearch" />
+        <erp-segmented-control
+          [options]="roleOptions"
+          [(value)]="userRole"
+          [label]="strings.usersRoleFilter"
+        />
+      </section>
+      <ng-template erpCell="fullName" [erpCellOf]="userRows()" let-user>
+        <span class="flex items-center gap-3">
+          <hlm-avatar size="sm"
+            ><span hlmAvatarFallback>{{ initials(user.fullName) }}</span></hlm-avatar
+          >
+          <span class="font-medium">{{ user.fullName }}</span>
+        </span>
+      </ng-template>
+      <ng-template erpCell="email" [erpCellOf]="userRows()" let-user>
+        <span class="font-mono text-caption text-muted-foreground">{{ user.email }}</span>
+      </ng-template>
+      <ng-template erpCell="role" [erpCellOf]="userRows()" let-user>
+        <span hlmBadge variant="outline">{{ strings.roles[user.role] ?? user.role }}</span>
+      </ng-template>
+      <ng-template erpCell="status" [erpCellOf]="userRows()" let-user>
+        @if (user.lockedOut) {
+          <span hlmBadge variant="danger">{{ strings.locked }}</span>
+        } @else {
+          <span hlmBadge [variant]="user.active ? 'ok' : 'off'">{{
+            user.active ? strings.active : strings.inactive
+          }}</span>
+        }
+      </ng-template>
+    </erp-data-table>
+  }
+  <section hlmCard class="mt-4 mb-6" [attr.aria-label]="strings.users">
+    <dl class="m-0 grid divide-border sm:grid-cols-3 sm:divide-x max-sm:divide-y">
+      @for (card of strings.roleCards; track card.role) {
+        <div class="flex flex-col gap-1 p-5">
+          <dt class="text-sm font-semibold">{{ strings.roles[card.role] }}</dt>
+          <dd class="m-0 text-sm text-muted-foreground">{{ card.description }}</dd>
+        </div>
       }
-    </ng-template>
-  </erp-data-table>
-}
+    </dl>
+  </section>
+</div>

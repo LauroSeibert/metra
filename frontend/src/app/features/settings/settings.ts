@@ -5,6 +5,7 @@ import {
   inject,
   linkedSignal,
   resource,
+  signal,
 } from '@angular/core';
 import {
   apply,
@@ -45,6 +46,11 @@ import { DataTable, DataTableColumn } from '../../shared/ui/data-table/data-tabl
 import { DataTableCell } from '../../shared/ui/data-table/data-table-templates';
 import { FieldShell } from '../../shared/ui/field-shell/field-shell';
 import { Icon } from '../../shared/ui/icon/icon';
+import { SearchField } from '../../shared/ui/search-field/search-field';
+import {
+  SegmentedControl,
+  SegmentedOption,
+} from '../../shared/ui/segmented-control/segmented-control';
 import { PageHeader } from '../../shared/ui/page-header/page-header';
 import { SectionCard } from '../../shared/ui/section-card/section-card';
 import { formatCompanyDocument, initialsOf } from './company-document';
@@ -107,7 +113,9 @@ function toModel(dto: CompanySettingsDto | null): SettingsModel {
     FieldShell,
     Icon,
     PageHeader,
+    SearchField,
     SectionCard,
+    SegmentedControl,
   ],
   templateUrl: './settings.html',
 })
@@ -141,12 +149,30 @@ export class Settings {
   });
   protected readonly formErrors = computed(() => this.settingsForm().errors());
 
-  protected readonly userRows = computed<readonly UserDto[]>(() =>
+  protected readonly userSearch = signal('');
+  protected readonly userRole = signal('');
+  protected readonly roleOptions: readonly SegmentedOption<string>[] = [
+    { value: '', label: SETTINGS_STRINGS.usersAll },
+    ...SETTINGS_STRINGS.roleCards.map(({ role }) => ({
+      value: role,
+      label: SETTINGS_STRINGS.roles[role],
+    })),
+  ];
+  private readonly allUsers = computed<readonly UserDto[]>(() =>
     this.users.hasValue() ? this.users.value().items : [],
   );
-  protected readonly userTotal = computed(() =>
-    this.users.hasValue() ? this.users.value().totalCount : 0,
-  );
+  protected readonly userRows = computed<readonly UserDto[]>(() => {
+    const term = this.userSearch().trim().toLowerCase();
+    const role = this.userRole();
+    return this.allUsers().filter(
+      (user) =>
+        (!role || user.role === role) &&
+        (!term ||
+          user.fullName.toLowerCase().includes(term) ||
+          user.email.toLowerCase().includes(term)),
+    );
+  });
+  protected readonly userTotal = computed(() => this.userRows().length);
   protected readonly usersError = computed(() =>
     this.users.status() === 'error' ? SETTINGS_STRINGS.usersError : null,
   );

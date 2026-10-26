@@ -11,9 +11,9 @@ import type { IconName } from '../icon/icons';
   selector: 'erp-section-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [HlmCard, Icon],
-  host: { class: 'block min-w-0' },
+  host: { class: 'block h-full min-w-0' },
   template: `
-    <section hlmCard>
+    <section hlmCard class="h-full">
       <header class="flex items-center gap-3 border-b border-border px-5 py-4">
         <div class="icon-block flex shrink-0 items-center justify-center rounded-md bg-accent">
           <erp-icon [name]="icon()" [size]="18" />
