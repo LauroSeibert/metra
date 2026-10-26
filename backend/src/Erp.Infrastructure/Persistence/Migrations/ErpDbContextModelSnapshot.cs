@@ -309,6 +309,10 @@ namespace Erp.Infrastructure.Persistence.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("category_id");
 
+                    b.Property<long>("Code")
+                        .HasColumnType("bigint")
+                        .HasColumnName("code");
+
                     b.Property<decimal>("CostPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)")
@@ -360,6 +364,10 @@ namespace Erp.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_product");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ux_product_code");
 
                     b.HasIndex("CreatedAt")
                         .HasDatabaseName("ix_product_created_at");

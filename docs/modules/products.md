@@ -5,6 +5,9 @@ Módulo de referência: novos módulos copiam sua estrutura (skills `new-endpoin
 ## Regras de negócio
 
 - O produto é identificado pelo `id`; o SKU é o código de negócio (busca, etiqueta, balcão).
+- **Código do sistema** (`code`): número sequencial e único, o último criado mais um (tabela `document_sequence`, linha
+  `product`, incremento atômico na transação da criação). Nunca muda e é a ordenação padrão da listagem. Produtos
+  anteriores à coluna receberam `code = id`.
 - SKU opcional na entrada, até 40 caracteres, letras, números, `.`, `-` ou `_`, começando por letra ou número.
   É gravado sem espaços nas pontas e em maiúsculas; duplicidade (ignorando caixa) → 409 `product.sku_duplicate`.
 - SKU em branco (na criação ou na edição) é gerado: três primeiras letras ou números do nome da categoria, sem
@@ -16,7 +19,10 @@ Módulo de referência: novos módulos copiam sua estrutura (skills `new-endpoin
   `categoryId`/`unitId`). Sem categoria, o SKU gerado usa o prefixo `PRD`.
 - Preço de custo, preço de venda e estoque mínimo não negativos, com no máximo 2, 2 e 3 casas decimais.
   Venda abaixo do custo é permitida (margem negativa aparece em vermelho na tela).
-- Produto nunca é excluído: é inativado (`POST /products/{id}/deactivate`) e pode ser reativado.
+- Produto com venda ou movimentação de estoque nunca é excluído: é inativado (`POST /products/{id}/deactivate`) e pode
+  ser reativado. Produto que nunca teve nenhuma das duas (cadastro por engano, cópia) pode ser excluído com
+  `DELETE /products/{id}` (204; o saldo zerado vai junto). Se tiver uso: 409 `product.in_use`.
+- `POST /products/{id}/duplicate` cria uma cópia (nome + " (cópia)", SKU gerado, próximo código) e devolve 201.
 - Categoria (nome único) e unidade (código único) só são excluídas sem produtos (409 `*.in_use`).
 - Filtro "estoque baixo" fica para a Fase 4, quando existir `stock_balance`; `min_stock` já é gravado.
 
@@ -24,7 +30,7 @@ Módulo de referência: novos módulos copiam sua estrutura (skills `new-endpoin
 
 | Rota | Uso |
 | --- | --- |
-| `GET /api/v1/products` | `search`, `categoryId`, `active`, `sort` (`name`, `sku`, `salePrice`, `createdAt`), `page`, `pageSize` |
+| `GET /api/v1/products` | `search`, `categoryId`, `active`, `sort` (`code` padrão, `name`, `sku`, `salePrice`, `createdAt`), `page`, `pageSize` |
 | `GET/PUT /api/v1/products/{id}` | detalhe e edição (com `version`) |
 | `POST /api/v1/products` | cadastro |
 | `POST /api/v1/products/{id}/activate` · `/deactivate` | situação |

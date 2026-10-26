@@ -15,6 +15,25 @@ namespace Erp.Infrastructure.Persistence;
 public sealed class ErpDbContext(DbContextOptions<ErpDbContext> options, TimeProvider timeProvider)
     : IdentityDbContext<AppUser, AppRole, long>(options), IErpDbContext
 {
+    /// <inheritdoc />
+    public async Task<long> NextSequenceNumberAsync(string sequenceName, CancellationToken cancellationToken = default)
+    {
+        const string increment =
+            "UPDATE document_sequence SET last_number = LAST_INSERT_ID(last_number + 1), version = version + 1, updated_at = UTC_TIMESTAMP(6) WHERE name = {0}";
+        var updated = await Database.ExecuteSqlRawAsync(increment, [sequenceName], cancellationToken).ConfigureAwait(false);
+        if (updated == 0)
+        {
+            // Primeira vez num banco sem a linha (a migration e o seed já a criam).
+            await Database.ExecuteSqlRawAsync(
+                "INSERT IGNORE INTO document_sequence (name, last_number, created_at, updated_at, version) VALUES ({0}, 0, UTC_TIMESTAMP(6), UTC_TIMESTAMP(6), 1)",
+                [sequenceName],
+                cancellationToken).ConfigureAwait(false);
+            await Database.ExecuteSqlRawAsync(increment, [sequenceName], cancellationToken).ConfigureAwait(false);
+        }
+
+        return await Database.SqlQueryRaw<long>("SELECT LAST_INSERT_ID() AS `Value`").SingleAsync(cancellationToken).ConfigureAwait(false);
+    }
+
     public DbSet<Product> Products => Set<Product>();
 
     public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();

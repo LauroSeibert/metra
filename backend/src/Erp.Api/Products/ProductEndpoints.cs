@@ -37,6 +37,19 @@ internal static class ProductEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
 
+        group.MapPost("/{id:long}/duplicate", DuplicateAsync)
+            .WithName("DuplicateProduct")
+            .WithSummary("Cria uma cópia do produto (nome com '(cópia)', SKU novo e o próximo código do sistema).")
+            .RequireWrite()
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapDelete("/{id:long}", DeleteAsync)
+            .WithName("DeleteProduct")
+            .WithSummary("Exclui o produto que nunca teve venda nem movimentação de estoque; os demais são inativados.")
+            .RequireWrite()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
         group.MapPost("/{id:long}/activate", ActivateAsync)
             .WithName("ActivateProduct")
             .RequireWrite()
@@ -82,6 +95,18 @@ internal static class ProductEndpoints
         ProductService service,
         CancellationToken cancellationToken) =>
         TypedResults.Ok(await service.UpdateAsync(id, request, cancellationToken).ConfigureAwait(false));
+
+    private static async Task<Created<ProductDto>> DuplicateAsync(long id, ProductService service, CancellationToken cancellationToken)
+    {
+        var product = await service.DuplicateAsync(id, cancellationToken).ConfigureAwait(false);
+        return TypedResults.Created($"/api/v1/products/{product.Id}", product);
+    }
+
+    private static async Task<NoContent> DeleteAsync(long id, ProductService service, CancellationToken cancellationToken)
+    {
+        await service.DeleteAsync(id, cancellationToken).ConfigureAwait(false);
+        return TypedResults.NoContent();
+    }
 
     private static async Task<Ok<ProductDto>> ActivateAsync(long id, ProductService service, CancellationToken cancellationToken) =>
         TypedResults.Ok(await service.SetActiveAsync(id, true, cancellationToken).ConfigureAwait(false));

@@ -41,14 +41,14 @@ describe('ProductList', () => {
       .on(listProductCategories, () => CATEGORIES);
   });
 
-  it('loads the first page sorted by name and shows the rows', async () => {
+  it('loads the first page sorted by code and shows the rows', async () => {
     await render();
 
     expect(lastListParams()).toEqual({
       search: undefined,
       categoryId: undefined,
       active: undefined,
-      sort: 'name',
+      sort: 'code',
       page: 1,
       pageSize: 20,
     });

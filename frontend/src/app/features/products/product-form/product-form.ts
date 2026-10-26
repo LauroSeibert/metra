@@ -22,6 +22,10 @@ import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 import { HlmSwitch } from '@spartan-ng/helm/switch';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { Router, RouterLink } from '@angular/router';
+import { deleteProduct } from '../../../api/fn/products/delete-product';
+import { duplicateProduct } from '../../../api/fn/products/duplicate-product';
+import { ConfirmService } from '../../../shared/ui/confirm-dialog/confirm-dialog';
+import { productCode } from '../product-code';
 import { Api } from '../../../api/api';
 import { activateProduct } from '../../../api/fn/products/activate-product';
 import { createProduct } from '../../../api/fn/products/create-product';
@@ -89,6 +93,7 @@ import {
 export class ProductForm {
   private readonly api = inject(Api);
   private readonly router = inject(Router);
+  private readonly confirmService = inject(ConfirmService);
   private readonly notifier = inject(Notifier);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
@@ -186,6 +191,47 @@ export class ProductForm {
     errors(): readonly { message?: string }[];
   }): string | null {
     return field.touched() ? (field.errors()[0]?.message ?? null) : null;
+  }
+
+  protected readonly code = productCode;
+
+  /** Cria uma cópia (nome com "(cópia)", SKU e código novos) e abre a edição dela. */
+  protected async duplicate(): Promise<void> {
+    const id = this.productId();
+    if (id === null) {
+      return;
+    }
+    try {
+      const copy = await this.api.invoke(duplicateProduct, { id });
+      this.notifier.success(PRODUCTS_STRINGS.form.duplicated);
+      await this.router.navigate(['/products', 'edit', copy.id]);
+    } catch (error) {
+      this.notifier.error(toApiProblem(error).message);
+    }
+  }
+
+  /** Exclui o produto que nunca teve venda nem movimentação; a API recusa os demais (409). */
+  protected async remove(): Promise<void> {
+    const current = this.product.hasValue() ? this.product.value() : null;
+    if (!current) {
+      return;
+    }
+    const confirmed = await this.confirmService.ask({
+      title: PRODUCTS_STRINGS.form.deleteTitle,
+      message: PRODUCTS_STRINGS.form.deleteMessage(current.name),
+      confirmLabel: PRODUCTS_STRINGS.delete,
+      cancelLabel: PRODUCTS_STRINGS.cancel,
+    });
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await this.api.invoke(deleteProduct, { id: current.id });
+      this.notifier.success(PRODUCTS_STRINGS.form.deleted);
+      await this.router.navigate(['/products']);
+    } catch (error) {
+      this.notifier.error(toApiProblem(error).message);
+    }
   }
 
   /** Ativa ou inativa na hora (endpoints próprios), mantendo o que foi digitado e ainda não salvo. */

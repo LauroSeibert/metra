@@ -47,6 +47,19 @@ function readFieldErrors(errors: unknown): Record<string, string[]> {
   return result;
 }
 
+/** Operações sem corpo de sucesso (ex.: DELETE) chegam com o erro como texto: lê o JSON dele. */
+function readBody(raw: unknown): ProblemBody {
+  if (typeof raw === 'string') {
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      return isRecord(parsed) ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+  return isRecord(raw) ? raw : {};
+}
+
 /** Converte qualquer erro de chamada HTTP em {@link ApiProblem}. */
 export function toApiProblem(error: unknown): ApiProblem {
   if (!(error instanceof HttpErrorResponse)) {
@@ -56,7 +69,7 @@ export function toApiProblem(error: unknown): ApiProblem {
     return { status: 0, code: null, message: OFFLINE_MESSAGE, fieldErrors: {} };
   }
 
-  const body: ProblemBody = isRecord(error.error) ? error.error : {};
+  const body: ProblemBody = readBody(error.error);
   const detail = typeof body.detail === 'string' ? body.detail : null;
   const title = typeof body.title === 'string' ? body.title : null;
   return {

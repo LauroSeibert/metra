@@ -12,6 +12,7 @@ public sealed record ProductListQuery(
 
 public sealed record ProductListItemDto(
     long Id,
+    long Code,
     string Sku,
     string Name,
     string? Description,
@@ -28,6 +29,7 @@ public sealed record ProductListItemDto(
 
 public sealed record ProductDto(
     long Id,
+    long Code,
     string Sku,
     string Name,
     string? Description,

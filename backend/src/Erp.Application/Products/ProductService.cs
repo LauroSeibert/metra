@@ -11,13 +11,13 @@ namespace Erp.Application.Products;
 /// <summary>Casos de uso de produtos. Módulo de referência: novos módulos seguem esta estrutura.</summary>
 public sealed class ProductService(IErpDbContext db)
 {
-    public static readonly IReadOnlyCollection<string> SortFields = ["name", "sku", "salePrice", "createdAt"];
+    public static readonly IReadOnlyCollection<string> SortFields = ["code", "name", "sku", "salePrice", "createdAt"];
 
     public async Task<PagedResult<ProductListItemDto>> ListAsync(ProductListQuery query, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(query);
         var page = PageRequest.From(query.Page, query.PageSize);
-        var sort = SortRequest.Parse(query.Sort, "name", SortFields);
+        var sort = SortRequest.Parse(query.Sort, "code", SortFields);
 
         var products = db.Products.AsNoTracking();
 
@@ -79,6 +79,7 @@ public sealed class ProductService(IErpDbContext db)
             .Where(p => p.Id == id)
             .Select(p => new ProductDto(
                 p.Id,
+                p.Code,
                 p.Sku,
                 p.Name,
                 p.Description,
@@ -120,20 +121,43 @@ public sealed class ProductService(IErpDbContext db)
             await EnsureSkuIsFreeAsync(product.Sku, null, cancellationToken).ConfigureAwait(false);
         }
 
-        // SKU gerado depende do id: grava com o provisório e troca na mesma transação.
-        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
-        db.Products.Add(product);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        // Todo produto nasce com saldo zero (StockBalance), para a movimentação só atualizar.
-        db.StockBalances.Add(StockBalance.Empty(product.Id));
-        if (product.HasPendingSku)
+        await InsertWithNextCodeAsync(product, categoryName, cancellationToken).ConfigureAwait(false);
+        return await GetAsync(product.Id, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>Cria uma cópia do produto: mesmos dados, nome com "(cópia)", SKU novo e o próximo código.</summary>
+    public async Task<ProductDto> DuplicateAsync(long id, CancellationToken cancellationToken)
+    {
+        var source = await GetAsync(id, cancellationToken).ConfigureAwait(false);
+        const string suffix = " (cópia)";
+        var name = source.Name.Length + suffix.Length > Product.NameMaxLength
+            ? source.Name[..(Product.NameMaxLength - suffix.Length)]
+            : source.Name;
+        return await CreateAsync(
+            new CreateProductRequest(null, name + suffix, source.Description, source.CategoryId, source.UnitId, source.CostPrice, source.SalePrice, source.MinStock),
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Exclui um produto que nunca teve venda nem movimentação de estoque (por exemplo, um cadastro feito
+    /// por engano). Os demais continuam existindo e podem ser inativados. O saldo zerado vai junto.
+    /// </summary>
+    public async Task DeleteAsync(long id, CancellationToken cancellationToken)
+    {
+        var product = await FindTrackedAsync(id, cancellationToken).ConfigureAwait(false);
+        var used = await db.StockMovements.AnyAsync(m => m.ProductId == id, cancellationToken).ConfigureAwait(false)
+            || await db.Sales.SelectMany(sale => sale.Items).AnyAsync(item => item.ProductId == id, cancellationToken).ConfigureAwait(false);
+        if (used)
         {
-            await AssignGeneratedSkuAsync(product, categoryName, cancellationToken).ConfigureAwait(false);
+            throw new ConflictException(
+                ErrorCodes.ProductInUse,
+                "O produto tem vendas ou movimentações de estoque e não pode ser excluído. Inative-o.");
         }
 
+        var balances = await db.StockBalances.Where(b => b.ProductId == id).ToListAsync(cancellationToken).ConfigureAwait(false);
+        db.StockBalances.RemoveRange(balances);
+        db.Products.Remove(product);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-        return await GetAsync(product.Id, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<ProductDto> UpdateAsync(long id, UpdateProductRequest request, CancellationToken cancellationToken)
@@ -191,6 +215,7 @@ public sealed class ProductService(IErpDbContext db)
 
     private Expression<Func<Product, ProductListItemDto>> ToListItem => p => new ProductListItemDto(
         p.Id,
+        p.Code,
         p.Sku,
         p.Name,
         p.Description,
@@ -208,6 +233,7 @@ public sealed class ProductService(IErpDbContext db)
     private static readonly Expression<Func<Product, ProductSearchKey>> ToSearchKey = p => new ProductSearchKey
     {
         Id = p.Id,
+        Code = p.Code,
         Name = p.Name,
         Sku = p.Sku,
         SalePrice = p.SalePrice,
@@ -217,29 +243,57 @@ public sealed class ProductService(IErpDbContext db)
     private static IQueryable<Product> Order(IQueryable<Product> products, SortRequest sort) =>
         (sort.Field, sort.Descending) switch
         {
+            ("name", false) => products.OrderBy(p => p.Name).ThenBy(p => p.Id),
+            ("name", true) => products.OrderByDescending(p => p.Name).ThenByDescending(p => p.Id),
             ("sku", false) => products.OrderBy(p => p.Sku),
             ("sku", true) => products.OrderByDescending(p => p.Sku),
             ("salePrice", false) => products.OrderBy(p => p.SalePrice).ThenBy(p => p.Id),
             ("salePrice", true) => products.OrderByDescending(p => p.SalePrice).ThenByDescending(p => p.Id),
             ("createdAt", false) => products.OrderBy(p => p.CreatedAt).ThenBy(p => p.Id),
             ("createdAt", true) => products.OrderByDescending(p => p.CreatedAt).ThenByDescending(p => p.Id),
-            (_, true) => products.OrderByDescending(p => p.Name).ThenByDescending(p => p.Id),
-            _ => products.OrderBy(p => p.Name).ThenBy(p => p.Id),
+            (_, true) => products.OrderByDescending(p => p.Code),
+            _ => products.OrderBy(p => p.Code),
         };
 
     /// <summary>Mesma ordenação de <see cref="Order"/>, aplicada às chaves da busca.</summary>
     private static IQueryable<ProductSearchKey> OrderKeys(IQueryable<ProductSearchKey> keys, SortRequest sort) =>
         (sort.Field, sort.Descending) switch
         {
+            ("name", false) => keys.OrderBy(k => k.Name).ThenBy(k => k.Id),
+            ("name", true) => keys.OrderByDescending(k => k.Name).ThenByDescending(k => k.Id),
             ("sku", false) => keys.OrderBy(k => k.Sku),
             ("sku", true) => keys.OrderByDescending(k => k.Sku),
             ("salePrice", false) => keys.OrderBy(k => k.SalePrice).ThenBy(k => k.Id),
             ("salePrice", true) => keys.OrderByDescending(k => k.SalePrice).ThenByDescending(k => k.Id),
             ("createdAt", false) => keys.OrderBy(k => k.CreatedAt).ThenBy(k => k.Id),
             ("createdAt", true) => keys.OrderByDescending(k => k.CreatedAt).ThenByDescending(k => k.Id),
-            (_, true) => keys.OrderByDescending(k => k.Name).ThenByDescending(k => k.Id),
-            _ => keys.OrderBy(k => k.Name).ThenBy(k => k.Id),
+            (_, true) => keys.OrderByDescending(k => k.Code),
+            _ => keys.OrderBy(k => k.Code),
         };
+
+    /// <summary>
+    /// Pega o próximo código e grava o produto, tudo na mesma transação. O UPDATE atômico da sequência trava
+    /// a linha até o commit: criações simultâneas esperam a vez, nunca repetem o código e, se a criação
+    /// falhar, o número volta com o rollback (sem lacunas).
+    /// </summary>
+    private async Task InsertWithNextCodeAsync(Product product, string? categoryName, CancellationToken cancellationToken)
+    {
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+        product.AssignCode(await db.NextSequenceNumberAsync(DocumentSequence.Product, cancellationToken).ConfigureAwait(false));
+
+        // SKU gerado depende do id: grava com o provisório e troca na mesma transação.
+        db.Products.Add(product);
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        // Todo produto nasce com saldo zero (StockBalance), para a movimentação só atualizar.
+        db.StockBalances.Add(StockBalance.Empty(product.Id));
+        if (product.HasPendingSku)
+        {
+            await AssignGeneratedSkuAsync(product, categoryName, cancellationToken).ConfigureAwait(false);
+        }
+
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+    }
 
     private async Task<Product> FindTrackedAsync(long id, CancellationToken cancellationToken) =>
         await db.Products.FirstOrDefaultAsync(p => p.Id == id, cancellationToken).ConfigureAwait(false)
@@ -311,6 +365,8 @@ public sealed class ProductService(IErpDbContext db)
 internal sealed class ProductSearchKey
 {
     public long Id { get; init; }
+
+    public long Code { get; init; }
 
     public string Name { get; init; } = string.Empty;
 

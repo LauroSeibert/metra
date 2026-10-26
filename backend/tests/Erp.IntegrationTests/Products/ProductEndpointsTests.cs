@@ -210,7 +210,7 @@ public sealed class ProductEndpointsTests(MySqlApiFixture fixture)
     }
 
     [Fact]
-    public async Task Deactivate_ThenActivate_AndProductIsNeverDeleted()
+    public async Task Deactivate_ThenActivate_AndUnusedProductCanBeDeleted()
     {
         var category = await _client.CreateCategoryAsync();
         var unit = await _client.CreateUnitAsync();
@@ -227,7 +227,7 @@ public sealed class ProductEndpointsTests(MySqlApiFixture fixture)
         Assert.True((await activate.Content.ReadFromJsonAsync<ProductDto>(Ct))!.Active);
 
         using var delete = await _client.DeleteAsync(new Uri($"/api/v1/products/{product.Id}", UriKind.Relative), Ct);
-        Assert.Equal(HttpStatusCode.MethodNotAllowed, delete.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, delete.StatusCode);
     }
 
     [Fact]
@@ -241,8 +241,8 @@ public sealed class ProductEndpointsTests(MySqlApiFixture fixture)
         await _client.CreateProductAsync(category.Id, unit.Id, name: $"{prefix} Bravo");
         await _client.CreateProductAsync(category.Id, unit.Id, name: $"Outro {prefix}");
 
-        var firstPage = await ListAsync($"search={prefix.ToLowerInvariant()}&pageSize=2");
-        var secondPage = await ListAsync($"search={prefix}&pageSize=2&page=2");
+        var firstPage = await ListAsync($"search={prefix.ToLowerInvariant()}&pageSize=2&sort=name");
+        var secondPage = await ListAsync($"search={prefix}&pageSize=2&page=2&sort=name");
 
         // A busca é por trecho: "Outro {prefix}" também casa e vem primeiro na ordem por nome.
         Assert.Equal(4, firstPage.TotalCount);

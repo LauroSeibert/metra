@@ -25,6 +25,13 @@
       [subtitle]="canWrite() ? null : strings.form.readOnly"
     >
       <ng-container badges>
+        @if (product.hasValue()) {
+          <erp-status-chip
+            [label]="strings.form.systemCode + ' ' + code(product.value().code)"
+            tone="neutral"
+            [plain]="true"
+          />
+        }
         <erp-status-chip
           [label]="model().sku.trim().toUpperCase() || strings.form.noSku"
           tone="primary"
@@ -282,6 +289,17 @@
         <erp-icon name="history" />
         {{ strings.form.viewMovements }}
       </a>
+      @if (canWrite()) {
+        <button hlmDropdownMenuItem type="button" (click)="duplicate()">
+          <erp-icon name="copy" />
+          {{ strings.form.duplicate }}
+        </button>
+        <div hlmDropdownMenuSeparator></div>
+        <button hlmDropdownMenuItem type="button" class="text-destructive" (click)="remove()">
+          <erp-icon name="trash" />
+          {{ strings.form.deleteProduct }}
+        </button>
+      }
     </div>
   </ng-template>
 }

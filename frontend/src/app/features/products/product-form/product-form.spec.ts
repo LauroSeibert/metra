@@ -27,6 +27,7 @@ const VALID: ProductFormModel = {
 
 const EXISTING: ProductDto = {
   id: 7,
+  code: 7,
   sku: 'CAN-007',
   name: 'Caneta verde',
   description: 'Tinta gel',

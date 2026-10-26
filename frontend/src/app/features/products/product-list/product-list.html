@@ -140,6 +140,12 @@
     <span class="category">{{ product.categoryName ?? strings.list.noCategory }}</span>
   </ng-template>
 
+  <ng-template erpCell="code" [erpCellOf]="rows()" let-product>
+    <span class="font-mono text-caption text-muted-foreground tabular-nums">{{
+      code(product.code)
+    }}</span>
+  </ng-template>
+
   <ng-template erpCell="sku" [erpCellOf]="rows()" let-product>
     <span class="sku">{{ product.sku }}</span>
   </ng-template>

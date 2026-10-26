@@ -9,6 +9,9 @@ public sealed class DocumentSequence : Entity
 {
     public const int NameMaxLength = 30;
 
+    /// <summary>Sequência do código do sistema dos produtos.</summary>
+    public const string Product = "product";
+
     /// <summary>Sequência das vendas.</summary>
     public const string Sale = "sale";
 
@@ -23,4 +26,13 @@ public sealed class DocumentSequence : Entity
     public static DocumentSequence Create(string name) => new() { Name = name };
 
     public long Next() => ++LastNumber;
+
+    /// <summary>Garante que o próximo número venha depois de <paramref name="number"/> (carga de dados já numerados).</summary>
+    public void EnsureAtLeast(long number)
+    {
+        if (LastNumber < number)
+        {
+            LastNumber = number;
+        }
+    }
 }

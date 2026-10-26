@@ -48,6 +48,7 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { KpiItem, KpiStrip } from '../../../shared/ui/kpi-strip/kpi-strip';
 import { SlashFocus } from '../../../shared/ui/slash-focus';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
+import { productCode } from '../product-code';
 import { PRODUCTS_STRINGS } from '../products.strings';
 
 type StatusFilter = 'all' | 'active' | 'inactive';
@@ -58,8 +59,8 @@ const ACTIVE_BY_STATUS: Record<StatusFilter, boolean | undefined> = {
   inactive: false,
 };
 
-const SORTABLE_FIELDS = ['sku', 'name', 'salePrice'] as const;
-const DEFAULT_SORT: DataTableSort = { field: 'name', direction: 'asc' };
+const SORTABLE_FIELDS = ['code', 'sku', 'name', 'salePrice'] as const;
+const DEFAULT_SORT: DataTableSort = { field: 'code', direction: 'asc' };
 
 /**
  * Listagem de produtos: busca com debounce, filtros, ordenação e paginação no servidor, estado na
@@ -103,7 +104,9 @@ export class ProductList {
 
   protected readonly strings = PRODUCTS_STRINGS;
   protected readonly canWrite = this.auth.canWrite;
+  protected readonly code = productCode;
   protected readonly columns: readonly DataTableColumn[] = [
+    { key: 'code', header: PRODUCTS_STRINGS.columns.code, sortable: true },
     { key: 'name', header: PRODUCTS_STRINGS.columns.product, sortable: true, role: 'title' },
     { key: 'sku', header: PRODUCTS_STRINGS.columns.sku, sortable: true, role: 'subtitle' },
     { key: 'unitCode', header: PRODUCTS_STRINGS.columns.unitShort, optional: true },
