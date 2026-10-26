@@ -56,17 +56,21 @@ cd frontend && npm run api:generate            # regenerate the OpenAPI client a
 
 ## Context for the AI
 
-The project instructions and docs are written in Brazilian Portuguese, and so is the user interface. Code is in
-English.
+The project's instructions and docs are written in Brazilian Portuguese, and so is the user interface. Code is in
+English. Everything below is plain Markdown (or a small script) that Claude Code loads on demand:
 
 | File | Purpose |
 | --- | --- |
-| `CLAUDE.md`, `backend/CLAUDE.md`, `frontend/CLAUDE.md` | map, commands, rules and pitfalls |
-| `.claude/rules/*.md` | rules by topic, loaded only for the paths they apply to |
-| `.claude/skills/` | recipes: new endpoint and new screen |
-| `docs/plan.md` | plan and phases (see "Escopo simplificado") |
-| `docs/design-system.md` + `docs/design/listagem.png` | visual identity (Spartan UI + Tailwind + `--erp-*` tokens) |
-| `docs/modules/`, `docs/api-conventions.md` | business rules per module and API conventions |
+| `CLAUDE.md`, `backend/CLAUDE.md`, `frontend/CLAUDE.md` | project map, commands, global rules and pitfalls (the root file is always loaded; the others load when working in their folder) |
+| `.claude/rules/*.md` | rules by topic (API endpoints, database, front end), loaded only for the paths they apply to |
+| `.claude/skills/` | step-by-step recipes: new endpoint and new screen, both following the reference module (products) |
+| `.claude/settings.json` + `.claude/hooks/` | hooks that block edits to generated files (the OpenAPI client) and format front-end files after each edit |
+| `docs/plan.md` | the plan, the phases and the experiment protocol (see "Escopo simplificado") |
+| `docs/architecture.md`, `docs/api-conventions.md` | layers and dependencies; how endpoints, errors, pagination and sorting work |
+| `docs/modules/` | business rules, one file per module (products, partners, stock, finance, access) |
+| `docs/domain-glossary.md` | business terms and the code names they map to |
+| `docs/design-system.md` | visual identity and UI patterns (Spartan UI + Tailwind + `--erp-*` tokens) |
+| `docs/adr/` | architecture decision records |
 
 ## License
 

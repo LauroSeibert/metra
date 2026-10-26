@@ -30,7 +30,7 @@ Registre a rota em `app.routes.ts` com `loadChildren` e `data: { breadcrumb }`, 
 - `rows`/`total` com `linkedSignal` para manter a página anterior durante o carregamento.
 - Perfil: `canWrite = inject(AuthService).canWrite`; sem ele, esconda criar/inativar e troque o ícone de
   editar por `visibility`. Itens por página padrão: `auth.pageSize()` (preferência do usuário).
-- Visual: `docs/design/listagem.png` e `docs/design-system.md` (Padrões de tela > Listagem).
+- Visual: `docs/design-system.md` (Padrões de tela > Listagem).
 - `<erp-page-header>` com ações à direita (`<a hlmBtn>`; a principal sem `variant`, as demais `variant="outline"`) →
   `<erp-kpi-strip>` com as contagens (as que filtram são `selectable`) → `<erp-data-table>` com os filtros em
   `<section tableToolbar>` (`erp-search-field`, `erp-filter-select`, "Limpar filtros" sempre visível e desabilitado sem

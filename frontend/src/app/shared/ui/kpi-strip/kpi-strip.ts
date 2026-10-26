@@ -15,7 +15,7 @@ export interface KpiItem<K extends string = string> {
 }
 
 /**
- * Faixa de indicadores: um cartão dividido em células (referência: docs/design/listagem.png). Células
+ * Faixa de indicadores: um cartão dividido em células (referência: a listagem de produtos). Células
  * marcadas como <c>selectable</c> funcionam como filtro: a escolhida fica destacada e vale como
  * <c>selected</c>. As demais são só informação.
  */

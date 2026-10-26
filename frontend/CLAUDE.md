@@ -7,7 +7,7 @@
   erros do servidor no Signal Forms), notificações.
 - `src/app/shared/ui`: componentes do projeto (`AppShell`, `PageHeader`, `KpiStrip`, `DataTable`, `SectionCard`,
   `FormHeader`, `SearchField`, `FilterSelect`, `SearchPicker`, `MoneyInput`, `StatusChip`, `ConfirmService`...) e,
-  em `helm/`, os componentes do Spartan UI (código nosso). Visual de referência: `docs/design/listagem.png`.
+  em `helm/`, os componentes do Spartan UI (código nosso). Visual de referência: `features/products/product-list`.
 - `src/app/shared/data`: `debounced()` e estado de listagem na URL.
 - `src/app/features/<funcionalidade>`: rotas lazy, telas, `*.strings.ts`, `*-rules.ts` e `testing/`.
 - `src/app/styles`: `tokens.scss` (fonte única de cor, raio, espaçamento). `src/tailwind.css` liga o Spartan e o
