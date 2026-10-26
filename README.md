@@ -113,8 +113,8 @@ What it suggests:
   without checking the code, so they need to stay current.
 
 This is a small experiment to test how Claude's Markdown files affect token consumption and whether they improve
-the overall experience of working with Claude Code. It is not a benchmark: one project, one model, one to two runs
-per cell, so single differences can be luck. The plan is to repeat it with more runs and a fixed scope per prompt.
+the overall experience of working with Claude Code. It is not a benchmark: it covers one project, one model and one to two runs per cell,
+so a bigger sample could provide more accurate results.
 
 ## License
 
