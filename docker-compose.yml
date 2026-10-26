@@ -1,3 +1,5 @@
+name: metra
+
 # Ambiente completo: docker compose up -d --build
 # Variáveis vêm do arquivo .env (copie de .env.example).
 services:

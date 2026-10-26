@@ -21,6 +21,7 @@ com tema claro e escuro e três perfis de acesso (administrador, operador e leit
 ## Rodar
 
 ```sh
+git clone https://github.com/LauroSeibert/metra.git && cd metra
 cp .env.example .env   # preencha as senhas
 docker compose up -d --build
 dotnet run --project backend/src/Erp.Seed -- seed --profile small   # dados de exemplo (opcional)
@@ -28,6 +29,7 @@ dotnet run --project backend/src/Erp.Seed -- seed --profile small   # dados de e
 
 - Front: http://localhost:8080 (login com `ADMIN_EMAIL`/`ADMIN_PASSWORD` do `.env`)
 - API: http://localhost:5080 (`/health`, `/health/ready`)
+- O projeto do Docker Compose chama `metra` (containers `metra-*`, volumes `metra_mysql-data` e `metra_api-keys`).
 
 ## Desenvolver
 

@@ -65,7 +65,7 @@ public static class DependencyInjection
 
         // Chaves que assinam os tokens: num volume, para a sessão sobreviver a um restart do container.
         var keysPath = configuration["DataProtection:KeysPath"];
-        var dataProtection = services.AddDataProtection().SetApplicationName("erp-demo");
+        var dataProtection = services.AddDataProtection().SetApplicationName("metra");
         if (!string.IsNullOrWhiteSpace(keysPath))
         {
             dataProtection.PersistKeysToFileSystem(new DirectoryInfo(keysPath));

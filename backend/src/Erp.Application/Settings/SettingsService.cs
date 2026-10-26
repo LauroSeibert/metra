@@ -17,7 +17,7 @@ public sealed class SettingsService(IErpDbContext db, SettingsReader reader)
 {
     public const int CompanyNameMaxLength = 200;
     public const int CompanyDocumentMaxLength = 20;
-    private const string DefaultCompanyName = "ERP Demo Comércio";
+    private const string DefaultCompanyName = "Metra Comércio";
 
     public async Task<CompanySettingsDto> GetAsync(CancellationToken cancellationToken)
     {
