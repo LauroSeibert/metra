@@ -38,12 +38,16 @@
       [value]="type() ?? 'all'"
       (valueChange)="type.set(readType($event))"
     />
-    @if (hasFilters()) {
-      <button hlmBtn variant="ghost" type="button" (click)="clearFilters()">
-        <erp-icon name="filter-x" />
-        {{ strings.list.clearFilters }}
-      </button>
-    }
+    <button
+      hlmBtn
+      variant="outline"
+      type="button"
+      [disabled]="!hasFilters()"
+      (click)="clearFilters()"
+    >
+      <erp-icon name="filter-x" />
+      {{ strings.list.clearFilters }}
+    </button>
     <erp-result-count>{{ strings.list.results((total() | number) ?? '0') }}</erp-result-count>
   </section>
 

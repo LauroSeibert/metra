@@ -42,12 +42,16 @@
       [value]="categoryId() ?? 0"
       (valueChange)="categoryId.set($event || null)"
     />
-    @if (hasFilters()) {
-      <button hlmBtn variant="ghost" type="button" (click)="clearFilters()">
-        <erp-icon name="filter-x" />
-        {{ strings.balances.clearFilters }}
-      </button>
-    }
+    <button
+      hlmBtn
+      variant="outline"
+      type="button"
+      [disabled]="!hasFilters()"
+      (click)="clearFilters()"
+    >
+      <erp-icon name="filter-x" />
+      {{ strings.balances.clearFilters }}
+    </button>
     <erp-result-count>{{ strings.balances.results((total() | number) ?? '0') }}</erp-result-count>
   </section>
 

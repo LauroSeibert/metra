@@ -120,16 +120,19 @@
       </hlm-select-content>
     </hlm-select>
 
-    @if (hasFilters()) {
-      <button hlmBtn variant="ghost" type="button" (click)="clearFilters()">
-        <erp-icon name="filter-x" />
-        {{ strings.list.clearFilters }}
-      </button>
-    }
-    <span
-      class="ml-auto inline-flex h-control items-center rounded-md border border-border bg-muted px-3 text-sm whitespace-nowrap text-muted-foreground tabular-nums"
-      >{{ strings.list.results((total() | number) ?? '0') }}</span
+    <button
+      hlmBtn
+      variant="outline"
+      type="button"
+      [disabled]="!hasFilters()"
+      (click)="clearFilters()"
     >
+      <erp-icon name="filter-x" />
+      {{ strings.list.clearFilters }}
+    </button>
+    <span class="ml-auto px-1 text-sm whitespace-nowrap text-muted-foreground tabular-nums">{{
+      strings.list.results((total() | number) ?? '0')
+    }}</span>
   </section>
 
   <ng-template erpCell="name" [erpCellOf]="rows()" let-product>

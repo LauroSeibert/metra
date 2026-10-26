@@ -5,8 +5,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   selector: 'erp-result-count',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'ml-auto inline-flex h-control items-center rounded-md border border-border bg-muted px-3 text-sm whitespace-nowrap text-muted-foreground tabular-nums',
+    class: 'ml-auto px-1 text-sm whitespace-nowrap text-muted-foreground tabular-nums',
   },
   template: `<ng-content />`,
 })

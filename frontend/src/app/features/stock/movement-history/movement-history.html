@@ -33,12 +33,16 @@
     />
     <erp-date-field [label]="strings.history.from" [(value)]="from" />
     <erp-date-field [label]="strings.history.to" [(value)]="to" />
-    @if (hasFilters()) {
-      <button hlmBtn variant="ghost" type="button" (click)="clearFilters()">
-        <erp-icon name="filter-x" />
-        {{ strings.history.clearFilters }}
-      </button>
-    }
+    <button
+      hlmBtn
+      variant="outline"
+      type="button"
+      [disabled]="!hasFilters()"
+      (click)="clearFilters()"
+    >
+      <erp-icon name="filter-x" />
+      {{ strings.history.clearFilters }}
+    </button>
   </section>
 
   <ng-template erpCell="occurredAt" [erpCellOf]="rows()" let-movement>
