@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { FinancialEntryKind } from '../../api/models/financial-entry-kind';
-import { provideMaterialFormDefaults } from '../../shared/ui/material-defaults';
 import { FINANCE_STRINGS } from './finance.strings';
 
 /** Lista, cadastro e edição para um tipo (a receber ou a pagar), sob /finance/receivables ou /payables. */
@@ -30,7 +29,6 @@ function kindRoutes(kind: FinancialEntryKind): Routes {
 export const FINANCE_ROUTES: Routes = [
   {
     path: '',
-    providers: [provideMaterialFormDefaults()],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'receivables' },
       {

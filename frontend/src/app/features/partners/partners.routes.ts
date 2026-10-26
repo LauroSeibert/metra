@@ -1,12 +1,10 @@
 import { Routes } from '@angular/router';
-import { provideMaterialFormDefaults } from '../../shared/ui/material-defaults';
 import { PARTNERS_STRINGS } from './partners.strings';
 
 /** Rotas de parceiros, carregadas sob demanda a partir de app.routes.ts. */
 export const PARTNERS_ROUTES: Routes = [
   {
     path: '',
-    providers: [provideMaterialFormDefaults()],
     children: [
       {
         path: '',

@@ -1,12 +1,10 @@
 import { Routes } from '@angular/router';
-import { provideMaterialFormDefaults } from '../../shared/ui/material-defaults';
 import { PRODUCTS_STRINGS } from './products.strings';
 
 /** Rotas de produtos, carregadas sob demanda a partir de app.routes.ts. */
 export const PRODUCTS_ROUTES: Routes = [
   {
     path: '',
-    providers: [provideMaterialFormDefaults()],
     children: [
       {
         path: '',
