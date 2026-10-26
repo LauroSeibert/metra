@@ -5,6 +5,7 @@ import { FinancialEntryKind } from '../models/financial-entry-kind';
 import { FinancialEntryStatus } from '../models/financial-entry-status';
 export interface FinancialEntryDto {
   amount: number;
+  cancelledAt: string | null;
   categoryId: number;
   categoryName: string;
   createdAt: string;
@@ -18,6 +19,7 @@ export interface FinancialEntryDto {
   overdue: boolean;
   paidAmount: number | null;
   paidAt: string | null;
+  partnerDocument: string | null;
   partnerId: number | null;
   partnerName: string | null;
   reversalReason: string | null;

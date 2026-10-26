@@ -40,6 +40,10 @@ internal static class FinanceEndpoints
             .WithName("GetFinancialSummary")
             .WithSummary("Totais em aberto, vencido, a vencer em 7 dias e pago no mês.");
         entries.MapGet("/{id:long}", GetEntryAsync).WithName("GetFinancialEntry").ProducesProblem(StatusCodes.Status404NotFound);
+        entries.MapGet("/{id:long}/installments", ListInstallmentsAsync)
+            .WithName("ListFinancialEntryInstallments")
+            .WithSummary("Parcelas da mesma conta do lançamento, em ordem.")
+            .ProducesProblem(StatusCodes.Status404NotFound);
         entries.MapPost("/", CreateEntryAsync)
             .WithName("CreateFinancialEntry")
             .WithSummary("Cria a conta já dividida em parcelas mensais; devolve as parcelas.")
@@ -132,6 +136,9 @@ internal static class FinanceEndpoints
 
     private static async Task<Ok<FinancialEntryDto>> GetEntryAsync(long id, FinancialEntryService service, CancellationToken cancellationToken) =>
         TypedResults.Ok(await service.GetAsync(id, cancellationToken).ConfigureAwait(false));
+
+    private static async Task<Ok<IReadOnlyList<FinancialEntryDto>>> ListInstallmentsAsync(long id, FinancialEntryService service, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await service.ListInstallmentsAsync(id, cancellationToken).ConfigureAwait(false));
 
     private static async Task<Created<IReadOnlyList<FinancialEntryDto>>> CreateEntryAsync(
         CreateFinancialEntryRequest request,

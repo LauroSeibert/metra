@@ -48,14 +48,22 @@
       [(value)]="status"
       [label]="strings.list.statusFilter"
     />
-    @if (hasFilters()) {
-      <button hlmBtn variant="ghost" type="button" (click)="clearFilters()">
-        <erp-icon name="filter-x" />
-        {{ strings.list.clearFilters }}
-      </button>
-    }
+    <button
+      hlmBtn
+      variant="outline"
+      type="button"
+      [disabled]="!hasFilters()"
+      (click)="clearFilters()"
+    >
+      <erp-icon name="filter-x" />
+      {{ strings.list.clearFilters }}
+    </button>
     <erp-result-count>{{ strings.list.results((total() | number) ?? '0') }}</erp-result-count>
   </section>
+
+  <ng-template erpCell="code" [erpCellOf]="rows()" let-entry>
+    <span hlmBadge variant="code">{{ code(entry) }}</span>
+  </ng-template>
 
   <ng-template erpCell="dueDate" [erpCellOf]="rows()" let-entry>
     <span class="font-mono whitespace-nowrap tabular-nums">{{

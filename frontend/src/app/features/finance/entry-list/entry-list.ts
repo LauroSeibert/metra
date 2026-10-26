@@ -36,6 +36,8 @@ import {
   readText,
   toSortParam,
 } from '../../../shared/data/list-url-state';
+import { entryCode } from '../entry-code';
+import { entryStatusLabel, entryStatusTone } from '../entry-status';
 import { ConfirmService } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import {
   DataTable,
@@ -53,6 +55,7 @@ import {
 import { StatusChip, StatusTone } from '../../../shared/ui/status-chip/status-chip';
 import { FINANCE_STRINGS } from '../finance.strings';
 import { PayDialog, PayDialogData } from '../pay-dialog/pay-dialog';
+import { HlmBadge } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmTooltip } from '@spartan-ng/helm/tooltip';
@@ -72,7 +75,7 @@ const STATUS_PARAM: Record<StatusFilter, FinancialEntryStatusFilter | undefined>
   cancelled: 'Cancelled',
 };
 const STATUSES: readonly StatusFilter[] = ['all', 'open', 'overdue', 'paid', 'cancelled'];
-const SORTABLE_FIELDS = ['dueDate', 'amount', 'description'] as const;
+const SORTABLE_FIELDS = ['code', 'dueDate', 'amount', 'description'] as const;
 const DEFAULT_SORT: DataTableSort = { field: 'dueDate', direction: 'asc' };
 
 /**
@@ -83,6 +86,7 @@ const DEFAULT_SORT: DataTableSort = { field: 'dueDate', direction: 'asc' };
   selector: 'erp-entry-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HlmBadge,
     HlmButton,
     HlmTooltip,
     DateField,
@@ -128,6 +132,7 @@ export class EntryList {
     { value: 'cancelled', label: FINANCE_STRINGS.list.cancelled },
   ];
   protected readonly columns: readonly DataTableColumn[] = [
+    { key: 'code', header: FINANCE_STRINGS.columns.code, sortable: true },
     { key: 'dueDate', header: FINANCE_STRINGS.columns.dueDate, sortable: true, role: 'subtitle' },
     {
       key: 'description',
@@ -142,6 +147,7 @@ export class EntryList {
     { key: 'actions', header: FINANCE_STRINGS.columns.actions, align: 'end', role: 'actions' },
   ];
 
+  protected readonly code = entryCode;
   protected readonly search = signal(readText(this.initial, 'search'));
   protected readonly status = signal<StatusFilter>(readStatus(this.initial.get('status')));
   protected readonly dueFrom = signal(readText(this.initial, 'dueFrom'));
@@ -294,17 +300,11 @@ export class EntryList {
   }
 
   protected statusLabel(entry: FinancialEntryDto): string {
-    if (entry.overdue) {
-      return FINANCE_STRINGS.status.overdue(entry.daysOverdue);
-    }
-    return entry.status === 'Paid' ? this.texts().paidChip : FINANCE_STRINGS.status[entry.status];
+    return entryStatusLabel(entry, this.texts().paidChip);
   }
 
   protected statusTone(entry: FinancialEntryDto): StatusTone {
-    if (entry.overdue) {
-      return 'danger';
-    }
-    return entry.status === 'Paid' ? 'success' : entry.status === 'Open' ? 'primary' : 'neutral';
+    return entryStatusTone(entry);
   }
 
   protected clearFilters(): void {
