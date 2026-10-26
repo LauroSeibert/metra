@@ -1,6 +1,6 @@
 # Design system
 
-**Referência visual: `docs/design/listagem.png`** (listagem de produtos). Identidade sóbria: fundo quase neutro,
+**Referência visual: a listagem de produtos** (`features/products/product-list`). Identidade sóbria: fundo quase neutro,
 cartões planos com borda fina, cor da marca (verde-azulado) só onde importa (ação principal, item ativo, filtro
 escolhido) e números em fonte monoespaçada. Há tema claro e escuro.
 
