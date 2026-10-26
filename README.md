@@ -96,6 +96,12 @@ One run per cell, API-equivalent cost reported by Claude Code:
 | How is authentication implemented? | all-md | $0.174 | **10** | **116k** |
 | | no-md | $0.170 | 13 | 189k |
 
+![Brand field: cost per run](docs/images/add-brand-field-cost-per-run.png)
+
+![Brand field: context read from cache](docs/images/add-brand-field-cached-context-tokens.png)
+
+![Auth question: total tokens processed](docs/images/how-auth-was-implemented-total-tokens-processed.png)
+
 What it suggests:
 
 - **Trivial edit:** no difference. The file is easy to find without any documentation.
