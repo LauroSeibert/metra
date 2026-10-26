@@ -231,7 +231,7 @@ public sealed class ProductEndpointsTests(MySqlApiFixture fixture)
     }
 
     [Fact]
-    public async Task List_SearchByNamePrefix_PaginatesAndSortsByName()
+    public async Task List_SearchByNameFragment_PaginatesAndSortsByName()
     {
         var category = await _client.CreateCategoryAsync();
         var unit = await _client.CreateUnitAsync();
@@ -244,9 +244,10 @@ public sealed class ProductEndpointsTests(MySqlApiFixture fixture)
         var firstPage = await ListAsync($"search={prefix.ToLowerInvariant()}&pageSize=2");
         var secondPage = await ListAsync($"search={prefix}&pageSize=2&page=2");
 
-        Assert.Equal(3, firstPage.TotalCount);
-        Assert.Equal([$"{prefix} alfa", $"{prefix} Bravo"], firstPage.Items.Select(p => p.Name));
-        Assert.Equal([$"{prefix} Charlie"], secondPage.Items.Select(p => p.Name));
+        // A busca é por trecho: "Outro {prefix}" também casa e vem primeiro na ordem por nome.
+        Assert.Equal(4, firstPage.TotalCount);
+        Assert.Equal([$"Outro {prefix}", $"{prefix} alfa"], firstPage.Items.Select(p => p.Name));
+        Assert.Equal([$"{prefix} Bravo", $"{prefix} Charlie"], secondPage.Items.Select(p => p.Name));
     }
 
     [Fact]
@@ -275,7 +276,8 @@ public sealed class ProductEndpointsTests(MySqlApiFixture fixture)
         var underscore = await ListAsync($"categoryId={category.Id}&search=_");
         var hundred = await ListAsync($"categoryId={category.Id}&search=100%25");
 
-        Assert.Equal(0, percent.TotalCount);
+        // Curingas digitados valem como texto: "%" casa só onde o nome tem um "%" de verdade.
+        Assert.Equal([literal.Id], percent.Items.Select(p => p.Id));
         Assert.Equal(0, underscore.TotalCount);
         Assert.Equal([literal.Id], hundred.Items.Select(p => p.Id));
     }

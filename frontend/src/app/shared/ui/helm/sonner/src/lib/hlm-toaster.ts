@@ -1,0 +1,121 @@
+import type { BooleanInput, NumberInput } from '@angular/cdk/coercion';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  booleanAttribute,
+  computed,
+  input,
+  numberAttribute,
+} from '@angular/core';
+import { Icon } from '../../../../icon/icon';
+import { BrnSonnerImports, type ToasterProps } from '@spartan-ng/brain/sonner';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { hlm } from '@spartan-ng/helm/utils';
+import type { ClassValue } from 'clsx';
+
+@Component({
+  selector: 'hlm-toaster',
+  exportAs: 'hlmToaster',
+  imports: [BrnSonnerImports, HlmButtonImports, Icon],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <brn-sonner-toaster
+      [class]="_computedClass()"
+      [invert]="invert()"
+      [theme]="theme()"
+      [position]="position()"
+      [hotKey]="hotKey()"
+      [richColors]="richColors()"
+      [expand]="expand()"
+      [duration]="duration()"
+      [visibleToasts]="visibleToasts()"
+      [closeButton]="closeButton()"
+      [toastOptions]="_computedToastOptions()"
+      [offset]="offset()"
+      [style]="userStyle()"
+    >
+      <ng-template #loadingIcon>
+        <erp-icon name="loader" [size]="16" class="animate-spin" />
+      </ng-template>
+      <ng-template #successIcon>
+        <erp-icon name="circle-check" [size]="16" />
+      </ng-template>
+      <ng-template #errorIcon>
+        <erp-icon name="octagon-x" [size]="16" />
+      </ng-template>
+      <ng-template #infoIcon>
+        <erp-icon name="info" [size]="16" />
+      </ng-template>
+      <ng-template #warningIcon>
+        <erp-icon name="triangle-alert" [size]="16" />
+      </ng-template>
+      <button
+        *brnToastAction="let action; let toast = toast"
+        [style]="toast.actionButtonStyle"
+        hlmBtn
+        size="sm"
+        (click)="action.onClick($event)"
+      >
+        {{ action.label }}
+      </button>
+      <button
+        *brnToastCancelAction="let cancel; let toast = toast"
+        [style]="toast.cancelButtonStyle"
+        hlmBtn
+        size="sm"
+        variant="secondary"
+        (click)="cancel.onClick($event)"
+      >
+        {{ cancel.label }}
+      </button>
+    </brn-sonner-toaster>
+  `,
+})
+export class HlmToaster {
+  public readonly invert = input<ToasterProps['invert'], BooleanInput>(false, {
+    transform: booleanAttribute,
+  });
+  public readonly theme = input<ToasterProps['theme']>('light');
+  public readonly position = input<ToasterProps['position']>('bottom-right');
+  public readonly hotKey = input<ToasterProps['hotkey']>(['altKey', 'KeyT']);
+  public readonly richColors = input<ToasterProps['richColors'], BooleanInput>(false, {
+    transform: booleanAttribute,
+  });
+  public readonly expand = input<ToasterProps['expand'], BooleanInput>(false, {
+    transform: booleanAttribute,
+  });
+  public readonly duration = input<ToasterProps['duration'], NumberInput>(4000, {
+    transform: numberAttribute,
+  });
+  public readonly visibleToasts = input<ToasterProps['visibleToasts'], NumberInput>(3, {
+    transform: numberAttribute,
+  });
+  public readonly closeButton = input<ToasterProps['closeButton'], BooleanInput>(false, {
+    transform: booleanAttribute,
+  });
+  public readonly toastOptions = input<ToasterProps['toastOptions']>({});
+
+  protected readonly _computedToastOptions = computed(() => {
+    const options = this.toastOptions();
+    return {
+      ...options,
+      classes: {
+        ...options?.classes,
+        toast: hlm('rounded-2xl!', options?.classes?.toast),
+      },
+    };
+  });
+  public readonly offset = input<ToasterProps['offset']>(null);
+  public readonly userClass = input<ClassValue>('', { alias: 'class' });
+  public readonly userStyle = input<Record<string, string>>(
+    {
+      '--normal-bg': 'var(--popover)',
+      '--normal-text': 'var(--popover-foreground)',
+      '--normal-border': 'var(--border)',
+      '--border-radius': 'var(--radius)',
+    },
+    { alias: 'style' },
+  );
+
+  protected readonly _computedClass = computed(() => hlm('toaster group', this.userClass()));
+}

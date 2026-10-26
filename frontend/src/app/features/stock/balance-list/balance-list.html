@@ -1,11 +1,11 @@
 <erp-page-header [title]="strings.balances.title" [subtitle]="strings.balances.subtitle">
-  <a matButton="outlined" class="erp-secondary-action" routerLink="movements">
-    <mat-icon>history</mat-icon>
+  <a hlmBtn variant="outline" routerLink="movements">
+    <erp-icon name="history" />
     {{ strings.balances.history }}
   </a>
   @if (canWrite()) {
-    <button matButton="filled" class="erp-primary-action" type="button" (click)="move(null)">
-      <mat-icon>add</mat-icon>
+    <button hlmBtn type="button" (click)="move(null)">
+      <erp-icon name="plus" />
       {{ strings.balances.newMovement }}
     </button>
   }
@@ -30,47 +30,34 @@
   (retry)="balances.reload()"
   (rowActivate)="openHistory($event)"
 >
-  <section tableToolbar class="erp-toolbar" [attr.aria-label]="strings.balances.searchLabel">
-    <mat-form-field class="grow" subscriptSizing="dynamic">
-      <mat-icon matPrefix>search</mat-icon>
-      <input
-        matInput
-        erpSlashFocus
-        type="search"
-        [attr.aria-label]="strings.balances.searchLabel"
-        [placeholder]="strings.balances.searchLabel"
-        [value]="search()"
-        (input)="onSearchInput($event)"
-      />
-      <span matSuffix class="erp-kbd" aria-hidden="true">/</span>
-    </mat-form-field>
-
-    <mat-form-field subscriptSizing="dynamic">
-      <span matTextPrefix class="erp-filter-label">{{ strings.balances.categoryFilter }}</span>
-      <mat-select
-        [value]="categoryId() ?? 0"
-        [aria-label]="strings.balances.categoryFilter"
-        (valueChange)="categoryId.set($event || null)"
-      >
-        <mat-option [value]="0">{{ strings.balances.allCategories }}</mat-option>
-        @for (category of categoryOptions(); track category.id) {
-          <mat-option [value]="category.id">{{ category.name }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-
-    @if (hasFilters()) {
-      <button matButton type="button" (click)="clearFilters()">
-        <mat-icon>filter_alt_off</mat-icon>
-        {{ strings.balances.clearFilters }}
-      </button>
-    }
-    <span class="erp-count">{{ strings.balances.results((total() | number) ?? '0') }}</span>
+  <section
+    tableToolbar
+    class="flex flex-wrap items-center gap-2.5 border-b border-border p-3.5"
+    [attr.aria-label]="strings.balances.searchLabel"
+  >
+    <erp-search-field [label]="strings.balances.searchLabel" [(value)]="search" />
+    <erp-filter-select
+      [label]="strings.balances.categoryFilter"
+      [options]="categoryFilterOptions()"
+      [value]="categoryId() ?? 0"
+      (valueChange)="categoryId.set($event || null)"
+    />
+    <button
+      hlmBtn
+      variant="outline"
+      type="button"
+      [disabled]="!hasFilters()"
+      (click)="clearFilters()"
+    >
+      <erp-icon name="filter-x" />
+      {{ strings.balances.clearFilters }}
+    </button>
+    <erp-result-count>{{ strings.balances.results((total() | number) ?? '0') }}</erp-result-count>
   </section>
 
   <ng-template erpCell="name" [erpCellOf]="rows()" let-balance>
-    <span class="product-name">{{ balance.name }}</span>
-    <span class="secondary">
+    <span class="block font-medium">{{ balance.name }}</span>
+    <span class="block text-label text-muted-foreground">
       {{ balance.categoryName ?? strings.balances.noCategory }}
       @if (!balance.active) {
         · {{ strings.balances.inactive }}
@@ -79,24 +66,26 @@
   </ng-template>
 
   <ng-template erpCell="sku" [erpCellOf]="rows()" let-balance>
-    <span class="sku">{{ balance.sku }}</span>
+    <span class="font-mono text-sm whitespace-nowrap text-muted-foreground">{{ balance.sku }}</span>
   </ng-template>
 
   <ng-template erpCell="unitCode" [erpCellOf]="rows()" let-balance>
     {{ balance.unitCode ?? '—' }}
   </ng-template>
 
+  <!-- Abaixo do mínimo: âmbar; zerado ou negativo: vermelho, com a palavra antes do número. -->
   <ng-template erpCell="quantity" [erpCellOf]="rows()" let-balance>
-    @if (balance.quantity <= 0) {
-      <span class="flag zero">{{ strings.balances.zeroFlag }}</span>
-    } @else if (balance.lowStock) {
-      <span class="flag low">{{ strings.balances.lowFlag }}</span>
-    }
     <span
-      [class.zero]="balance.quantity <= 0"
-      [class.low]="balance.quantity > 0 && balance.lowStock"
-      >{{ balance.quantity | number: '1.0-3' }}</span
+      [class.text-destructive]="balance.quantity <= 0"
+      [class.text-warning-text]="balance.quantity > 0 && balance.lowStock"
     >
+      @if (balance.quantity <= 0) {
+        <span class="mr-2 text-label">{{ strings.balances.zeroFlag }}</span>
+      } @else if (balance.lowStock) {
+        <span class="mr-2 text-label">{{ strings.balances.lowFlag }}</span>
+      }
+      {{ balance.quantity | number: '1.0-3' }}
+    </span>
   </ng-template>
 
   <ng-template erpCell="minStock" [erpCellOf]="rows()" let-balance>
@@ -104,25 +93,29 @@
   </ng-template>
 
   <ng-template erpCell="actions" [erpCellOf]="rows()" let-balance>
-    <div class="erp-row-actions">
+    <div class="inline-flex items-center gap-1">
       <button
-        class="erp-row-action"
+        hlmBtn
+        variant="ghost"
+        size="icon"
         type="button"
-        [matTooltip]="strings.balances.viewHistory"
+        [hlmTooltip]="strings.balances.viewHistory"
         [attr.aria-label]="strings.balances.viewHistory + ' ' + balance.sku"
         (click)="openHistory(balance)"
       >
-        <mat-icon>history</mat-icon>
+        <erp-icon name="history" />
       </button>
       @if (canWrite()) {
         <button
-          class="erp-row-action"
+          hlmBtn
+          variant="ghost"
+          size="icon"
           type="button"
-          [matTooltip]="strings.balances.move"
+          [hlmTooltip]="strings.balances.move"
           [attr.aria-label]="strings.balances.move + ' ' + balance.sku"
           (click)="move(balance)"
         >
-          <mat-icon>swap_vert</mat-icon>
+          <erp-icon name="arrow-up-down" />
         </button>
       }
     </div>

@@ -1,227 +1,287 @@
-<erp-page-header
-  [title]="isEdit() ? strings.form.editTitle : strings.form.newTitle"
-  [subtitle]="canWrite() ? strings.form.subtitle : strings.form.readOnly"
->
-  <a matButton="outlined" class="erp-secondary-action" routerLink="/products">
-    <mat-icon>arrow_back</mat-icon>
-    {{ strings.back }}
-  </a>
-</erp-page-header>
-
 @if (loadError()) {
-  <erp-card class="state" role="alert">
-    <span class="state-icon"><mat-icon>cloud_off</mat-icon></span>
-    <p>{{ strings.form.loadError }}</p>
-    <button matButton="outlined" type="button" (click)="reload()">
-      <mat-icon>refresh</mat-icon>
-      {{ strings.form.reload }}
-    </button>
-  </erp-card>
+  <erp-load-error
+    [message]="strings.form.loadError"
+    [retryLabel]="strings.form.reload"
+    (retry)="reload()"
+  />
 } @else if (loadingProduct()) {
   <!-- Skeleton só se a carga demorar; resposta rápida vai direto ao formulário, sem piscar. -->
-  <div class="layout" aria-busy="true">
+  <div aria-busy="true">
     @if (showSkeleton()) {
-      <erp-card class="loading">
-        <span class="erp-skeleton title"></span>
-        <span class="erp-skeleton"></span>
-        <span class="erp-skeleton"></span>
-        <span class="erp-skeleton short"></span>
-      </erp-card>
+      <div class="flex flex-col gap-4">
+        <span hlmSkeleton class="h-8 w-1/3"></span>
+        <span hlmSkeleton class="h-64 w-full"></span>
+        <span hlmSkeleton class="h-40 w-full"></span>
+      </div>
     }
   </div>
 } @else {
-  <form novalidate (submit)="save($event)">
-    @if (formErrors().length > 0) {
-      <div class="banner" role="alert">
-        <mat-icon>warning</mat-icon>
-        <div>
-          @for (error of formErrors(); track $index) {
-            <p>{{ error.message }}</p>
-          }
-        </div>
-        @if (conflict()) {
-          <button matButton="outlined" type="button" (click)="reload()">
-            {{ strings.form.reload }}
-          </button>
+  <form class="mx-auto flex w-full max-w-page flex-col gap-5" novalidate (submit)="save($event)">
+    <erp-form-header
+      backLink="/products"
+      [backLabel]="strings.form.backToList"
+      [eyebrow]="isEdit() ? strings.form.editTitle : strings.form.newTitle"
+      [title]="model().name.trim() || strings.form.unnamed"
+      [subtitle]="canWrite() ? null : strings.form.readOnly"
+    >
+      <ng-container badges>
+        <erp-status-chip
+          [label]="model().sku.trim().toUpperCase() || strings.form.noSku"
+          tone="primary"
+          [plain]="true"
+        />
+        @if (product.hasValue()) {
+          <erp-status-chip
+            [label]="
+              product.value().active ? strings.status.activeChip : strings.status.inactiveChip
+            "
+            [tone]="product.value().active ? 'success' : 'neutral'"
+          />
         }
-      </div>
+      </ng-container>
+      @if (canWrite()) {
+        <erp-action-bar [dirty]="dirty()" [showSaved]="isEdit()">
+          <button hlmBtn type="submit" [disabled]="productForm().submitting()">
+            <erp-icon name="check" />
+            {{ productForm().submitting() ? strings.form.saving : strings.form.save }}
+          </button>
+        </erp-action-bar>
+      }
+      @if (product.hasValue()) {
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          type="button"
+          [hlmDropdownMenuTrigger]="moreActions"
+          align="end"
+          [attr.aria-label]="strings.form.moreActions"
+        >
+          <erp-icon name="ellipsis" />
+        </button>
+      }
+    </erp-form-header>
+
+    @if (formErrors().length > 0) {
+      <erp-form-banner
+        class="banner"
+        [errors]="formErrors()"
+        [reloadLabel]="conflict() ? strings.form.reload : null"
+        (reload)="reload()"
+      />
     }
 
     <div class="layout">
-      <div class="main">
-        <erp-card class="section">
-          <header>
-            <span class="section-icon"><mat-icon>badge</mat-icon></span>
-            <div>
-              <h2>{{ strings.form.identification }}</h2>
-              <p>{{ strings.form.identificationHint }}</p>
+      <div class="flex min-w-0 flex-col gap-5">
+        <erp-section-card
+          icon="id-card"
+          [title]="strings.form.identification"
+          [description]="strings.form.identificationHint"
+        >
+          <div class="@container flex flex-col gap-4">
+            <erp-field-shell
+              [label]="strings.form.name"
+              [required]="true"
+              [error]="errorOf(productForm.name())"
+            >
+              <input hlmInput type="text" autocomplete="off" [formField]="productForm.name" />
+            </erp-field-shell>
+
+            <div class="grid grid-cols-1 gap-4 @xl:grid-cols-3">
+              <erp-field-shell [label]="strings.form.sku" [error]="errorOf(productForm.sku())">
+                <input
+                  hlmInput
+                  class="font-mono"
+                  type="text"
+                  autocomplete="off"
+                  [placeholder]="strings.form.noSku"
+                  [formField]="productForm.sku"
+                />
+              </erp-field-shell>
+
+              <erp-field-shell [label]="strings.form.category">
+                <hlm-combobox
+                  [value]="model().categoryId ?? 0"
+                  [itemToString]="categoryLabel"
+                  [disabled]="!canWrite()"
+                  (valueChange)="setCategory($event ?? 0)"
+                >
+                  <hlm-combobox-trigger class="w-full justify-between">
+                    <hlm-combobox-value class="truncate" />
+                  </hlm-combobox-trigger>
+                  <hlm-combobox-content *hlmComboboxPortal>
+                    <hlm-combobox-input
+                      [placeholder]="strings.form.searchOption"
+                      [showTrigger]="false"
+                    />
+                    <hlm-combobox-empty>{{ strings.form.noOption }}</hlm-combobox-empty>
+                    <div hlmComboboxList>
+                      <hlm-combobox-item [value]="0">{{ strings.form.none }}</hlm-combobox-item>
+                      @for (category of categoryOptions(); track category.id) {
+                        <hlm-combobox-item [value]="category.id">
+                          {{ category.name }}
+                        </hlm-combobox-item>
+                      }
+                    </div>
+                  </hlm-combobox-content>
+                </hlm-combobox>
+              </erp-field-shell>
+
+              <erp-field-shell [label]="strings.form.unit">
+                <hlm-combobox
+                  [value]="model().unitId ?? 0"
+                  [itemToString]="unitLabel"
+                  [disabled]="!canWrite()"
+                  (valueChange)="setUnit($event ?? 0)"
+                >
+                  <hlm-combobox-trigger class="w-full justify-between">
+                    <hlm-combobox-value class="truncate" />
+                  </hlm-combobox-trigger>
+                  <hlm-combobox-content *hlmComboboxPortal>
+                    <hlm-combobox-input
+                      [placeholder]="strings.form.searchOption"
+                      [showTrigger]="false"
+                    />
+                    <hlm-combobox-empty>{{ strings.form.noOption }}</hlm-combobox-empty>
+                    <div hlmComboboxList>
+                      <hlm-combobox-item [value]="0">{{ strings.form.none }}</hlm-combobox-item>
+                      @for (unit of unitOptions(); track unit.id) {
+                        <hlm-combobox-item [value]="unit.id">
+                          {{ unit.code }} · {{ unit.name }}
+                        </hlm-combobox-item>
+                      }
+                    </div>
+                  </hlm-combobox-content>
+                </hlm-combobox>
+              </erp-field-shell>
             </div>
-          </header>
 
-          <div class="fields">
-            <mat-form-field>
-              <mat-label>{{ strings.form.sku }}</mat-label>
-              <input matInput [formField]="productForm.sku" autocomplete="off" />
-              @if (productForm.sku().errors()[0]; as error) {
-                <mat-error>{{ error.message }}</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field class="span-2">
-              <mat-label>{{ strings.form.name }}</mat-label>
-              <input matInput [formField]="productForm.name" />
-              @if (productForm.name().errors()[0]; as error) {
-                <mat-error>{{ error.message }}</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field>
-              <mat-label>{{ strings.form.category }}</mat-label>
-              <mat-select [formField]="productForm.categoryId">
-                <mat-option [value]="null">{{ strings.form.none }}</mat-option>
-                @for (category of categoryOptions(); track category.id) {
-                  <mat-option [value]="category.id">{{ category.name }}</mat-option>
-                }
-              </mat-select>
-              @if (productForm.categoryId().errors()[0]; as error) {
-                <mat-error>{{ error.message }}</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field>
-              <mat-label>{{ strings.form.unit }}</mat-label>
-              <mat-select [formField]="productForm.unitId">
-                <mat-option [value]="null">{{ strings.form.none }}</mat-option>
-                @for (unit of unitOptions(); track unit.id) {
-                  <mat-option [value]="unit.id">{{ unit.code }} · {{ unit.name }}</mat-option>
-                }
-              </mat-select>
-              @if (productForm.unitId().errors()[0]; as error) {
-                <mat-error>{{ error.message }}</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field class="full">
-              <mat-label>{{ strings.form.description }}</mat-label>
-              <textarea matInput rows="4" [formField]="productForm.description"></textarea>
-              @if (productForm.description().errors()[0]; as error) {
-                <mat-error>{{ error.message }}</mat-error>
-              }
-            </mat-form-field>
+            <erp-field-shell
+              [label]="strings.form.description"
+              [hint]="model().description.length + '/' + maxDescription"
+              [error]="errorOf(productForm.description())"
+            >
+              <textarea
+                hlmTextarea
+                class="min-h-24"
+                rows="4"
+                [formField]="productForm.description"
+              ></textarea>
+            </erp-field-shell>
           </div>
-        </erp-card>
+        </erp-section-card>
 
-        <erp-card class="section">
-          <header>
-            <span class="section-icon success"><mat-icon>payments</mat-icon></span>
-            <div>
-              <h2>{{ strings.form.pricing }}</h2>
-              <p>{{ strings.form.pricingHint }}</p>
+        <erp-section-card
+          icon="banknote"
+          [title]="strings.form.pricing"
+          [description]="strings.form.pricingHint"
+        >
+          <div class="@container">
+            <div class="grid grid-cols-1 gap-4 @xl:grid-cols-3">
+              <erp-field-shell
+                [label]="strings.form.costPrice"
+                [required]="true"
+                [error]="errorOf(productForm.costPrice())"
+              >
+                <erp-money-input [formField]="productForm.costPrice" />
+              </erp-field-shell>
+
+              <erp-field-shell
+                [label]="strings.form.salePrice"
+                [required]="true"
+                [error]="errorOf(productForm.salePrice())"
+              >
+                <erp-money-input [formField]="productForm.salePrice" />
+              </erp-field-shell>
+
+              <erp-field-shell
+                [label]="strings.form.minStock"
+                [required]="true"
+                [error]="errorOf(productForm.minStock())"
+              >
+                <input
+                  hlmInput
+                  type="number"
+                  step="0.001"
+                  class="tabular-nums"
+                  [formField]="productForm.minStock"
+                />
+              </erp-field-shell>
             </div>
-          </header>
-
-          <div class="fields">
-            <mat-form-field>
-              <mat-label>{{ strings.form.costPrice }}</mat-label>
-              <erp-money-input [formField]="productForm.costPrice" />
-              @if (productForm.costPrice().errors()[0]; as error) {
-                <mat-error>{{ error.message }}</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field>
-              <mat-label>{{ strings.form.salePrice }}</mat-label>
-              <erp-money-input [formField]="productForm.salePrice" />
-              @if (productForm.salePrice().errors()[0]; as error) {
-                <mat-error>{{ error.message }}</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field>
-              <mat-label>{{ strings.form.minStock }}</mat-label>
-              <input matInput type="number" step="0.001" [formField]="productForm.minStock" />
-              @if (productForm.minStock().errors()[0]; as error) {
-                <mat-error>{{ error.message }}</mat-error>
-              }
-            </mat-form-field>
           </div>
-        </erp-card>
+        </erp-section-card>
       </div>
 
-      <aside class="summary" [attr.aria-label]="strings.form.summary">
-        <erp-card>
-          <span class="eyebrow">{{ strings.form.summary }}</span>
-          <h3>{{ model().name.trim() || strings.form.unnamed }}</h3>
-          <div class="chips">
-            <erp-status-chip
-              [label]="model().sku.trim().toUpperCase() || strings.form.noSku"
-              tone="primary"
-              [plain]="true"
+      <aside class="summary flex flex-col gap-4" [attr.aria-label]="strings.form.summary">
+        <section hlmCard>
+          <div class="flex flex-col gap-4 p-5">
+            <h2 class="m-0 text-sm font-semibold">{{ strings.form.summary }}</h2>
+            <erp-margin-meter
+              [label]="strings.form.margin"
+              [margin]="margin()"
+              [warning]="strings.form.negativeMargin"
             />
-            @if (product.hasValue()) {
-              <erp-status-chip
-                [label]="
-                  product.value().active ? strings.status.activeChip : strings.status.inactiveChip
-                "
-                [tone]="product.value().active ? 'success' : 'neutral'"
+            <dl class="m-0 flex flex-col gap-3 text-sm tabular-nums">
+              <div class="flex justify-between gap-3">
+                <dt class="text-muted-foreground">{{ strings.form.salePrice }}</dt>
+                <dd class="m-0 font-semibold">
+                  {{ model().salePrice === null ? '—' : (model().salePrice | currency) }}
+                </dd>
+              </div>
+              <div class="flex justify-between gap-3">
+                <dt class="text-muted-foreground">{{ strings.form.costPriceShort }}</dt>
+                <dd class="m-0 font-semibold">
+                  {{ model().costPrice === null ? '—' : (model().costPrice | currency) }}
+                </dd>
+              </div>
+              <div class="flex justify-between gap-3 border-t border-border pt-3">
+                <dt class="text-muted-foreground">{{ strings.form.profit }}</dt>
+                <dd class="m-0 font-semibold">
+                  {{ profit() === null ? '—' : (profit() | currency) }}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+
+        @if (product.hasValue()) {
+          <section hlmCard>
+            <div class="flex items-center justify-between gap-3 p-5">
+              <div>
+                <h2 class="m-0 text-sm font-semibold">{{ strings.form.activeLabel }}</h2>
+                <p class="m-0 text-label text-muted-foreground">
+                  {{ product.value().active ? strings.form.activeHint : strings.form.inactiveHint }}
+                </p>
+              </div>
+              <hlm-switch
+                [checked]="product.value().active"
+                [disabled]="!canWrite() || togglingActive()"
+                [ariaLabel]="strings.form.activeLabel"
+                (checkedChange)="toggleActive()"
               />
-            }
-          </div>
+            </div>
+          </section>
 
-          <div class="margin" [class.negative]="(margin() ?? 0) < 0">
-            <div class="margin-head">
-              <span>{{ strings.form.margin }}</span>
-              <strong>{{ margin() === null ? '—' : (margin() | percent: '1.0-1') }}</strong>
-            </div>
-            <div class="bar" aria-hidden="true">
-              <span [style.width.%]="marginBar()"></span>
-            </div>
-            @if ((margin() ?? 0) < 0) {
-              <small>{{ strings.form.negativeMargin }}</small>
-            }
-          </div>
-
-          <dl>
-            <div>
-              <dt>{{ strings.form.profit }}</dt>
-              <dd>{{ profit() === null ? '—' : (profit() | currency) }}</dd>
-            </div>
-            <div>
-              <dt>{{ strings.form.category }}</dt>
-              <dd>{{ selectedCategory() ?? strings.form.notSelected }}</dd>
-            </div>
-            <div>
-              <dt>{{ strings.form.unit }}</dt>
-              <dd>{{ selectedUnit() ?? strings.form.notSelected }}</dd>
-            </div>
-            @if (product.hasValue()) {
-              <div>
-                <dt>{{ strings.form.createdAt }}</dt>
-                <dd>{{ product.value().createdAt | date: 'short' }}</dd>
-              </div>
-              <div>
-                <dt>{{ strings.form.updatedAt }}</dt>
-                <dd>{{ product.value().updatedAt | date: 'short' }}</dd>
-              </div>
-            }
+          <dl class="m-0 flex flex-col gap-1 px-1 text-label text-muted-foreground">
+            <div>{{ strings.form.createdAt }} {{ product.value().createdAt | date: 'short' }}</div>
+            <div>{{ strings.form.updatedAt }} {{ product.value().updatedAt | date: 'short' }}</div>
           </dl>
-        </erp-card>
+        }
       </aside>
     </div>
-
-    @if (canWrite()) {
-      <div class="actions">
-        <a matButton routerLink="/products">{{ strings.form.cancel }}</a>
-        <button
-          matButton="filled"
-          class="erp-primary-action"
-          type="submit"
-          [disabled]="productForm().submitting()"
-        >
-          <mat-icon>check</mat-icon>
-          {{ productForm().submitting() ? strings.form.saving : strings.form.save }}
-        </button>
-      </div>
-    }
   </form>
+
+  <ng-template #moreActions>
+    <div hlmDropdownMenu class="min-w-64">
+      <a
+        hlmDropdownMenuItem
+        class="no-underline"
+        routerLink="/stock/movements"
+        [queryParams]="{ productId: productId() }"
+      >
+        <erp-icon name="history" />
+        {{ strings.form.viewMovements }}
+      </a>
+    </div>
+  </ng-template>
 }

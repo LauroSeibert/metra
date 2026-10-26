@@ -1,4 +1,3 @@
-import { DatePickerToggle } from '../../../shared/ui/date-picker-toggle/date-picker-toggle';
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -11,13 +10,6 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { Api } from '../../../api/api';
@@ -44,7 +36,9 @@ import {
   readText,
   toSortParam,
 } from '../../../shared/data/list-url-state';
-import { ConfirmDialog, ConfirmDialogData } from '../../../shared/ui/confirm-dialog/confirm-dialog';
+import { entryCode } from '../entry-code';
+import { entryStatusLabel, entryStatusTone } from '../entry-status';
+import { ConfirmService } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import {
   DataTable,
   DataTableColumn,
@@ -54,7 +48,6 @@ import {
 import { DataTableCell } from '../../../shared/ui/data-table/data-table-templates';
 import { KpiItem, KpiStrip } from '../../../shared/ui/kpi-strip/kpi-strip';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
-import { SlashFocus } from '../../../shared/ui/slash-focus';
 import {
   SegmentedControl,
   SegmentedOption,
@@ -62,6 +55,15 @@ import {
 import { StatusChip, StatusTone } from '../../../shared/ui/status-chip/status-chip';
 import { FINANCE_STRINGS } from '../finance.strings';
 import { PayDialog, PayDialogData } from '../pay-dialog/pay-dialog';
+import { HlmBadge } from '@spartan-ng/helm/badge';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import { HlmTooltip } from '@spartan-ng/helm/tooltip';
+import { DateField } from '../../../shared/ui/date-field/date-field';
+import { FilterOption, FilterSelect } from '../../../shared/ui/filter-select/filter-select';
+import { Icon } from '../../../shared/ui/icon/icon';
+import { ResultCount } from '../../../shared/ui/result-count/result-count';
+import { SearchField } from '../../../shared/ui/search-field/search-field';
 
 type StatusFilter = 'all' | 'open' | 'overdue' | 'paid' | 'cancelled';
 
@@ -73,7 +75,7 @@ const STATUS_PARAM: Record<StatusFilter, FinancialEntryStatusFilter | undefined>
   cancelled: 'Cancelled',
 };
 const STATUSES: readonly StatusFilter[] = ['all', 'open', 'overdue', 'paid', 'cancelled'];
-const SORTABLE_FIELDS = ['dueDate', 'amount', 'description'] as const;
+const SORTABLE_FIELDS = ['code', 'dueDate', 'amount', 'description'] as const;
 const DEFAULT_SORT: DataTableSort = { field: 'dueDate', direction: 'asc' };
 
 /**
@@ -84,33 +86,33 @@ const DEFAULT_SORT: DataTableSort = { field: 'dueDate', direction: 'asc' };
   selector: 'erp-entry-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePickerToggle,
+    HlmBadge,
+    HlmButton,
+    HlmTooltip,
+    DateField,
+    FilterSelect,
+    Icon,
+    ResultCount,
+    SearchField,
     CurrencyPipe,
     DatePipe,
     DecimalPipe,
     RouterLink,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-    MatTooltipModule,
     DataTable,
     DataTableCell,
     KpiStrip,
     PageHeader,
-    SlashFocus,
     SegmentedControl,
     StatusChip,
   ],
   templateUrl: './entry-list.html',
-  styleUrl: './entry-list.scss',
 })
 export class EntryList {
   private readonly api = inject(Api);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogs = inject(HlmDialogService);
+  private readonly confirmService = inject(ConfirmService);
   private readonly notifier = inject(Notifier);
   private readonly auth = inject(AuthService);
   private readonly initial = this.route.snapshot.queryParamMap;
@@ -130,6 +132,7 @@ export class EntryList {
     { value: 'cancelled', label: FINANCE_STRINGS.list.cancelled },
   ];
   protected readonly columns: readonly DataTableColumn[] = [
+    { key: 'code', header: FINANCE_STRINGS.columns.code, sortable: true },
     { key: 'dueDate', header: FINANCE_STRINGS.columns.dueDate, sortable: true, role: 'subtitle' },
     {
       key: 'description',
@@ -144,6 +147,7 @@ export class EntryList {
     { key: 'actions', header: FINANCE_STRINGS.columns.actions, align: 'end', role: 'actions' },
   ];
 
+  protected readonly code = entryCode;
   protected readonly search = signal(readText(this.initial, 'search'));
   protected readonly status = signal<StatusFilter>(readStatus(this.initial.get('status')));
   protected readonly dueFrom = signal(readText(this.initial, 'dueFrom'));
@@ -251,6 +255,10 @@ export class EntryList {
   protected readonly loadError = computed(() =>
     this.entries.status() === 'error' ? FINANCE_STRINGS.list.loadError : null,
   );
+  protected readonly categoryFilterOptions = computed<readonly FilterOption<number>[]>(() => [
+    { value: 0, label: FINANCE_STRINGS.list.allCategories },
+    ...this.categoryOptions().map((category) => ({ value: category.id, label: category.name })),
+  ]);
   protected readonly categoryOptions = computed(() =>
     this.categories.hasValue() ? this.categories.value().items : [],
   );
@@ -292,25 +300,11 @@ export class EntryList {
   }
 
   protected statusLabel(entry: FinancialEntryDto): string {
-    if (entry.overdue) {
-      return FINANCE_STRINGS.status.overdue(entry.daysOverdue);
-    }
-    return entry.status === 'Paid' ? this.texts().paidChip : FINANCE_STRINGS.status[entry.status];
+    return entryStatusLabel(entry, this.texts().paidChip);
   }
 
   protected statusTone(entry: FinancialEntryDto): StatusTone {
-    if (entry.overdue) {
-      return 'danger';
-    }
-    return entry.status === 'Paid' ? 'success' : entry.status === 'Open' ? 'primary' : 'neutral';
-  }
-
-  protected onSearchInput(event: Event): void {
-    this.search.set((event.target as HTMLInputElement).value);
-  }
-
-  protected onDate(target: 'dueFrom' | 'dueTo', event: Event): void {
-    this[target].set((event.target as HTMLInputElement).value);
+    return entryStatusTone(entry);
   }
 
   protected clearFilters(): void {
@@ -333,7 +327,10 @@ export class EntryList {
   protected async pay(entry: FinancialEntryDto): Promise<void> {
     const data: PayDialogData = { entry, title: this.texts().payTitle };
     const paid = await firstValueFrom(
-      this.dialog.open(PayDialog, { data, width: '440px' }).afterClosed(),
+      this.dialogs.open<boolean, PayDialogData>(PayDialog, {
+        context: data,
+        contentClass: 'sm:max-w-md',
+      }).closed$,
     );
     if (paid) {
       this.refresh();
@@ -378,10 +375,12 @@ export class EntryList {
   }
 
   private async confirm(title: string, message: string, confirmLabel: string): Promise<boolean> {
-    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
-      data: { title, message, confirmLabel, cancelLabel: FINANCE_STRINGS.list.keep },
+    return this.confirmService.ask({
+      title,
+      message,
+      confirmLabel,
+      cancelLabel: FINANCE_STRINGS.list.keep,
     });
-    return (await firstValueFrom(ref.afterClosed())) === true;
   }
 
   private async run(action: () => Promise<unknown>, success: string): Promise<void> {

@@ -1,4 +1,3 @@
-import { DatePickerToggle } from '../../../shared/ui/date-picker-toggle/date-picker-toggle';
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -10,15 +9,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import { Api } from '../../../api/api';
 import { getProduct } from '../../../api/fn/products/get-product';
 import {
@@ -32,13 +23,18 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { toApiProblem } from '../../../core/http/api-problem';
 import { Notifier } from '../../../core/notifications/notifier';
 import { compactParams, readOptionalInt, readText } from '../../../shared/data/list-url-state';
-import { ConfirmDialog, ConfirmDialogData } from '../../../shared/ui/confirm-dialog/confirm-dialog';
+import { ConfirmService } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import { DataTable, DataTableColumn } from '../../../shared/ui/data-table/data-table';
 import { DataTableCell } from '../../../shared/ui/data-table/data-table-templates';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { StatusChip, StatusTone } from '../../../shared/ui/status-chip/status-chip';
 import { PickedProduct, ProductPicker } from '../../products/product-picker/product-picker';
 import { STOCK_STRINGS } from '../stock.strings';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmTooltip } from '@spartan-ng/helm/tooltip';
+import { DateField } from '../../../shared/ui/date-field/date-field';
+import { FilterOption, FilterSelect } from '../../../shared/ui/filter-select/filter-select';
+import { Icon } from '../../../shared/ui/icon/icon';
 
 const TYPES: readonly StockMovementType[] = ['Entry', 'Exit', 'Adjustment', 'Reversal'];
 const TONES: Record<StockMovementType, StatusTone> = {
@@ -60,17 +56,15 @@ const PAGE_SIZE = 50;
   selector: 'erp-movement-history',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePickerToggle,
+    HlmButton,
+    HlmTooltip,
+    DateField,
+    FilterSelect,
+    Icon,
     CurrencyPipe,
     DatePipe,
     DecimalPipe,
     RouterLink,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-    MatTooltipModule,
     DataTable,
     DataTableCell,
     PageHeader,
@@ -78,19 +72,22 @@ const PAGE_SIZE = 50;
     StatusChip,
   ],
   templateUrl: './movement-history.html',
-  styleUrl: './movement-history.scss',
 })
 export class MovementHistory {
   private readonly api = inject(Api);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly dialog = inject(MatDialog);
+  private readonly confirmService = inject(ConfirmService);
   private readonly notifier = inject(Notifier);
   private readonly initial = this.route.snapshot.queryParamMap;
 
   protected readonly strings = STOCK_STRINGS;
   protected readonly canWrite = inject(AuthService).canWrite;
   protected readonly types = TYPES;
+  protected readonly typeOptions: readonly FilterOption<string>[] = [
+    { value: 'all', label: STOCK_STRINGS.history.allTypes },
+    ...TYPES.map((type) => ({ value: type as string, label: STOCK_STRINGS.types[type] })),
+  ];
   protected readonly tones = TONES;
   protected readonly columns: readonly DataTableColumn[] = [
     { key: 'occurredAt', header: STOCK_STRINGS.columns.occurredAt, role: 'subtitle' },
@@ -214,15 +211,13 @@ export class MovementHistory {
 
   protected async reverse(movement: StockMovementDto): Promise<void> {
     const description = `${movement.quantity > 0 ? '−' : '+'}${Math.abs(movement.quantity)} ${movement.unitCode ?? ''}`;
-    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
-      data: {
-        title: STOCK_STRINGS.history.reverseTitle,
-        message: STOCK_STRINGS.history.reverseMessage(description.trim()),
-        confirmLabel: STOCK_STRINGS.history.reverse,
-        cancelLabel: STOCK_STRINGS.dialog.cancel,
-      },
+    const confirmed = await this.confirmService.ask({
+      title: STOCK_STRINGS.history.reverseTitle,
+      message: STOCK_STRINGS.history.reverseMessage(description.trim()),
+      confirmLabel: STOCK_STRINGS.history.reverse,
+      cancelLabel: STOCK_STRINGS.dialog.cancel,
     });
-    if (!(await firstValueFrom(ref.afterClosed()))) {
+    if (!confirmed) {
       return;
     }
     try {
@@ -234,8 +229,8 @@ export class MovementHistory {
     }
   }
 
-  protected onDate(target: 'from' | 'to', event: Event): void {
-    this[target].set((event.target as HTMLInputElement).value);
+  protected setType(value: string): void {
+    this.type.set(this.types.find((option) => option === value) ?? null);
   }
 }
 

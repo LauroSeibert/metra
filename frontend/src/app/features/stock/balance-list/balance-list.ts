@@ -9,13 +9,6 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { Api } from '../../../api/api';
@@ -44,9 +37,15 @@ import {
 import { DataTableCell } from '../../../shared/ui/data-table/data-table-templates';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { KpiItem, KpiStrip } from '../../../shared/ui/kpi-strip/kpi-strip';
-import { SlashFocus } from '../../../shared/ui/slash-focus';
 import { MovementDialog, MovementDialogData } from '../movement-dialog/movement-dialog';
 import { STOCK_STRINGS } from '../stock.strings';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import { HlmTooltip } from '@spartan-ng/helm/tooltip';
+import { FilterOption, FilterSelect } from '../../../shared/ui/filter-select/filter-select';
+import { Icon } from '../../../shared/ui/icon/icon';
+import { ResultCount } from '../../../shared/ui/result-count/result-count';
+import { SearchField } from '../../../shared/ui/search-field/search-field';
 
 type LevelFilter = 'all' | 'low' | 'ok';
 
@@ -63,28 +62,26 @@ const DEFAULT_SORT: DataTableSort = { field: 'name', direction: 'asc' };
   selector: 'erp-balance-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HlmButton,
+    HlmTooltip,
+    FilterSelect,
+    Icon,
+    ResultCount,
+    SearchField,
     DecimalPipe,
     RouterLink,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-    MatTooltipModule,
     DataTable,
     DataTableCell,
     KpiStrip,
     PageHeader,
-    SlashFocus,
   ],
   templateUrl: './balance-list.html',
-  styleUrl: './balance-list.scss',
 })
 export class BalanceList {
   private readonly api = inject(Api);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogs = inject(HlmDialogService);
   private readonly auth = inject(AuthService);
   private readonly initial = this.route.snapshot.queryParamMap;
   private readonly defaultPageSize = this.auth.pageSize();
@@ -153,6 +150,10 @@ export class BalanceList {
   protected readonly loadError = computed(() =>
     this.balances.status() === 'error' ? STOCK_STRINGS.balances.loadError : null,
   );
+  protected readonly categoryFilterOptions = computed<readonly FilterOption<number>[]>(() => [
+    { value: 0, label: STOCK_STRINGS.balances.allCategories },
+    ...this.categoryOptions().map((category) => ({ value: category.id, label: category.name })),
+  ]);
   protected readonly categoryOptions = computed(() =>
     this.categories.hasValue() ? this.categories.value().items : [],
   );
@@ -225,10 +226,6 @@ export class BalanceList {
     });
   }
 
-  protected onSearchInput(event: Event): void {
-    this.search.set((event.target as HTMLInputElement).value);
-  }
-
   protected clearFilters(): void {
     this.search.set('');
     this.categoryId.set(null);
@@ -254,9 +251,10 @@ export class BalanceList {
       currentQuantity: balance?.quantity ?? null,
     };
     const saved = await firstValueFrom(
-      this.dialog
-        .open(MovementDialog, { data, width: '560px', autoFocus: 'first-tabbable' })
-        .afterClosed(),
+      this.dialogs.open<boolean, MovementDialogData>(MovementDialog, {
+        context: data,
+        contentClass: 'sm:max-w-xl',
+      }).closed$,
     );
     if (saved) {
       this.balances.reload();

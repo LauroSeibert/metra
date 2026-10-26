@@ -40,13 +40,15 @@
   @if (canCollapse()) {
     <button
       type="button"
-      class="item collapse"
+      class="item collapse-toggle"
       [attr.aria-label]="compact() ? strings.expandMenu : strings.collapseMenu"
       [attr.aria-expanded]="!compact()"
-      [attr.title]="compact() ? strings.expandMenu : null"
+      position="right"
+      [hlmTooltip]="strings.expandMenu"
+      [tooltipDisabled]="!compact()"
       (click)="toggleCollapse.emit()"
     >
-      <mat-icon>{{ compact() ? 'left_panel_open' : 'left_panel_close' }}</mat-icon>
+      <erp-icon [name]="compact() ? 'panel-left-open' : 'panel-left-close'" [size]="18" />
       <span class="label">{{ strings.collapse }}</span>
     </button>
   }
@@ -59,19 +61,23 @@
       [routerLink]="item.path"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: item.path === '/' }"
-      [attr.title]="compact() ? item.label : null"
+      position="right"
+      [hlmTooltip]="item.label"
+      [tooltipDisabled]="!compact()"
     >
-      <mat-icon>{{ item.icon }}</mat-icon>
+      <erp-icon [name]="item.icon" [size]="18" />
       <span class="label">{{ item.label }}</span>
     </a>
   } @else {
     <span
       class="item disabled"
       aria-disabled="true"
-      [attr.title]="compact() ? item.label + ' · ' + strings.comingSoon : null"
+      position="right"
+      [hlmTooltip]="item.label + ' · ' + strings.comingSoon"
+      [tooltipDisabled]="!compact()"
       [attr.aria-label]="item.label + ' (' + strings.comingSoon + ')'"
     >
-      <mat-icon>{{ item.icon }}</mat-icon>
+      <erp-icon [name]="item.icon" [size]="18" />
       <span class="label">{{ item.label }}</span>
       <span class="soon">{{ strings.comingSoon }}</span>
     </span>

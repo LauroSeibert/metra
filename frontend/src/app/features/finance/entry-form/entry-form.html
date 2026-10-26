@@ -1,194 +1,278 @@
-<erp-page-header
-  [title]="isEdit() ? strings.form.editTitle : texts().newEntry"
-  [subtitle]="
-    !canWrite()
-      ? strings.form.readOnly
-      : isEdit() && !editable()
-        ? strings.form.notOpen
-        : strings.form.subtitle
-  "
->
-  <a matButton="outlined" class="erp-secondary-action" [routerLink]="isEdit() ? '../..' : '..'">
-    <mat-icon>arrow_back</mat-icon>
-    {{ strings.form.back }}
-  </a>
-</erp-page-header>
-
 @if (loadError()) {
-  <erp-card class="state" role="alert">
-    <span class="state-icon"><mat-icon>cloud_off</mat-icon></span>
-    <p>{{ strings.form.loadError }}</p>
-    <button matButton="outlined" type="button" (click)="reload()">
-      <mat-icon>refresh</mat-icon>
-      {{ strings.form.reload }}
-    </button>
-  </erp-card>
+  <erp-load-error
+    [message]="strings.form.loadError"
+    [retryLabel]="strings.form.reload"
+    (retry)="reload()"
+  />
 } @else if (loading()) {
-  <div class="layout" aria-busy="true">
+  <div aria-busy="true">
     @if (showSkeleton()) {
-      <erp-card class="loading">
-        <span class="erp-skeleton title"></span>
-        <span class="erp-skeleton"></span>
-        <span class="erp-skeleton short"></span>
-      </erp-card>
+      <div class="flex flex-col gap-4">
+        <span hlmSkeleton class="h-8 w-1/3"></span>
+        <span hlmSkeleton class="h-64 w-full"></span>
+      </div>
     }
   </div>
 } @else {
-  <form novalidate (submit)="save($event)">
-    @if (formErrors().length > 0) {
-      <div class="banner" role="alert">
-        <mat-icon>warning</mat-icon>
-        <div>
-          @for (error of formErrors(); track $index) {
-            <p>{{ error.message }}</p>
+  <form class="mx-auto flex w-full max-w-page flex-col gap-5" novalidate (submit)="save($event)">
+    <erp-form-header
+      [backLink]="isEdit() ? '../..' : '..'"
+      [backLabel]="strings.form.back"
+      [eyebrow]="isEdit() ? strings.form.editTitle : texts().newEntry"
+      [title]="model().description.trim() || texts().newEntry"
+      [subtitle]="
+        !canWrite() ? strings.form.readOnly : isEdit() && !editable() ? strings.form.notOpen : null
+      "
+    >
+      @if (loaded(); as entry) {
+        <ng-container badges>
+          <span hlmBadge variant="code">{{ code(entry) }}</span>
+          @if (entry.installmentTotal > 1) {
+            <erp-status-chip
+              [label]="strings.form.installmentOf(entry.installmentNo, entry.installmentTotal)"
+              tone="neutral"
+            />
           }
-        </div>
-        @if (conflict()) {
-          <button matButton="outlined" type="button" (click)="reload()">
-            {{ strings.form.reload }}
+        </ng-container>
+      }
+      @if (canWrite() && loaded(); as entry) {
+        @if (entry.status === 'Open') {
+          <button
+            hlmBtn
+            variant="outline"
+            type="button"
+            class="text-destructive hover:text-destructive"
+            (click)="cancelEntry(entry)"
+          >
+            <erp-icon name="ban" />
+            {{ strings.form.cancelEntry }}
+          </button>
+          <button hlmBtn variant="outline" type="button" (click)="pay(entry)">
+            <erp-icon name="banknote" />
+            {{ texts().pay }}
           </button>
         }
-      </div>
+      }
+      @if (editable()) {
+        <erp-action-bar [dirty]="dirty()" [showSaved]="isEdit()">
+          <button hlmBtn type="submit" [disabled]="entryForm().submitting()">
+            <erp-icon name="check" />
+            {{ entryForm().submitting() ? strings.form.saving : strings.form.save }}
+          </button>
+        </erp-action-bar>
+      }
+    </erp-form-header>
+
+    @if (formErrors().length > 0) {
+      <erp-form-banner
+        [errors]="formErrors()"
+        [reloadLabel]="conflict() ? strings.form.reload : null"
+        (reload)="reload()"
+      />
     }
 
-    @if (loaded(); as entry) {
-      <div class="info">
-        @if (entry.installmentTotal > 1) {
-          <erp-status-chip
-            [label]="strings.form.installmentOf(entry.installmentNo, entry.installmentTotal)"
-            tone="neutral"
-          />
-        }
-        @if (entry.status === 'Paid' && entry.paidAt) {
-          <span>
-            {{
-              strings.form.paidInfo(
-                (entry.paidAt | date: 'dd/MM/yyyy') ?? '',
-                (entry.paidAmount | currency) ?? ''
-              )
-            }}
-          </span>
-        }
-        @if (entry.reversedAt) {
-          <span>
-            {{
-              strings.form.reversedInfo(
-                (entry.reversedAt | date: 'short') ?? '',
-                entry.reversalReason ?? ''
-              )
-            }}
-          </span>
-        }
-      </div>
-    }
+    <erp-section-card icon="receipt" [title]="strings.form.data">
+      <div class="@container">
+        <div class="grid grid-cols-1 gap-4 @xl:grid-cols-3">
+          <erp-field-shell
+            class="@xl:col-span-2"
+            [label]="strings.form.description"
+            [required]="true"
+            [error]="fieldError(entryForm.description())"
+          >
+            <input hlmInput type="text" autocomplete="off" [formField]="entryForm.description" />
+          </erp-field-shell>
 
-    <div class="sections">
-      <erp-card class="section">
-        <header>
-          <span class="section-icon"><mat-icon>receipt_long</mat-icon></span>
-          <div>
-            <h2>{{ strings.form.data }}</h2>
-            <p>{{ strings.form.dataHint }}</p>
-          </div>
-        </header>
-        <div class="fields">
-          <mat-form-field class="span-2">
-            <mat-label>{{ strings.form.description }}</mat-label>
-            <input matInput [formField]="entryForm.description" />
-            @if (entryForm.description().errors()[0]; as error) {
-              <mat-error>{{ error.message }}</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field>
-            <mat-label>{{ strings.form.category }}</mat-label>
-            <mat-select [formField]="entryForm.categoryId">
-              @for (category of categoryOptions(); track category.id) {
-                <mat-option [value]="category.id">{{ category.name }}</mat-option>
-              }
-            </mat-select>
-            @if (entryForm.categoryId().errors()[0]; as error) {
-              <mat-error>{{ error.message }}</mat-error>
-            }
-          </mat-form-field>
+          <erp-field-shell
+            [label]="strings.form.category"
+            [required]="true"
+            [error]="fieldError(entryForm.categoryId())"
+          >
+            <hlm-select
+              [value]="model().categoryId"
+              [itemToString]="categoryLabel"
+              [disabled]="!editable()"
+              (valueChange)="setCategory($event)"
+            >
+              <hlm-select-trigger class="w-full">
+                <hlm-select-value />
+              </hlm-select-trigger>
+              <hlm-select-content *hlmSelectPortal>
+                @for (category of categoryOptions(); track category.id) {
+                  <hlm-select-item [value]="category.id">{{ category.name }}</hlm-select-item>
+                }
+              </hlm-select-content>
+            </hlm-select>
+          </erp-field-shell>
 
           <erp-partner-picker
-            class="span-3"
+            class="@xl:col-span-3"
             [label]="texts().partner"
             [type]="kind() === 'Receivable' ? 'Customer' : 'Supplier'"
             [disabled]="!editable()"
             [(selected)]="partner"
           />
         </div>
-      </erp-card>
+      </div>
+    </erp-section-card>
 
-      <erp-card class="section">
-        <header>
-          <span class="section-icon success"><mat-icon>payments</mat-icon></span>
-          <div>
-            <h2>{{ strings.form.values }}</h2>
-            <p>{{ strings.form.valuesHint }}</p>
-          </div>
-        </header>
-        <div class="fields">
-          <mat-form-field>
-            <mat-label>{{ isEdit() ? strings.form.amountEdit : strings.form.amount }}</mat-label>
+    <erp-section-card icon="banknote" [title]="strings.form.values">
+      <div class="@container">
+        <div class="grid grid-cols-1 gap-4 @xl:grid-cols-3">
+          <erp-field-shell
+            [label]="isEdit() ? strings.form.amountEdit : strings.form.amount"
+            [required]="true"
+            [error]="fieldError(entryForm.amount())"
+          >
             <erp-money-input [formField]="entryForm.amount" />
-            @if (entryForm.amount().errors()[0]; as error) {
-              <mat-error>{{ error.message }}</mat-error>
-            }
-          </mat-form-field>
+          </erp-field-shell>
 
-          <mat-form-field>
-            <mat-label>{{ isEdit() ? strings.form.dueDateEdit : strings.form.dueDate }}</mat-label>
-            <input #dateField1 matInput type="date" [formField]="entryForm.dueDate" />
-            <button matSuffix [erpDatePickerToggle]="dateField1"></button>
-            @if (entryForm.dueDate().errors()[0]; as error) {
-              <mat-error>{{ error.message }}</mat-error>
-            }
-          </mat-form-field>
+          <erp-field-shell
+            [label]="isEdit() ? strings.form.dueDateEdit : strings.form.dueDate"
+            [required]="true"
+            [error]="fieldError(entryForm.dueDate())"
+          >
+            <input hlmInput type="date" [formField]="entryForm.dueDate" />
+          </erp-field-shell>
+
+          <erp-field-shell [label]="strings.form.competenceDate">
+            <input hlmInput type="date" disabled [value]="competenceDate()" />
+          </erp-field-shell>
 
           @if (!entryForm.installments().hidden()) {
-            <mat-form-field>
-              <mat-label>{{ strings.form.installments }}</mat-label>
-              <input matInput type="number" [formField]="entryForm.installments" />
-              @if (entryForm.installments().errors()[0]; as error) {
-                <mat-error>{{ error.message }}</mat-error>
-              }
-            </mat-form-field>
+            <erp-field-shell
+              [label]="strings.form.installments"
+              [error]="fieldError(entryForm.installments())"
+            >
+              <input
+                hlmInput
+                type="number"
+                class="tabular-nums"
+                [formField]="entryForm.installments"
+              />
+            </erp-field-shell>
           }
         </div>
-
-        @if (preview().length > 0) {
-          <div class="preview">
-            <span class="label">{{ strings.form.preview }}</span>
-            <ol>
-              @for (installment of preview(); track installment.number) {
-                <li>
-                  <span>{{ installment.number }}/{{ preview().length }}</span>
-                  <span>{{ installment.dueDate | date: 'dd/MM/yyyy' }}</span>
-                  <strong>{{ installment.amount | currency }}</strong>
-                </li>
-              }
-            </ol>
-          </div>
-        }
-      </erp-card>
-    </div>
-
-    @if (editable()) {
-      <div class="actions">
-        <a matButton [routerLink]="isEdit() ? '../..' : '..'">{{ strings.categories.cancel }}</a>
-        <button
-          matButton="filled"
-          class="erp-primary-action"
-          type="submit"
-          [disabled]="entryForm().submitting()"
-        >
-          <mat-icon>check</mat-icon>
-          {{ entryForm().submitting() ? strings.form.saving : strings.form.save }}
-        </button>
       </div>
+
+      @if (installmentRows().length > 1) {
+        <div class="-mx-5 -mb-5 overflow-x-auto">
+          <table class="w-full border-collapse text-sm">
+            <caption class="sr-only">
+              {{
+                strings.form.relatedInstallments
+              }}
+            </caption>
+            <thead>
+              <tr class="border-y border-border bg-muted text-caption text-muted-foreground">
+                <th class="h-thead px-5 text-left font-medium">{{ strings.columns.code }}</th>
+                <th class="h-thead px-3 text-right font-medium">{{ strings.columns.amount }}</th>
+                <th class="h-thead px-3 text-left font-medium">{{ strings.columns.dueDate }}</th>
+                <th class="h-thead px-3 text-left font-medium">{{ strings.columns.status }}</th>
+                <th class="h-thead px-5">
+                  <span class="erp-sr-only">{{ strings.columns.actions }}</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of installmentRows(); track row.id) {
+                <tr
+                  class="border-b border-border last:border-b-0"
+                  [class.bg-muted]="row.id === loaded()?.id"
+                >
+                  <td class="px-5 py-2.5">
+                    <span hlmBadge variant="code">{{ code(row) }}</span>
+                    <span class="ml-2 text-label text-muted-foreground">{{
+                      strings.installment(row.installmentNo, row.installmentTotal)
+                    }}</span>
+                  </td>
+                  <td class="px-3 py-2.5 text-right tabular-nums">{{ row.amount | currency }}</td>
+                  <td class="px-3 py-2.5 whitespace-nowrap tabular-nums">
+                    {{ row.dueDate | date: 'dd/MM/yyyy' }}
+                  </td>
+                  <td class="px-3 py-2.5">
+                    <erp-status-chip [label]="statusLabel(row)" [tone]="statusTone(row)" />
+                  </td>
+                  <td class="px-5 py-2.5 text-right">
+                    @if (row.id === loaded()?.id) {
+                      <span class="text-label text-muted-foreground">{{
+                        strings.form.currentInstallment
+                      }}</span>
+                    } @else {
+                      <a hlmBtn variant="ghost" size="sm" [routerLink]="['..', row.id]">
+                        {{ strings.form.openInstallment }}
+                        <erp-icon name="chevron-right" [size]="14" />
+                      </a>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      @if (preview().length > 0) {
+        <div>
+          <span class="text-label font-medium text-muted-foreground">{{
+            strings.form.preview
+          }}</span>
+          <ol class="m-0 mt-2 grid list-none grid-cols-1 gap-2 p-0 sm:grid-cols-2 lg:grid-cols-3">
+            @for (installment of preview(); track installment.number) {
+              <li
+                class="flex justify-between gap-3 rounded-md border border-border bg-muted px-3 py-2 text-sm tabular-nums"
+              >
+                <span class="text-muted-foreground"
+                  >{{ installment.number }}/{{ preview().length }}</span
+                >
+                <span>{{ installment.dueDate | date: 'dd/MM/yyyy' }}</span>
+                <strong class="font-semibold">{{ installment.amount | currency }}</strong>
+              </li>
+            }
+          </ol>
+        </div>
+      }
+    </erp-section-card>
+
+    @if (history().length > 0) {
+      <erp-section-card icon="history" [title]="strings.form.history.title">
+        <div class="-mx-5 -mb-5 overflow-x-auto">
+          <table class="w-full border-collapse text-sm">
+            <thead>
+              <tr class="border-y border-border bg-muted text-caption text-muted-foreground">
+                <th class="h-thead px-5 text-left font-medium">{{ strings.form.history.when }}</th>
+                <th class="h-thead px-3 text-left font-medium">{{ strings.form.history.event }}</th>
+                <th class="h-thead px-5 text-left font-medium">
+                  {{ strings.form.history.details }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of history(); track row.kind) {
+                <tr class="border-b border-border last:border-b-0">
+                  <td class="px-5 py-2.5 whitespace-nowrap tabular-nums">
+                    {{ row.at | date: (row.kind === 'paid' ? 'dd/MM/yyyy' : 'dd/MM/yyyy HH:mm') }}
+                  </td>
+                  <td class="px-3 py-2.5 font-medium">{{ strings.form.history[row.kind] }}</td>
+                  <td class="px-5 py-2.5 text-muted-foreground">
+                    @switch (row.kind) {
+                      @case ('paid') {
+                        {{ strings.form.history.paidDetails((row.amount | currency) ?? '') }}
+                      }
+                      @case ('reversed') {
+                        {{ strings.form.history.reversedDetails(row.reason) }}
+                      }
+                      @default {
+                        —
+                      }
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </erp-section-card>
     }
   </form>
 }

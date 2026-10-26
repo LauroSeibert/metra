@@ -8,10 +8,6 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { Api } from '../../../api/api';
@@ -21,7 +17,7 @@ import { FinancialCategoryDto } from '../../../api/models/financial-category-dto
 import { AuthService } from '../../../core/auth/auth.service';
 import { toApiProblem } from '../../../core/http/api-problem';
 import { Notifier } from '../../../core/notifications/notifier';
-import { ConfirmDialog, ConfirmDialogData } from '../../../shared/ui/confirm-dialog/confirm-dialog';
+import { ConfirmService } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import {
   DataTable,
   DataTableColumn,
@@ -31,18 +27,25 @@ import { DataTableCell } from '../../../shared/ui/data-table/data-table-template
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { StatusChip } from '../../../shared/ui/status-chip/status-chip';
 import { FINANCE_STRINGS } from '../finance.strings';
-import { FinancialCategoryDialog } from './financial-category-dialog';
+import {
+  FinancialCategoryDialog,
+  FinancialCategoryDialogContext,
+} from './financial-category-dialog';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import { HlmTooltip } from '@spartan-ng/helm/tooltip';
+import { Icon } from '../../../shared/ui/icon/icon';
 
 /** Categorias financeiras de receita e de despesa. */
 @Component({
   selector: 'erp-financial-category-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HlmButton,
+    HlmTooltip,
+    Icon,
     DecimalPipe,
     RouterLink,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTable,
     DataTableCell,
     PageHeader,
@@ -50,13 +53,13 @@ import { FinancialCategoryDialog } from './financial-category-dialog';
   ],
   template: `
     <erp-page-header [title]="strings.title" [subtitle]="strings.subtitle">
-      <a matButton="outlined" class="erp-secondary-action" routerLink="/finance">
-        <mat-icon>arrow_back</mat-icon>
+      <a hlmBtn variant="outline" routerLink="/finance">
+        <erp-icon name="arrow-left" />
         {{ strings.back }}
       </a>
       @if (canWrite()) {
-        <button matButton="filled" class="erp-primary-action" type="button" (click)="open(null)">
-          <mat-icon>add</mat-icon>
+        <button hlmBtn type="button" (click)="open(null)">
+          <erp-icon name="plus" />
           {{ strings.newCategory }}
         </button>
       }
@@ -88,26 +91,32 @@ import { FinancialCategoryDialog } from './financial-category-dialog';
       </ng-template>
       <ng-template erpCell="actions" [erpCellOf]="rows()" let-category>
         @if (canWrite()) {
-          <div class="erp-row-actions">
+          <div class="inline-flex items-center gap-1">
             <button
-              class="erp-row-action"
+              hlmBtn
+              variant="ghost"
+              size="icon"
               type="button"
-              [matTooltip]="strings.editCategory"
+              [hlmTooltip]="strings.editCategory"
               [attr.aria-label]="strings.editCategory + ' ' + category.name"
               (click)="open(category)"
             >
-              <mat-icon>edit_square</mat-icon>
+              <erp-icon name="pencil" />
             </button>
-            <button
-              class="erp-row-action danger"
-              type="button"
-              [disabled]="category.entryCount > 0"
-              [matTooltip]="category.entryCount > 0 ? strings.inUse : strings.delete"
-              [attr.aria-label]="strings.delete + ' ' + category.name"
-              (click)="remove(category)"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
+            <span [hlmTooltip]="category.entryCount > 0 ? strings.inUse : strings.delete">
+              <button
+                hlmBtn
+                variant="ghost"
+                size="icon"
+                type="button"
+                class="text-destructive hover:text-destructive"
+                [disabled]="category.entryCount > 0"
+                [attr.aria-label]="strings.delete + ' ' + category.name"
+                (click)="remove(category)"
+              >
+                <erp-icon name="trash" />
+              </button>
+            </span>
           </div>
         }
       </ng-template>
@@ -116,7 +125,8 @@ import { FinancialCategoryDialog } from './financial-category-dialog';
 })
 export class FinancialCategoryList {
   private readonly api = inject(Api);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogs = inject(HlmDialogService);
+  private readonly confirm = inject(ConfirmService);
   private readonly notifier = inject(Notifier);
   private readonly auth = inject(AuthService);
 
@@ -157,7 +167,10 @@ export class FinancialCategoryList {
 
   protected async open(category: FinancialCategoryDto | null): Promise<void> {
     const saved = await firstValueFrom(
-      this.dialog.open(FinancialCategoryDialog, { data: category, width: '440px' }).afterClosed(),
+      this.dialogs.open<boolean, FinancialCategoryDialogContext>(FinancialCategoryDialog, {
+        context: { category },
+        contentClass: 'sm:max-w-md',
+      }).closed$,
     );
     if (saved) {
       this.categories.reload();
@@ -165,15 +178,13 @@ export class FinancialCategoryList {
   }
 
   protected async remove(category: FinancialCategoryDto): Promise<void> {
-    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
-      data: {
-        title: this.strings.deleteTitle,
-        message: this.strings.deleteMessage(category.name),
-        confirmLabel: this.strings.delete,
-        cancelLabel: this.strings.cancel,
-      },
+    const confirmed = await this.confirm.ask({
+      title: this.strings.deleteTitle,
+      message: this.strings.deleteMessage(category.name),
+      confirmLabel: this.strings.delete,
+      cancelLabel: this.strings.cancel,
     });
-    if (!(await firstValueFrom(ref.afterClosed()))) {
+    if (!confirmed) {
       return;
     }
     try {

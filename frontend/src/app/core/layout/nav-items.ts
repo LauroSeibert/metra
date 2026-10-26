@@ -1,13 +1,15 @@
+import type { IconName } from '../../shared/ui/icon/icons';
+
 export interface NavItem {
   readonly label: string;
-  readonly icon: string;
+  readonly icon: IconName;
   readonly path: string;
   /** Módulos ainda não implementados aparecem desabilitados no menu. */
   readonly available: boolean;
 }
 
 export interface NavGroup {
-  /** Vazio: grupo sem título (Início). O título também abre o breadcrumb ("Cadastros › Produtos"). */
+  /** Vazio: grupo sem título (Dashboard). O título também abre o breadcrumb ("Cadastros › Produtos"). */
   readonly label: string;
   readonly items: readonly NavItem[];
 }
@@ -15,33 +17,31 @@ export interface NavGroup {
 export const NAV_GROUPS: readonly NavGroup[] = [
   {
     label: '',
-    items: [{ label: 'Início', icon: 'grid_view', path: '/', available: true }],
+    items: [{ label: 'Dashboard', icon: 'dashboard', path: '/', available: true }],
   },
   {
     label: 'Cadastros',
     items: [
-      { label: 'Produtos', icon: 'deployed_code', path: '/products', available: true },
-      { label: 'Parceiros', icon: 'group', path: '/partners', available: true },
+      { label: 'Produtos', icon: 'package', path: '/products', available: true },
+      { label: 'Parceiros', icon: 'users', path: '/partners', available: true },
     ],
   },
   {
     label: 'Operação',
     items: [
-      { label: 'Estoque', icon: 'stacks', path: '/stock', available: true },
-      { label: 'Vendas', icon: 'receipt_long', path: '/sales', available: true },
+      { label: 'Estoque', icon: 'layers', path: '/stock', available: true },
+      { label: 'Vendas', icon: 'receipt', path: '/sales', available: true },
     ],
   },
   {
     label: 'Financeiro',
-    items: [
-      { label: 'Financeiro', icon: 'account_balance_wallet', path: '/finance', available: true },
-    ],
+    items: [{ label: 'Financeiro', icon: 'wallet', path: '/finance', available: true }],
   },
 ];
 
 /** Itens do rodapé do menu, separados dos módulos. */
 export const NAV_FOOTER: readonly NavItem[] = [
-  { label: 'Configurações', icon: 'tune', path: '/settings', available: true },
+  { label: 'Configurações', icon: 'sliders', path: '/settings', available: true },
 ];
 
 export const NAV_ITEMS: readonly NavItem[] = [

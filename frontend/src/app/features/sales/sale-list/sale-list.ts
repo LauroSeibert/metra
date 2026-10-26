@@ -1,4 +1,4 @@
-import { DatePickerToggle } from '../../../shared/ui/date-picker-toggle/date-picker-toggle';
+import { HlmTooltip } from '@spartan-ng/helm/tooltip';
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -9,13 +9,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import { Api } from '../../../api/api';
 import { cancelSale } from '../../../api/fn/sales/cancel-sale';
 import { confirmSale } from '../../../api/fn/sales/confirm-sale';
@@ -27,7 +21,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { toApiProblem } from '../../../core/http/api-problem';
 import { Notifier } from '../../../core/notifications/notifier';
 import { debounced } from '../../../shared/data/debounced';
-import { ConfirmDialog, ConfirmDialogData } from '../../../shared/ui/confirm-dialog/confirm-dialog';
+import { ConfirmService } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import {
   DataTable,
   DataTableColumn,
@@ -37,10 +31,15 @@ import {
 import { DataTableCell } from '../../../shared/ui/data-table/data-table-templates';
 import { KpiItem, KpiStrip } from '../../../shared/ui/kpi-strip/kpi-strip';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
-import { SlashFocus } from '../../../shared/ui/slash-focus';
 import { StatusChip, StatusTone } from '../../../shared/ui/status-chip/status-chip';
 import { PartnerPicker, PickedPartner } from '../../partners/partner-picker/partner-picker';
 import { SALES_STRINGS } from '../sales.strings';
+import { HlmBadge } from '@spartan-ng/helm/badge';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { DateField } from '../../../shared/ui/date-field/date-field';
+import { Icon } from '../../../shared/ui/icon/icon';
+import { ResultCount } from '../../../shared/ui/result-count/result-count';
+import { SearchField } from '../../../shared/ui/search-field/search-field';
 
 type StatusFilter = 'all' | SaleStatus;
 
@@ -55,31 +54,30 @@ const STATUS_TONE: Record<SaleStatus, StatusTone> = {
   selector: 'erp-sale-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePickerToggle,
+    HlmButton,
+    Icon,
+    DateField,
+    ResultCount,
+    SearchField,
+    HlmTooltip,
     CurrencyPipe,
     DatePipe,
     DecimalPipe,
     RouterLink,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
     DataTable,
     DataTableCell,
     KpiStrip,
     PageHeader,
     PartnerPicker,
-    SlashFocus,
     StatusChip,
   ],
   templateUrl: './sale-list.html',
-  styleUrl: './sale-list.scss',
 })
 export class SaleList {
   private readonly api = inject(Api);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly dialog = inject(MatDialog);
+  private readonly confirmService = inject(ConfirmService);
   private readonly notifier = inject(Notifier);
   private readonly auth = inject(AuthService);
 
@@ -225,14 +223,6 @@ export class SaleList {
     return STATUS_TONE[sale.status];
   }
 
-  protected onSearchInput(event: Event): void {
-    this.search.set((event.target as HTMLInputElement).value);
-  }
-
-  protected onDate(target: 'issuedFrom' | 'issuedTo', event: Event): void {
-    this[target].set((event.target as HTMLInputElement).value);
-  }
-
   protected clearFilters(): void {
     this.search.set('');
     this.status.set('all');
@@ -282,10 +272,12 @@ export class SaleList {
   }
 
   private async ask(title: string, message: string, confirmLabel: string): Promise<boolean> {
-    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
-      data: { title, message, confirmLabel, cancelLabel: SALES_STRINGS.actions.keep },
+    return this.confirmService.ask({
+      title,
+      message,
+      confirmLabel,
+      cancelLabel: SALES_STRINGS.actions.keep,
     });
-    return (await firstValueFrom(ref.afterClosed())) === true;
   }
 
   private async run(action: () => Promise<unknown>, success: string): Promise<void> {

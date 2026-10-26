@@ -7,6 +7,7 @@ const THEME_KEY = 'erp.theme';
  * a próxima abertura já começar no tema certo, antes de o perfil chegar da API.
  */
 export function applyTheme(theme: ThemePreference): void {
+  suspendTransitions();
   if (theme === 'Dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
   } else {
@@ -29,4 +30,16 @@ export function restoreTheme(): void {
   } catch {
     // Mantém o tema claro.
   }
+}
+
+/**
+ * Desliga as transições por um instante ao trocar o tema: sem isso, fundos e bordas animam da cor
+ * antiga para a nova e passam por tons intermediários (o "piscar" de botões e células).
+ */
+function suspendTransitions(): void {
+  const root = document.documentElement;
+  root.classList.add('theme-switching');
+  // Força o navegador a aplicar o novo estilo sem transição antes de religá-las.
+  void getComputedStyle(root).opacity;
+  setTimeout(() => root.classList.remove('theme-switching'), 100);
 }

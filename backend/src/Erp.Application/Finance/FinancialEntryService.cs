@@ -9,7 +9,7 @@ namespace Erp.Application.Finance;
 /// <summary>Contas a receber e a pagar: listagem com resumo, parcelamento, baixa, estorno e cancelamento.</summary>
 public sealed class FinancialEntryService(IErpDbContext db, BusinessCalendar calendar)
 {
-    public static readonly IReadOnlyCollection<string> SortFields = ["dueDate", "amount", "description", "createdAt"];
+    public static readonly IReadOnlyCollection<string> SortFields = ["dueDate", "amount", "description", "createdAt", "code"];
 
     public async Task<PagedResult<FinancialEntryDto>> ListAsync(FinancialEntryListQuery query, CancellationToken cancellationToken)
     {
@@ -60,6 +60,8 @@ public sealed class FinancialEntryService(IErpDbContext db, BusinessCalendar cal
             ("amount", true) => entries.OrderByDescending(e => e.Amount).ThenByDescending(e => e.Id),
             ("description", false) => entries.OrderBy(e => e.Description).ThenBy(e => e.Id),
             ("description", true) => entries.OrderByDescending(e => e.Description).ThenByDescending(e => e.Id),
+            ("code", false) => entries.OrderBy(e => e.Id),
+            ("code", true) => entries.OrderByDescending(e => e.Id),
             ("createdAt", false) => entries.OrderBy(e => e.CreatedAt).ThenBy(e => e.Id),
             ("createdAt", true) => entries.OrderByDescending(e => e.CreatedAt).ThenByDescending(e => e.Id),
             (_, true) => entries.OrderByDescending(e => e.DueDate).ThenByDescending(e => e.Id),
@@ -115,6 +117,29 @@ public sealed class FinancialEntryService(IErpDbContext db, BusinessCalendar cal
             .FirstOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false);
         return entry is null ? throw NotFound() : WithDaysOverdue(entry, today);
+    }
+
+    /// <summary>
+    /// Parcelas da mesma conta. Elas são criadas juntas, com ids seguidos, então têm o mesmo
+    /// <c>Id - InstallmentNo</c>, o mesmo tipo e o mesmo total de parcelas.
+    /// </summary>
+    public async Task<IReadOnlyList<FinancialEntryDto>> ListInstallmentsAsync(long id, CancellationToken cancellationToken)
+    {
+        var today = calendar.Today;
+        var entry = await db.FinancialEntries.AsNoTracking().Where(e => e.Id == id).FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false)
+            ?? throw NotFound();
+        var baseId = entry.Id - entry.InstallmentNo;
+        var siblings = await Project(
+                db.FinancialEntries.AsNoTracking()
+                    .Where(e => e.Id >= baseId + 1 && e.Id <= baseId + entry.InstallmentTotal
+                        && e.Kind == entry.Kind
+                        && e.InstallmentTotal == entry.InstallmentTotal
+                        && e.Id - e.InstallmentNo == baseId)
+                    .OrderBy(e => e.InstallmentNo),
+                today)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+        return [.. siblings.Select(e => WithDaysOverdue(e, today))];
     }
 
     /// <summary>Cria a conta, já dividida em parcelas. Devolve as parcelas criadas.</summary>
@@ -189,6 +214,7 @@ public sealed class FinancialEntryService(IErpDbContext db, BusinessCalendar cal
             category.Name,
             e.PartnerId,
             partner == null ? null : partner.Name,
+            partner == null ? null : partner.Document,
             e.Amount,
             e.DueDate,
             e.Status,
@@ -200,6 +226,7 @@ public sealed class FinancialEntryService(IErpDbContext db, BusinessCalendar cal
             e.InstallmentTotal,
             e.SaleId,
             e.ReversedAt,
+            e.CancelledAt,
             e.ReversalReason,
             e.Version,
             e.CreatedAt,

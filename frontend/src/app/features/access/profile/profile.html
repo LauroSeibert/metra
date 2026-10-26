@@ -1,143 +1,115 @@
-<erp-page-header [title]="strings.title" [subtitle]="strings.subtitle" />
+<div class="mx-auto w-full max-w-page">
+  <erp-page-header [title]="strings.title" [subtitle]="strings.subtitle">
+    <button hlmBtn type="submit" form="profile-form" [disabled]="profileForm().submitting()">
+      <erp-icon name="check" />
+      {{ profileForm().submitting() ? strings.saving : strings.save }}
+    </button>
+  </erp-page-header>
 
-<div class="layout">
-  <form novalidate (submit)="save($event)">
-    <erp-card class="section">
-      <header>
-        <span class="section-icon"><mat-icon>person</mat-icon></span>
-        <div>
-          <h2>{{ strings.data }}</h2>
-          <p>{{ strings.dataHint }}</p>
-        </div>
-      </header>
-
+  <div class="grid items-start gap-4 lg:grid-cols-2">
+    <form id="profile-form" class="flex flex-col gap-4" novalidate (submit)="save($event)">
       @if (profileErrors().length > 0) {
-        <div class="banner" role="alert">
-          <mat-icon>warning</mat-icon>
-          <div>
-            @for (error of profileErrors(); track $index) {
-              <p>{{ error.message }}</p>
-            }
-          </div>
-          @if (conflict()) {
-            <button matButton="outlined" type="button" (click)="reload()">
-              {{ strings.reload }}
-            </button>
-          }
-        </div>
+        <erp-form-banner
+          [errors]="profileErrors()"
+          [reloadLabel]="conflict() ? strings.reload : null"
+          (reload)="reload()"
+        />
       }
 
-      <div class="fields">
-        <mat-form-field class="span-2">
-          <mat-label>{{ strings.fullName }}</mat-label>
-          <input matInput autocomplete="name" [formField]="profileForm.fullName" />
-          @if (profileForm.fullName().errors()[0]; as error) {
-            <mat-error>{{ error.message }}</mat-error>
-          }
-        </mat-form-field>
-
-        <div class="readonly">
-          <span>{{ strings.role }}</span>
-          <erp-status-chip [label]="roleName()" tone="primary" />
-        </div>
-
-        <div class="readonly span-3">
-          <span>{{ strings.email }}</span>
-          <strong>{{ profile()?.email }}</strong>
-        </div>
-      </div>
-
-      <header class="subheader">
-        <span class="section-icon info"><mat-icon>tune</mat-icon></span>
-        <div>
-          <h2>{{ strings.preferences }}</h2>
-          <p>{{ strings.preferencesHint }}</p>
-        </div>
-      </header>
-
-      <div class="fields">
-        <mat-form-field class="span-2">
-          <mat-label>{{ strings.pageSize }}</mat-label>
-          <mat-select [formField]="profileForm.pageSize">
-            @for (size of pageSizes; track size) {
-              <mat-option [value]="size">{{ size }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <footer>
-        <button
-          matButton="filled"
-          class="erp-primary-action"
-          type="submit"
-          [disabled]="profileForm().submitting()"
+      <erp-section-card icon="user" [title]="strings.data" [description]="strings.dataHint">
+        <erp-field-shell
+          [label]="strings.fullName"
+          [required]="true"
+          [error]="fieldError(profileForm.fullName())"
         >
-          <mat-icon>check</mat-icon>
-          {{ profileForm().submitting() ? strings.saving : strings.save }}
-        </button>
-      </footer>
-    </erp-card>
-  </form>
+          <input hlmInput autocomplete="name" [formField]="profileForm.fullName" />
+        </erp-field-shell>
 
-  <form novalidate (submit)="changePassword($event)">
-    <erp-card class="section">
-      <header>
-        <span class="section-icon warning"><mat-icon>key</mat-icon></span>
-        <div>
-          <h2>{{ strings.password }}</h2>
-          <p>{{ strings.passwordHint }}</p>
-        </div>
-      </header>
+        <dl class="m-0 divide-y divide-border rounded-md border border-border text-sm">
+          <div class="flex items-center justify-between gap-4 px-4 py-3">
+            <dt class="text-muted-foreground">{{ strings.email }}</dt>
+            <dd class="m-0 min-w-0 font-medium wrap-anywhere">{{ profile()?.email }}</dd>
+          </div>
+          <div class="flex items-center justify-between gap-4 px-4 py-3">
+            <dt class="text-muted-foreground">{{ strings.role }}</dt>
+            <dd class="m-0"><erp-status-chip [label]="roleName()" tone="primary" /></dd>
+          </div>
+        </dl>
+      </erp-section-card>
 
-      <div class="fields single">
-        <mat-form-field>
-          <mat-label>{{ strings.currentPassword }}</mat-label>
+      <erp-section-card
+        icon="sliders"
+        [title]="strings.preferences"
+        [description]="strings.preferencesHint"
+      >
+        <erp-field-shell [label]="strings.pageSize">
+          <hlm-select
+            [value]="model().pageSize"
+            [itemToString]="sizeLabel"
+            (valueChange)="setPageSize($event)"
+          >
+            <hlm-select-trigger class="w-full">
+              <hlm-select-value />
+            </hlm-select-trigger>
+            <hlm-select-content *hlmSelectPortal>
+              @for (size of pageSizes; track size) {
+                <hlm-select-item [value]="size">{{ size }}</hlm-select-item>
+              }
+            </hlm-select-content>
+          </hlm-select>
+        </erp-field-shell>
+      </erp-section-card>
+    </form>
+
+    <form novalidate (submit)="changePassword($event)">
+      <erp-section-card icon="key" [title]="strings.password" [description]="strings.passwordHint">
+        <erp-field-shell
+          [label]="strings.currentPassword"
+          [required]="true"
+          [error]="fieldError(passwordForm.currentPassword())"
+        >
           <input
-            matInput
+            hlmInput
             type="password"
             autocomplete="current-password"
             [formField]="passwordForm.currentPassword"
           />
-          @if (passwordForm.currentPassword().errors()[0]; as error) {
-            <mat-error>{{ error.message }}</mat-error>
-          }
-        </mat-form-field>
+        </erp-field-shell>
 
-        <mat-form-field>
-          <mat-label>{{ strings.newPassword }}</mat-label>
+        <erp-field-shell
+          [label]="strings.newPassword"
+          [required]="true"
+          [hint]="strings.passwordRules"
+          [error]="fieldError(passwordForm.newPassword())"
+        >
           <input
-            matInput
+            hlmInput
             type="password"
             autocomplete="new-password"
             [formField]="passwordForm.newPassword"
           />
-          <mat-hint>{{ strings.passwordRules }}</mat-hint>
-          @if (passwordForm.newPassword().errors()[0]; as error) {
-            <mat-error>{{ error.message }}</mat-error>
-          }
-        </mat-form-field>
+        </erp-field-shell>
 
-        <mat-form-field>
-          <mat-label>{{ strings.confirmPassword }}</mat-label>
+        <erp-field-shell
+          [label]="strings.confirmPassword"
+          [required]="true"
+          [error]="fieldError(passwordForm.confirmPassword())"
+        >
           <input
-            matInput
+            hlmInput
             type="password"
             autocomplete="new-password"
             [formField]="passwordForm.confirmPassword"
           />
-          @if (passwordForm.confirmPassword().errors()[0]; as error) {
-            <mat-error>{{ error.message }}</mat-error>
-          }
-        </mat-form-field>
-      </div>
+        </erp-field-shell>
 
-      <footer>
-        <button matButton="outlined" type="submit" [disabled]="passwordForm().submitting()">
-          <mat-icon>lock_reset</mat-icon>
-          {{ strings.changePassword }}
-        </button>
-      </footer>
-    </erp-card>
-  </form>
+        <div class="flex justify-end">
+          <button hlmBtn variant="outline" type="submit" [disabled]="passwordForm().submitting()">
+            <erp-icon name="lock" />
+            {{ strings.changePassword }}
+          </button>
+        </div>
+      </erp-section-card>
+    </form>
+  </div>
 </div>

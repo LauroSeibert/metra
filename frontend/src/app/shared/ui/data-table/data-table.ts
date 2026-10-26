@@ -10,10 +10,18 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { HlmButton } from '@spartan-ng/helm/button';
+import {
+  HlmEmpty,
+  HlmEmptyContent,
+  HlmEmptyDescription,
+  HlmEmptyHeader,
+  HlmEmptyMedia,
+  HlmEmptyTitle,
+} from '@spartan-ng/helm/empty';
+import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 import { delayedFlag } from '../../data/delayed-flag';
+import { Icon } from '../icon/icon';
 import { UI_STRINGS } from '../ui.strings';
 import { DataTableCell, DataTableExpandedRow } from './data-table-templates';
 
@@ -46,6 +54,8 @@ export interface DataTablePage {
 type RowKey = string | number;
 
 const MAX_SKELETON_ROWS = 10;
+/** Mesma duração do --erp-duration-base (200 ms), usada na animação de fechar o detalhe. */
+const CLOSE_ANIMATION_MS = 200;
 /** Larguras das barras do skeleton, alternadas por coluna para não parecer um bloco só. */
 const SKELETON_WIDTHS = [70, 45, 55, 35] as const;
 /** Duplo clique nesses elementos é deles, não da linha. */
@@ -58,7 +68,19 @@ const INTERACTIVE = 'a, button, input, select, textarea, [role="button"]';
 @Component({
   selector: 'erp-data-table',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, NgTemplateOutlet, MatButtonModule, MatIconModule, MatProgressBarModule],
+  imports: [
+    DecimalPipe,
+    NgTemplateOutlet,
+    HlmButton,
+    HlmEmpty,
+    HlmEmptyContent,
+    HlmEmptyDescription,
+    HlmEmptyHeader,
+    HlmEmptyMedia,
+    HlmEmptyTitle,
+    HlmSkeleton,
+    Icon,
+  ],
   templateUrl: './data-table.html',
   styleUrl: './data-table.scss',
 })
@@ -69,6 +91,10 @@ export class DataTable<T> {
   readonly loading = input(false);
   readonly error = input<string | null>(null);
   readonly emptyMessage = input<string>(UI_STRINGS.empty);
+  /** Uma frase sob o título do estado vazio (opcional). */
+  readonly emptyDescription = input<string | null>(null);
+  /** Rótulo da ação do estado vazio (ex.: "Limpar filtros"); sem ele, não há botão. */
+  readonly emptyActionLabel = input<string | null>(null);
   readonly sort = model<DataTableSort | null>(null);
   readonly total = input(0);
   readonly page = input(1);
@@ -78,6 +104,7 @@ export class DataTable<T> {
 
   readonly pageChange = output<DataTablePage>();
   readonly retry = output<void>();
+  readonly emptyAction = output<void>();
   /** Duplo clique numa linha (fora de botões e links): a tela decide, em geral abrir a edição. */
   readonly rowActivate = output<T>();
 
@@ -85,6 +112,8 @@ export class DataTable<T> {
   protected readonly cells = contentChildren(DataTableCell<T>);
   protected readonly expandedRow = contentChild(DataTableExpandedRow<T>);
   protected readonly expandedKeys = signal<ReadonlySet<RowKey>>(new Set());
+  /** Linhas recolhendo: ficam na tela até a animação de fechar terminar. */
+  protected readonly closingKeys = signal<ReadonlySet<RowKey>>(new Set());
 
   protected readonly cellTemplates = computed(
     () => new Map(this.cells().map((cell) => [cell.column(), cell.template])),
@@ -137,15 +166,29 @@ export class DataTable<T> {
     return this.expandedKeys().has(this.rowKey()(row));
   }
 
+  protected isClosing(row: T): boolean {
+    return this.closingKeys().has(this.rowKey()(row));
+  }
+
   protected toggleExpanded(row: T): void {
     const key = this.rowKey()(row);
-    const next = new Set(this.expandedKeys());
-    if (next.has(key)) {
-      next.delete(key);
-    } else {
-      next.add(key);
+    if (this.isClosing(row)) {
+      return;
     }
-    this.expandedKeys.set(next);
+    if (!this.expandedKeys().has(key)) {
+      this.expandedKeys.set(new Set(this.expandedKeys()).add(key));
+      return;
+    }
+    // Recolher: anima o fechamento e só então tira a linha de detalhe.
+    this.closingKeys.set(new Set(this.closingKeys()).add(key));
+    setTimeout(() => {
+      const expanded = new Set(this.expandedKeys());
+      expanded.delete(key);
+      this.expandedKeys.set(expanded);
+      const closing = new Set(this.closingKeys());
+      closing.delete(key);
+      this.closingKeys.set(closing);
+    }, CLOSE_ANIMATION_MS);
   }
 
   protected skeletonWidth(index: number): number {

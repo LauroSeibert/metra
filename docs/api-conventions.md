@@ -32,7 +32,7 @@ Vale para todo endpoint sob `/api/v1`. Referência de implementação: módulo d
 | `page` | começa em 1; menor que 1 → 400 |
 | `pageSize` | padrão 20, máximo 100; fora disso → 400 |
 | `sort` | `campo` ou `-campo` (decrescente), só da lista fechada do caso de uso; outro → 400 |
-| `search` | busca por prefixo (`termo%`), curingas digitados são literais |
+| `search` | busca por prefixo (`termo%`), curingas digitados são literais; exceção: produtos buscam por trecho (`%termo%`) em SKU e nome |
 | filtros | nomes do contrato (`categoryId`, `active`); ausente = sem filtro |
 
 Resposta: `{ items, page, pageSize, totalCount }`. A ordenação sempre desempata por `id` para a paginação ser estável.

@@ -12,58 +12,82 @@
     <p class="subtitle">{{ strings.subtitle }}</p>
 
     @if (expired() && !error()) {
-      <div class="notice" role="status">
-        <mat-icon>schedule</mat-icon>
+      <div
+        class="notice mb-4 flex items-center gap-2 rounded-md bg-muted p-3 text-sm"
+        role="status"
+      >
+        <erp-icon name="clock" />
         <span>{{ strings.expired }}</span>
       </div>
     }
 
     @if (error(); as message) {
-      <div class="notice error" role="alert">
-        <mat-icon>error</mat-icon>
+      <div
+        class="notice error mb-4 flex items-center gap-2 rounded-md bg-danger-soft p-3 text-sm text-destructive"
+        role="alert"
+      >
+        <erp-icon name="circle-alert" />
         <span>{{ message }}</span>
       </div>
     }
 
-    <form novalidate (submit)="signIn($event)">
-      <mat-form-field>
-        <mat-label>{{ strings.email }}</mat-label>
-        <mat-icon matPrefix>mail</mat-icon>
-        <input matInput type="email" autocomplete="username" [formField]="loginForm.email" />
-        @if (loginForm.email().errors()[0]; as fieldError) {
-          <mat-error>{{ fieldError.message }}</mat-error>
-        }
-      </mat-form-field>
-
-      <mat-form-field>
-        <mat-label>{{ strings.password }}</mat-label>
-        <mat-icon matPrefix>lock</mat-icon>
-        <input
-          matInput
-          autocomplete="current-password"
-          [type]="showPassword() ? 'text' : 'password'"
-          [formField]="loginForm.password"
-        />
-        <button
-          matIconButton
-          matSuffix
-          type="button"
-          [attr.aria-label]="showPassword() ? strings.hidePassword : strings.showPassword"
-          (click)="showPassword.set(!showPassword())"
-        >
-          <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
-        </button>
-        @if (loginForm.password().errors()[0]; as fieldError) {
-          <mat-error>{{ fieldError.message }}</mat-error>
-        }
-      </mat-form-field>
-
-      <button
-        matButton="filled"
-        class="erp-primary-action submit"
-        type="submit"
-        [disabled]="loginForm().submitting()"
+    <form class="flex flex-col gap-4" novalidate (submit)="signIn($event)">
+      <erp-field-shell
+        [label]="strings.email"
+        [error]="
+          loginForm.email().touched() ? (loginForm.email().errors()[0]?.message ?? null) : null
+        "
       >
+        <div class="relative">
+          <erp-icon
+            name="mail"
+            class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
+          />
+          <input
+            hlmInput
+            class="pl-9"
+            type="email"
+            autocomplete="username"
+            [formField]="loginForm.email"
+          />
+        </div>
+      </erp-field-shell>
+
+      <erp-field-shell
+        [label]="strings.password"
+        [error]="
+          loginForm.password().touched()
+            ? (loginForm.password().errors()[0]?.message ?? null)
+            : null
+        "
+      >
+        <div class="relative">
+          <erp-icon
+            name="lock"
+            class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
+          />
+          <input
+            hlmInput
+            class="px-9"
+            autocomplete="current-password"
+            [type]="showPassword() ? 'text' : 'password'"
+            [formField]="loginForm.password"
+          />
+          <button
+            hlmBtn
+            variant="ghost"
+            size="icon-xs"
+            type="button"
+            class="absolute top-1/2 right-2 -translate-y-1/2"
+            [attr.aria-label]="showPassword() ? strings.hidePassword : strings.showPassword"
+            (click)="showPassword.set(!showPassword())"
+          >
+            <erp-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="14" />
+          </button>
+        </div>
+      </erp-field-shell>
+
+      <button hlmBtn class="mt-2 w-full" type="submit" [disabled]="loginForm().submitting()">
         {{ loginForm().submitting() ? strings.submitting : strings.submit }}
       </button>
     </form>

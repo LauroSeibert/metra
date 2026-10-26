@@ -1,21 +1,18 @@
 <erp-page-header [title]="strings.title" [subtitle]="strings.subtitle">
   @if (canWrite()) {
-    <a matButton="filled" class="erp-primary-action" routerLink="/sales/edit">
-      <mat-icon>add</mat-icon>
+    <a hlmBtn routerLink="/sales/edit">
+      <erp-icon name="plus" />
       {{ strings.newSale }}
     </a>
   }
 </erp-page-header>
 
 @if (dashboard.status() === 'error') {
-  <erp-card class="state" role="alert">
-    <mat-icon>cloud_off</mat-icon>
-    <p>{{ strings.loadError }}</p>
-    <button matButton="outlined" type="button" (click)="dashboard.reload()">
-      <mat-icon>refresh</mat-icon>
-      {{ strings.retry }}
-    </button>
-  </erp-card>
+  <erp-load-error
+    [message]="strings.loadError"
+    [retryLabel]="strings.retry"
+    (retry)="dashboard.reload()"
+  />
 } @else {
   <erp-kpi-strip [items]="kpiItems()" [label]="strings.kpis" />
 
@@ -71,7 +68,7 @@
     <erp-card class="panel">
       <header class="with-action">
         <h2>{{ strings.recentTitle }}</h2>
-        <a matButton routerLink="/sales">{{ strings.seeAll }}</a>
+        <a hlmBtn variant="ghost" routerLink="/sales">{{ strings.seeAll }}</a>
       </header>
       <ul class="recent">
         @for (sale of data()?.recentSales ?? []; track sale.id) {

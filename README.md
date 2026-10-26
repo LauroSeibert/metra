@@ -4,7 +4,7 @@ ERP de demonstração para pequenas empresas de comércio, feito para estudar co
 Claude Code (`CLAUDE.md`, rules e skills) num sistema de porte médio gastando poucos tokens.
 
 Módulos: produtos, parceiros (clientes e fornecedores), estoque, contas a receber e a pagar, vendas,
-dashboard e configurações. Stack: Angular 22 + Angular Material, .NET 10 (Minimal APIs, EF Core) e MySQL 9.7.
+dashboard e configurações. Stack: Angular 22 com Spartan UI, Tailwind CSS v4 e ícones Lucide, .NET 10 (Minimal APIs, EF Core) e MySQL 9.7.
 
 ## Rodar
 
@@ -25,4 +25,4 @@ dotnet run --project backend/src/Erp.Seed -- seed --profile small   # dados de e
 | `.claude/rules/*.md` | regras por tema, carregadas só nos caminhos que importam |
 | `.claude/skills/` | receitas: novo endpoint e nova tela |
 | `docs/plan.md` | plano e fases (veja "Escopo simplificado") |
-| `docs/design-system.md` + `docs/design/listagem.png` | identidade visual |
+| `docs/design-system.md` + `docs/design/listagem.png` | identidade visual (Spartan UI + Tailwind + tokens `--erp-*`) |

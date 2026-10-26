@@ -7,8 +7,6 @@ import {
   LOCALE_ID,
   resource,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { Api } from '../../api/api';
 import { getDashboard } from '../../api/fn/dashboard/get-dashboard';
@@ -19,6 +17,9 @@ import { KpiItem, KpiStrip } from '../../shared/ui/kpi-strip/kpi-strip';
 import { PageHeader } from '../../shared/ui/page-header/page-header';
 import { StatusChip, StatusTone } from '../../shared/ui/status-chip/status-chip';
 import { HOME_STRINGS } from './home.strings';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { Icon } from '../../shared/ui/icon/icon';
+import { LoadError } from '../../shared/ui/load-error/load-error';
 
 const STATUS_TONE: Record<SaleStatus, StatusTone> = {
   Draft: 'warning',
@@ -31,12 +32,13 @@ const STATUS_TONE: Record<SaleStatus, StatusTone> = {
   selector: 'erp-home',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HlmButton,
+    Icon,
+    LoadError,
     CurrencyPipe,
     DatePipe,
     DecimalPipe,
     RouterLink,
-    MatButtonModule,
-    MatIconModule,
     Card,
     KpiStrip,
     PageHeader,

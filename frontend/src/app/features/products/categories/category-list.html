@@ -1,11 +1,11 @@
 <erp-page-header [title]="strings.title" [subtitle]="strings.subtitle">
-  <a matButton="outlined" class="erp-secondary-action" routerLink="/products">
-    <mat-icon>arrow_back</mat-icon>
+  <a hlmBtn variant="outline" routerLink="/products">
+    <erp-icon name="arrow-left" />
     {{ common.back }}
   </a>
   @if (canWrite()) {
-    <button matButton="filled" class="erp-primary-action" type="button" (click)="open(null)">
-      <mat-icon>add</mat-icon>
+    <button hlmBtn type="button" (click)="open(null)">
+      <erp-icon name="plus" />
       {{ strings.newCategory }}
     </button>
   }
@@ -25,20 +25,48 @@
   (retry)="categories.reload()"
   (rowActivate)="canWrite() && open($event)"
 >
-  <section tableToolbar class="erp-toolbar" [attr.aria-label]="strings.searchLabel">
-    <mat-form-field class="grow" subscriptSizing="dynamic">
-      <mat-icon matPrefix>search</mat-icon>
+  <section
+    tableToolbar
+    class="flex flex-wrap items-center gap-2.5 border-b border-border p-3.5"
+    [attr.aria-label]="strings.searchLabel"
+  >
+    <div class="relative min-w-56 flex-1">
+      <erp-icon
+        name="search"
+        class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
+      />
       <input
-        matInput
+        #searchInput
+        hlmInput
         erpSlashFocus
         type="search"
+        class="pr-10 pl-9"
         [attr.aria-label]="strings.searchLabel"
         [placeholder]="strings.searchLabel"
         [value]="search()"
         (input)="onSearchInput($event)"
       />
-      <span matSuffix class="erp-kbd" aria-hidden="true">/</span>
-    </mat-form-field>
+      @if (search()) {
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon-xs"
+          type="button"
+          class="absolute top-1/2 right-2 -translate-y-1/2"
+          [attr.aria-label]="strings.clearSearch"
+          [hlmTooltip]="strings.clearSearch"
+          (click)="clearSearch(searchInput)"
+        >
+          <erp-icon name="x" [size]="14" />
+        </button>
+      } @else {
+        <span
+          class="erp-kbd pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2"
+          aria-hidden="true"
+          >/</span
+        >
+      }
+    </div>
   </section>
 
   <ng-template erpCell="productCount" [erpCellOf]="rows()" let-category>
@@ -47,26 +75,33 @@
 
   <ng-template erpCell="actions" [erpCellOf]="rows()" let-category>
     @if (canWrite()) {
-      <div class="erp-row-actions">
+      <div class="inline-flex items-center gap-1">
         <button
-          class="erp-row-action"
+          hlmBtn
+          variant="ghost"
+          size="icon"
           type="button"
-          [matTooltip]="common.edit"
+          [hlmTooltip]="common.edit"
           [attr.aria-label]="common.edit + ' ' + category.name"
           (click)="open(category)"
         >
-          <mat-icon>edit_square</mat-icon>
+          <erp-icon name="pencil" />
         </button>
-        <button
-          class="erp-row-action danger"
-          type="button"
-          [disabled]="category.productCount > 0"
-          [matTooltip]="category.productCount > 0 ? strings.inUse : common.delete"
-          [attr.aria-label]="common.delete + ' ' + category.name"
-          (click)="remove(category)"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
+        <!-- Botão desabilitado não recebe o mouse: a dica fica no invólucro. -->
+        <span [hlmTooltip]="category.productCount > 0 ? strings.inUse : common.delete">
+          <button
+            hlmBtn
+            variant="ghost"
+            size="icon"
+            type="button"
+            class="text-destructive hover:text-destructive"
+            [disabled]="category.productCount > 0"
+            [attr.aria-label]="common.delete + ' ' + category.name"
+            (click)="remove(category)"
+          >
+            <erp-icon name="trash" />
+          </button>
+        </span>
       </div>
     }
   </ng-template>

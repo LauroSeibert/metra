@@ -1,4 +1,3 @@
-import { DatePickerToggle } from '../../../shared/ui/date-picker-toggle/date-picker-toggle';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -22,11 +21,6 @@ import {
   submit,
   validate,
 } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Api } from '../../../api/api';
 import { createFinancialEntry } from '../../../api/fn/financial-entries/create-financial-entry';
@@ -40,16 +34,41 @@ import { API_ERROR_CODES, toApiProblem } from '../../../core/http/api-problem';
 import { toServerErrors } from '../../../core/http/server-errors';
 import { Notifier } from '../../../core/notifications/notifier';
 import { delayedFlag } from '../../../shared/data/delayed-flag';
-import { Card } from '../../../shared/ui/card/card';
 import { MoneyInput } from '../../../shared/ui/money-input/money-input';
-import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { StatusChip } from '../../../shared/ui/status-chip/status-chip';
 import { PartnerPicker, PickedPartner } from '../../partners/partner-picker/partner-picker';
 import { FINANCE_STRINGS } from '../finance.strings';
-import { todayIso } from '../pay-dialog/pay-dialog';
+import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import { firstValueFrom } from 'rxjs';
+import { PayDialog, PayDialogData, todayIso } from '../pay-dialog/pay-dialog';
+import { HlmBadge } from '@spartan-ng/helm/badge';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { ConfirmService } from '../../../shared/ui/confirm-dialog/confirm-dialog';
+import { cancelFinancialEntry } from '../../../api/fn/financial-entries/cancel-financial-entry';
+import { entryCode } from '../entry-code';
+import { entryStatusLabel, entryStatusTone } from '../entry-status';
+import { listFinancialEntryInstallments } from '../../../api/fn/financial-entries/list-financial-entry-installments';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
+import { ActionBar } from '../../../shared/ui/action-bar/action-bar';
+import { FieldShell } from '../../../shared/ui/field-shell/field-shell';
+import { fieldError } from '../../../shared/ui/field-shell/field-error';
+import { FormBanner } from '../../../shared/ui/form-banner/form-banner';
+import { FormHeader } from '../../../shared/ui/form-header/form-header';
+import { Icon } from '../../../shared/ui/icon/icon';
+import { LoadError } from '../../../shared/ui/load-error/load-error';
+import { SectionCard } from '../../../shared/ui/section-card/section-card';
 
 /** Mesmos limites do servidor (FinancialEntry). */
 export const FINANCE_RULES = { descriptionMaxLength: 200, maxInstallments: 60 } as const;
+
+interface HistoryRow {
+  readonly at: string;
+  readonly kind: 'created' | 'paid' | 'reversed' | 'cancelled';
+  readonly amount: number | null;
+  readonly reason: string;
+}
 
 interface EntryModel {
   description: string;
@@ -115,30 +134,35 @@ const entrySchema = schema<EntryModel>((path) => {
   selector: 'erp-entry-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePickerToggle,
+    RouterLink,
+    HlmBadge,
+    HlmButton,
+    HlmInput,
+    HlmSelectImports,
+    HlmSkeleton,
+    ActionBar,
+    FieldShell,
+    FormBanner,
+    FormHeader,
+    Icon,
+    LoadError,
+    SectionCard,
     CurrencyPipe,
     DatePipe,
-    RouterLink,
     FormField,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-    Card,
     MoneyInput,
-    PageHeader,
     PartnerPicker,
     StatusChip,
   ],
   templateUrl: './entry-form.html',
-  styleUrl: './entry-form.scss',
 })
 export class EntryForm {
   private readonly api = inject(Api);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly notifier = inject(Notifier);
+  private readonly dialogs = inject(HlmDialogService);
+  private readonly confirmService = inject(ConfirmService);
 
   readonly kind = input.required<FinancialEntryKind>();
   readonly id = input<string>();
@@ -156,6 +180,23 @@ export class EntryForm {
     params: () => this.entryId() ?? undefined,
     loader: ({ params }) => this.api.invoke(getFinancialEntry, { id: params }),
   });
+  /** Demais parcelas da mesma conta (só quando o lançamento tem mais de uma). */
+  protected readonly installments = resource({
+    params: () => {
+      const entry = this.entry.hasValue() ? this.entry.value() : null;
+      return entry && entry.installmentTotal > 1
+        ? { id: entry.id, version: entry.version }
+        : undefined;
+    },
+    loader: ({ params }) => this.api.invoke(listFinancialEntryInstallments, { id: params.id }),
+  });
+  protected readonly installmentRows = computed<readonly FinancialEntryDto[]>(() =>
+    this.installments.hasValue() ? this.installments.value() : [],
+  );
+  protected readonly statusLabel = (entry: FinancialEntryDto): string =>
+    entryStatusLabel(entry, this.texts().paidChip);
+  protected readonly statusTone = entryStatusTone;
+
   protected readonly categories = resource({
     params: () => (this.kind() === 'Receivable' ? 'Revenue' : 'Expense'),
     loader: ({ params }) =>
@@ -168,7 +209,7 @@ export class EntryForm {
   protected readonly partner = linkedSignal<PickedPartner | null>(() => {
     const entry = this.entry.hasValue() ? this.entry.value() : null;
     return entry?.partnerId && entry.partnerName
-      ? { id: entry.partnerId, name: entry.partnerName, document: '' }
+      ? { id: entry.partnerId, name: entry.partnerName, document: entry.partnerDocument ?? '' }
       : null;
   });
   protected readonly model = linkedSignal<EntryModel>(() => {
@@ -213,6 +254,37 @@ export class EntryForm {
     () => this.isEdit() && (this.entryId() === null || this.entry.status() === 'error'),
   );
   protected readonly formErrors = computed(() => this.entryForm().errors());
+  protected readonly fieldError = fieldError;
+  protected readonly categoryLabel = (id: number): string =>
+    this.categoryOptions().find((category) => category.id === id)?.name ?? '';
+
+  /** Muda em relação ao que está salvo (ou ao formulário vazio, no cadastro). */
+  protected readonly dirty = computed(() => {
+    const entry = this.entry.hasValue() ? this.entry.value() : null;
+    const value = this.model();
+    if (!entry) {
+      return (
+        value.description.trim() !== '' ||
+        value.categoryId !== null ||
+        value.amount !== null ||
+        value.installments !== 1 ||
+        this.partner() !== null
+      );
+    }
+    return (
+      value.description !== entry.description ||
+      value.categoryId !== entry.categoryId ||
+      value.amount !== entry.amount ||
+      value.dueDate !== entry.dueDate ||
+      (this.partner()?.id ?? null) !== (entry.partnerId ?? null)
+    );
+  });
+
+  protected setCategory(id: number | null | undefined): void {
+    if (id) {
+      this.entryForm.categoryId().value.set(id);
+    }
+  }
   protected readonly preview = computed(() => {
     const { amount, installments, dueDate, editing } = this.model();
     return editing || installments < 2
@@ -258,14 +330,11 @@ export class EntryForm {
             },
           });
           this.notifier.success(FINANCE_STRINGS.form.created(created.length));
-          // Uma parcela: abre a edição dela. Várias: volta para a lista, onde aparecem todas.
-          await this.router.navigate(
-            created.length === 1 ? ['..', 'edit', created[0].id] : ['..'],
-            {
-              relativeTo: this.route,
-              replaceUrl: true,
-            },
-          );
+          // Fica na tela: abre a edição da primeira parcela, que lista as demais.
+          await this.router.navigate(['..', 'edit', created[0].id], {
+            relativeTo: this.route,
+            replaceUrl: true,
+          });
         }
         return undefined;
       } catch (error) {
@@ -275,6 +344,81 @@ export class EntryForm {
       }
     });
   }
+
+  protected readonly code = entryCode;
+
+  /** Data de competência: a da criação do lançamento (hoje, no cadastro); não é editável. */
+  protected readonly competenceDate = computed(() => {
+    const created = this.loaded()?.createdAt;
+    if (!created) {
+      return todayIso();
+    }
+    const date = new Date(created);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${date.getFullYear()}-${month}-${day}`;
+  });
+
+  protected async cancelEntry(entry: FinancialEntryDto): Promise<void> {
+    const list = FINANCE_STRINGS.list;
+    const confirmed = await this.confirmService.ask({
+      title: list.cancelTitle,
+      message: list.cancelMessage(entry.description),
+      confirmLabel: list.confirmCancel,
+      cancelLabel: list.keep,
+    });
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await this.api.invoke(cancelFinancialEntry, {
+        id: entry.id,
+        body: { version: entry.version },
+      });
+      this.notifier.success(list.cancelledNotice);
+      this.reload();
+    } catch (error) {
+      this.notifier.error(toApiProblem(error).message);
+    }
+  }
+
+  /** Baixa o lançamento aberto (mesmo diálogo da listagem) e recarrega a tela. */
+  protected async pay(entry: FinancialEntryDto): Promise<void> {
+    const data: PayDialogData = { entry, title: this.texts().payTitle };
+    const paid = await firstValueFrom(
+      this.dialogs.open<boolean, PayDialogData>(PayDialog, {
+        context: data,
+        contentClass: 'sm:max-w-md',
+      }).closed$,
+    );
+    if (paid) {
+      this.reload();
+    }
+  }
+
+  /** Eventos do lançamento, do mais recente ao mais antigo. */
+  protected readonly history = computed<readonly HistoryRow[]>(() => {
+    const entry = this.loaded();
+    if (!entry) {
+      return [];
+    }
+    const rows: HistoryRow[] = [{ at: entry.createdAt, kind: 'created', amount: null, reason: '' }];
+    if (entry.status === 'Paid' && entry.paidAt) {
+      rows.push({ at: entry.paidAt, kind: 'paid', amount: entry.paidAmount, reason: '' });
+    }
+    if (entry.reversedAt) {
+      rows.push({
+        at: entry.reversedAt,
+        kind: 'reversed',
+        amount: null,
+        reason: entry.reversalReason ?? '',
+      });
+    }
+    if (entry.cancelledAt) {
+      rows.push({ at: entry.cancelledAt, kind: 'cancelled', amount: null, reason: '' });
+    }
+    return rows.sort((a, b) => b.at.localeCompare(a.at));
+  });
 
   protected reload(): void {
     this.conflict.set(false);

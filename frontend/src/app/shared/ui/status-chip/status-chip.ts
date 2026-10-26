@@ -1,18 +1,30 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { HlmBadge } from '@spartan-ng/helm/badge';
 
 export type StatusTone = 'primary' | 'success' | 'danger' | 'info' | 'warning' | 'neutral';
 
-/** Etiqueta em pílula, em tom pastel, para status e tipos de registro. */
+const VARIANT = {
+  primary: 'outline',
+  info: 'outline',
+  success: 'ok',
+  danger: 'danger',
+  warning: 'warn',
+  neutral: 'off',
+} as const;
+
+/** Etiqueta em pílula com ponto, para status e tipos de registro (badge do Spartan). */
 @Component({
   selector: 'erp-status-chip',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: '{{ label() }}',
-  styleUrl: './status-chip.scss',
-  host: { '[class]': '"tone-" + tone() + (plain() ? " plain" : "")' },
+  imports: [HlmBadge],
+  host: { class: 'inline-flex' },
+  template: `<span hlmBadge [variant]="variant()">{{ label() }}</span>`,
 })
 export class StatusChip {
   readonly label = input.required<string>();
   readonly tone = input<StatusTone>('neutral');
-  /** Sem o indicador redondo (para códigos como UN, KG). */
+  /** Sem o ponto, em mono (para códigos como UN, KG). */
   readonly plain = input(false);
+
+  protected readonly variant = computed(() => (this.plain() ? 'code' : VARIANT[this.tone()]));
 }

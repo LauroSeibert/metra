@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { form, FormField, maxLength, required, submit } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmDialogImports } from '@spartan-ng/helm/dialog';
+import { HlmInput } from '@spartan-ng/helm/input';
 import { Api } from '../../../api/api';
 import { createProductCategory } from '../../../api/fn/product-categories/create-product-category';
 import { updateProductCategory } from '../../../api/fn/product-categories/update-product-category';
@@ -11,58 +11,58 @@ import { ProductCategoryDto } from '../../../api/models/product-category-dto';
 import { toApiProblem } from '../../../core/http/api-problem';
 import { toServerErrors } from '../../../core/http/server-errors';
 import { Notifier } from '../../../core/notifications/notifier';
+import { FieldShell } from '../../../shared/ui/field-shell/field-shell';
 import { CATALOG_RULES } from '../product-rules';
 import { PRODUCTS_STRINGS } from '../products.strings';
 
-/** Cria ou renomeia uma categoria. Fecha com `true` quando salva. */
+/** Dados passados a quem abre o diálogo: `null` cria, uma categoria renomeia. */
+export interface CategoryDialogContext {
+  readonly category: ProductCategoryDto | null;
+}
+
+/**
+ * Cria ou renomeia uma categoria. Enter salva, Esc cancela. Fecha com `true` quando salva.
+ * Abra com `HlmDialogService.open(CategoryDialog, { context: { category } })`.
+ */
 @Component({
   selector: 'erp-category-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormField, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule],
+  imports: [FormField, HlmButton, HlmDialogImports, HlmInput, FieldShell],
   template: `
-    <form novalidate (submit)="save($event)">
-      <h2 mat-dialog-title>{{ category ? strings.editCategory : strings.newCategory }}</h2>
-      <mat-dialog-content>
-        <mat-form-field>
-          <mat-label>{{ strings.name }}</mat-label>
-          <input matInput cdkFocusInitial [formField]="categoryForm.name" />
-          @if (categoryForm.name().errors()[0]; as error) {
-            <mat-error>{{ error.message }}</mat-error>
-          }
-        </mat-form-field>
-        @for (error of categoryForm().errors(); track $index) {
-          <p class="error" role="alert">{{ error.message }}</p>
-        }
-      </mat-dialog-content>
-      <mat-dialog-actions align="end">
-        <button matButton type="button" mat-dialog-close>{{ common.cancel }}</button>
-        <button
-          matButton="filled"
-          class="erp-primary-action"
-          type="submit"
-          [disabled]="categoryForm().submitting()"
-        >
-          {{ common.save }}
+    <form class="grid gap-4" novalidate (submit)="save($event)">
+      <hlm-dialog-header>
+        <h3 hlmDialogTitle>{{ category ? strings.editCategory : strings.newCategory }}</h3>
+        <p hlmDialogDescription>{{ strings.dialogHint }}</p>
+      </hlm-dialog-header>
+
+      <erp-field-shell
+        [label]="strings.name"
+        [required]="true"
+        [error]="
+          categoryForm.name().touched() ? (categoryForm.name().errors()[0]?.message ?? null) : null
+        "
+      >
+        <input hlmInput autocomplete="off" [formField]="categoryForm.name" />
+      </erp-field-shell>
+      @for (error of categoryForm().errors(); track $index) {
+        <p class="m-0 text-sm text-destructive" role="alert">{{ error.message }}</p>
+      }
+
+      <hlm-dialog-footer>
+        <button hlmBtn variant="outline" type="button" hlmDialogClose>{{ common.cancel }}</button>
+        <button hlmBtn type="submit" [disabled]="categoryForm().submitting()">
+          {{ categoryForm().submitting() ? strings.saving : common.save }}
         </button>
-      </mat-dialog-actions>
+      </hlm-dialog-footer>
     </form>
-  `,
-  styles: `
-    mat-form-field {
-      width: 100%;
-    }
-    .error {
-      margin: 0;
-      color: var(--erp-danger);
-    }
   `,
 })
 export class CategoryDialog {
   private readonly api = inject(Api);
   private readonly notifier = inject(Notifier);
-  private readonly dialogRef = inject<MatDialogRef<CategoryDialog, boolean>>(MatDialogRef);
+  private readonly dialogRef = inject<BrnDialogRef<boolean>>(BrnDialogRef);
 
-  protected readonly category = inject<ProductCategoryDto | null>(MAT_DIALOG_DATA);
+  protected readonly category = injectBrnDialogContext<CategoryDialogContext>().category;
   protected readonly strings = PRODUCTS_STRINGS.categories;
   protected readonly common = PRODUCTS_STRINGS;
   protected readonly model = signal({ name: this.category?.name ?? '' });

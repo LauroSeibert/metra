@@ -36,7 +36,7 @@
 .content {
   grid-area: content;
   min-width: 0;
-  padding: var(--erp-page-padding);
+  padding: var(--erp-page-padding-y) var(--erp-page-padding);
 }
 
 // Mobile: o menu sai da grade e vira gaveta sobre o conteúdo.

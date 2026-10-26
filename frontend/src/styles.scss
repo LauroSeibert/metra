@@ -1,10 +1,8 @@
 @use './app/styles/tokens';
-@use './app/styles/theme';
 
 html {
   height: 100%;
   color-scheme: light;
-  @include theme.apply();
 
   &[data-theme='dark'] {
     color-scheme: dark;
@@ -29,130 +27,25 @@ body {
   box-sizing: border-box;
 }
 
-// ---------- Botões ----------
-// Botões do Material com cantos discretos (não pílula), peso médio e 38 px de altura.
-.mat-mdc-button-base {
-  --mat-button-filled-label-text-weight: var(--erp-font-weight-medium);
-  --mat-button-outlined-label-text-weight: var(--erp-font-weight-medium);
-  --mat-button-text-label-text-weight: var(--erp-font-weight-medium);
-  --mat-button-outlined-outline-color: var(--erp-border-strong);
-  --mat-button-filled-container-shape: var(--erp-radius-sm);
-  --mat-button-outlined-container-shape: var(--erp-radius-sm);
-  --mat-button-text-container-shape: var(--erp-radius-sm);
-  --mat-button-filled-container-height: 38px;
-  --mat-button-outlined-container-height: 38px;
-  --mat-button-text-container-height: 38px;
-  --mat-button-filled-horizontal-padding: var(--erp-space-4);
-  --mat-button-outlined-horizontal-padding: var(--erp-space-4);
+// O "x" nativo dos campos de busca some: cada tela desenha o seu botão de limpar.
+input[type='search']::-webkit-search-cancel-button {
+  appearance: none;
+  display: none;
 }
 
-// Ação principal da página: preenchida na cor da marca.
-.erp-primary-action {
-  --mat-button-filled-container-color: var(--erp-primary);
-  --mat-button-filled-label-text-color: var(--erp-on-primary);
-}
-
-// Ação secundária: contorno sobre superfície branca.
-.erp-secondary-action {
-  --mat-button-outlined-container-color: var(--erp-surface);
-  --mat-button-outlined-label-text-color: var(--erp-text);
-
-  background: var(--erp-surface);
-}
-
-// Ação destrutiva confirmada em diálogo.
-.erp-danger-action {
-  --mat-button-filled-container-color: var(--erp-danger);
-  --mat-button-filled-label-text-color: var(--erp-on-primary);
-}
-
-// Ação de linha em tabela: ícone discreto que ganha a cor do tom no hover. O DataTable mostra as ações
-// da linha no hover e no foco (sempre visíveis em telas de toque).
-// Tons: primary (editar), danger (inativar/excluir), success (ativar/receber).
-.erp-row-action {
-  --erp-row-action-color: var(--erp-primary);
-  --erp-row-action-bg: var(--erp-primary-softer);
-
-  display: inline-grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  border: 0;
-  border-radius: var(--erp-radius-sm);
-  background: transparent;
-  color: var(--erp-text-muted);
-  text-decoration: none;
-  cursor: pointer;
-  transition:
-    background var(--erp-duration-fast) var(--erp-easing),
-    color var(--erp-duration-fast) var(--erp-easing);
-
-  mat-icon {
-    width: 18px;
-    height: 18px;
-    font-size: 18px;
-  }
-
-  &.danger {
-    --erp-row-action-color: var(--erp-danger);
-    --erp-row-action-bg: var(--erp-danger-soft);
-  }
-
-  &.success {
-    --erp-row-action-color: var(--erp-success);
-    --erp-row-action-bg: var(--erp-success-soft);
-  }
-
-  &:hover:not(:disabled) {
-    background: var(--erp-row-action-bg);
-    color: var(--erp-row-action-color);
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: var(--erp-focus-ring);
-  }
-
-  &:disabled {
-    opacity: var(--erp-opacity-disabled);
-    cursor: default;
-  }
-}
-
-.erp-row-actions {
-  display: inline-flex;
-  gap: var(--erp-space-1);
-}
-
-// ---------- Retorno ----------
-.erp-snack-success {
-  --mat-snack-bar-container-color: var(--erp-success);
-  --mat-snack-bar-supporting-text-color: var(--erp-on-primary);
-}
-
-.erp-snack-error {
-  --mat-snack-bar-container-color: var(--erp-danger);
-  --mat-snack-bar-supporting-text-color: var(--erp-on-primary);
-  --mat-snack-bar-button-color: var(--erp-on-primary);
-}
-
-// ---------- Diálogos ----------
-.mat-mdc-dialog-container {
-  --mat-dialog-container-shape: var(--erp-radius-card);
-  --mat-dialog-subhead-weight: var(--erp-font-weight-bold);
+// Troca de tema (ver core/auth/theme.ts): nada anima as cores no instante da troca.
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
 }
 
 // ---------- Utilitários ----------
-// Números (preço, quantidade, indicadores, SKU) em monoespaçada, alinhados pelos dígitos.
-.erp-number,
+// Texto em monoespaçada, alinhado pelos dígitos.
 .erp-mono {
   font-family: var(--erp-font-mono);
   font-variant-numeric: tabular-nums;
-}
-
-.erp-number {
-  text-align: right;
 }
 
 // Texto só para leitores de tela.
@@ -181,37 +74,6 @@ body {
   line-height: 1;
 }
 
-// Situação como ponto: cheio (ativo) ou vazado (inativo), com texto opcional ao lado.
-.erp-dot {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--erp-space-2);
-  color: var(--erp-text-muted);
-  white-space: nowrap;
-
-  &::before {
-    content: '';
-    flex: none;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--erp-success);
-  }
-
-  &.off::before {
-    border: 1.5px solid var(--erp-text-subtle);
-    background: transparent;
-  }
-
-  &.warning::before {
-    background: var(--erp-warning);
-  }
-
-  &.danger::before {
-    background: var(--erp-danger);
-  }
-}
-
 // Bloco cinza animado enquanto o conteúdo carrega.
 .erp-skeleton {
   display: block;
@@ -236,74 +98,6 @@ body {
   }
 }
 
-// Filtros dentro do cartão da tabela ([tableToolbar] do DataTable): busca, selects e contagem.
-.erp-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--erp-space-3);
-  padding: var(--erp-space-4);
-
-  // Campos de 40 px (mais baixos que os do formulário), só com tokens: o mixin de densidade pesaria no CSS.
-  --mat-form-field-container-height: 40px;
-  --mat-form-field-container-vertical-padding: 8px;
-
-  .mat-mdc-form-field {
-    flex: 1 1 var(--erp-field-min-width);
-    min-width: 0;
-  }
-
-  .grow {
-    flex: 3 1 280px;
-  }
-
-  // Lupa e atalho "/" centralizados na altura do campo e dentro dele.
-  .mat-mdc-form-field-icon-prefix,
-  .mat-mdc-form-field-icon-suffix {
-    display: flex;
-    align-items: center;
-    align-self: center;
-    height: var(--mat-form-field-container-height);
-    padding-block: 0;
-  }
-
-  .mat-mdc-form-field-icon-suffix {
-    padding-inline: var(--erp-space-2) var(--erp-space-3);
-  }
-
-  // Contagem de resultados, empurrada para a direita.
-  .erp-count {
-    margin-left: auto;
-    color: var(--erp-text-muted);
-    font-family: var(--erp-font-mono);
-    font-size: var(--erp-font-size-sm);
-    white-space: nowrap;
-  }
-}
-
-// Rótulo embutido no select de filtro: "Categoria  Todas".
-.erp-filter-label {
-  margin-right: var(--erp-space-3);
-  color: var(--erp-text-muted);
-}
-
-@media (max-width: 767.98px) {
-  // Filtros ocupam a linha inteira.
-  .erp-toolbar > * {
-    flex: 1 1 100%;
-  }
-
-  // Ação principal primeiro e em largura total; as demais dividem a linha de baixo.
-  erp-page-header .erp-primary-action {
-    flex: 1 1 100%;
-    order: -1;
-  }
-
-  erp-page-header .erp-secondary-action {
-    flex: 1 1 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -311,43 +105,4 @@ body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-// Campos de data: o ícone de calendário é o botão do mat-form-field (DatePickerToggle).
-input[type='date']::-webkit-calendar-picker-indicator {
-  display: none;
-}
-
-.erp-date-toggle {
-  display: inline-grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 0;
-  border-radius: var(--erp-radius-sm);
-  background: none;
-  color: var(--erp-text-muted);
-  cursor: pointer;
-
-  mat-icon {
-    width: 18px;
-    height: 18px;
-    font-size: 18px;
-  }
-
-  &:hover {
-    background: var(--erp-surface-sunken);
-    color: var(--erp-text);
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: var(--erp-focus-ring);
-  }
-}
-
-// Rótulo flutuante de campos em diálogos não pode ser cortado pelo topo do conteúdo.
-mat-dialog-content.mat-mdc-dialog-content {
-  padding-top: var(--erp-space-2);
 }

@@ -70,13 +70,13 @@ describe('DataTable', () => {
       expect(skeleton().length).toBeGreaterThan(0);
       expect(skeleton()[0].classList).toContain('pending');
       expect(skeleton()[0].querySelectorAll('td').length).toBe(host.columns.length + 1);
-      expect(element.querySelector('mat-progress-bar')).toBeNull();
+      expect(element.querySelector('.progress .bar')).toBeNull();
       expect(element.querySelector('table')?.getAttribute('aria-busy')).toBe('true');
 
       await update(() => vi.advanceTimersByTime(LOADING_DELAY_MS));
 
       expect(skeleton()[0].classList).not.toContain('pending');
-      expect(element.querySelector('mat-progress-bar')).not.toBeNull();
+      expect(element.querySelector('.progress .bar')).not.toBeNull();
     } finally {
       vi.useRealTimers();
     }
@@ -93,7 +93,7 @@ describe('DataTable', () => {
       await update(() => vi.advanceTimersByTime(LOADING_DELAY_MS));
 
       expect(element.querySelector('tr.skeleton-row')).toBeNull();
-      expect(element.querySelector('mat-progress-bar')).toBeNull();
+      expect(element.querySelector('.progress .bar')).toBeNull();
     } finally {
       vi.useRealTimers();
     }

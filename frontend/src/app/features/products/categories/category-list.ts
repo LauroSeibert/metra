@@ -8,12 +8,10 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmTooltip } from '@spartan-ng/helm/tooltip';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { Api } from '../../../api/api';
@@ -24,17 +22,18 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { toApiProblem } from '../../../core/http/api-problem';
 import { Notifier } from '../../../core/notifications/notifier';
 import { debounced } from '../../../shared/data/debounced';
-import { ConfirmDialog, ConfirmDialogData } from '../../../shared/ui/confirm-dialog/confirm-dialog';
+import { ConfirmService } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import {
   DataTable,
   DataTableColumn,
   DataTablePage,
 } from '../../../shared/ui/data-table/data-table';
 import { DataTableCell } from '../../../shared/ui/data-table/data-table-templates';
+import { Icon } from '../../../shared/ui/icon/icon';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { SlashFocus } from '../../../shared/ui/slash-focus';
 import { PRODUCTS_STRINGS } from '../products.strings';
-import { CategoryDialog } from './category-dialog';
+import { CategoryDialog, CategoryDialogContext } from './category-dialog';
 
 @Component({
   selector: 'erp-category-list',
@@ -42,13 +41,12 @@ import { CategoryDialog } from './category-dialog';
   imports: [
     DecimalPipe,
     RouterLink,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatTooltipModule,
+    HlmButton,
+    HlmInput,
+    HlmTooltip,
     DataTable,
     DataTableCell,
+    Icon,
     PageHeader,
     SlashFocus,
   ],
@@ -56,7 +54,8 @@ import { CategoryDialog } from './category-dialog';
 })
 export class CategoryList {
   private readonly api = inject(Api);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogs = inject(HlmDialogService);
+  private readonly confirm = inject(ConfirmService);
   private readonly notifier = inject(Notifier);
   private readonly auth = inject(AuthService);
 
@@ -105,34 +104,34 @@ export class CategoryList {
     this.search.set((event.target as HTMLInputElement).value);
   }
 
+  protected clearSearch(input: HTMLInputElement): void {
+    this.search.set('');
+    input.focus();
+  }
+
   protected onPage(change: DataTablePage): void {
     this.pageSize.set(change.pageSize);
     this.page.set(change.page);
   }
 
   protected async open(category: ProductCategoryDto | null): Promise<void> {
-    const ref = this.dialog.open<CategoryDialog, ProductCategoryDto | null, boolean>(
-      CategoryDialog,
-      {
-        data: category,
-        width: '28rem',
-      },
-    );
-    if (await firstValueFrom(ref.afterClosed())) {
+    const ref = this.dialogs.open<boolean, CategoryDialogContext>(CategoryDialog, {
+      context: { category },
+      contentClass: 'sm:max-w-md',
+    });
+    if (await firstValueFrom(ref.closed$)) {
       this.categories.reload();
     }
   }
 
   protected async remove(category: ProductCategoryDto): Promise<void> {
-    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
-      data: {
-        title: this.strings.deleteTitle,
-        message: this.strings.deleteMessage(category.name),
-        confirmLabel: this.common.delete,
-        cancelLabel: this.common.cancel,
-      },
+    const confirmed = await this.confirm.ask({
+      title: this.strings.deleteTitle,
+      message: this.strings.deleteMessage(category.name),
+      confirmLabel: this.common.delete,
+      cancelLabel: this.common.cancel,
     });
-    if (!(await firstValueFrom(ref.afterClosed()))) {
+    if (!confirmed) {
       return;
     }
 

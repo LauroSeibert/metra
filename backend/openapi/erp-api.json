@@ -2528,6 +2528,51 @@
         }
       }
     },
+    "/api/v1/financial-entries/{id}/installments": {
+      "get": {
+        "tags": [
+          "FinancialEntries"
+        ],
+        "summary": "Parcelas da mesma conta do lançamento, em ordem.",
+        "operationId": "ListFinancialEntryInstallments",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FinancialEntryDto"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/financial-entries/{id}/pay": {
       "post": {
         "tags": [
@@ -3584,6 +3629,7 @@
           "categoryName",
           "partnerId",
           "partnerName",
+          "partnerDocument",
           "amount",
           "dueDate",
           "status",
@@ -3595,6 +3641,7 @@
           "installmentTotal",
           "saleId",
           "reversedAt",
+          "cancelledAt",
           "reversalReason",
           "version",
           "createdAt",
@@ -3625,6 +3672,10 @@
             "nullable": true
           },
           "partnerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "partnerDocument": {
             "type": "string",
             "nullable": true
           },
@@ -3670,6 +3721,11 @@
             "nullable": true
           },
           "reversedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "cancelledAt": {
             "type": "string",
             "format": "date-time",
             "nullable": true

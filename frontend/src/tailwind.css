@@ -1,0 +1,123 @@
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css' layer(utilities);
+@import '@spartan-ng/brain/hlm-tailwind-preset.css';
+@import 'tw-animate-css';
+
+/*
+ * Ponte: as variáveis do Spartan apontam para os tokens --erp-* (styles/tokens.scss), a única fonte de verdade.
+ * Claro e escuro vêm dos próprios tokens; não há paleta paralela aqui.
+ */
+:root {
+  --background: var(--erp-bg);
+  --foreground: var(--erp-text);
+  --card: var(--erp-surface);
+  --card-foreground: var(--erp-text);
+  --popover: var(--erp-surface);
+  --popover-foreground: var(--erp-text);
+  --primary: var(--erp-primary);
+  --primary-foreground: var(--erp-on-primary);
+  --secondary: var(--erp-surface-muted);
+  --secondary-foreground: var(--erp-text);
+  --muted: var(--erp-surface-muted);
+  --muted-foreground: var(--erp-text-muted);
+  --accent: var(--erp-surface-hover);
+  --accent-foreground: var(--erp-text);
+  --border: var(--erp-border);
+  --input: var(--erp-border-strong);
+  --ring: var(--erp-primary);
+  --destructive: var(--erp-danger);
+  --radius: var(--erp-radius-md);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-accent-strong: var(--erp-surface-pressed);
+  --color-border-strong: var(--erp-border-strong);
+  --color-subtle-foreground: var(--erp-text-subtle);
+  --color-success: var(--erp-success);
+  --color-success-soft: var(--erp-success-soft);
+  --color-warning: var(--erp-warning);
+  --color-warning-soft: var(--erp-warning-soft);
+  --color-warning-text: var(--erp-warning-text);
+  --color-danger-soft: var(--erp-danger-soft);
+  --text-label: var(--erp-font-size-label);
+  --text-caption: var(--erp-font-size-caption);
+  --text-title: var(--erp-font-size-2xl);
+  --tracking-title: var(--erp-letter-spacing-title);
+  --color-backdrop: var(--erp-backdrop);
+  --shadow-xs: var(--erp-shadow-xs);
+  --shadow-overlay: var(--erp-shadow-overlay);
+  --shadow-focus: var(--erp-focus-ring);
+  --radius-sm: var(--erp-radius-sm);
+  --radius-md: var(--erp-radius-md);
+  --radius-lg: var(--erp-radius-lg);
+  --radius-xl: var(--erp-radius-xl);
+  --font-sans: var(--erp-font-family);
+  --font-mono: var(--erp-font-mono);
+}
+
+/* O Helm usa a variante dark: do Tailwind; o tema escuro do app é [data-theme='dark']. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* Medidas dos tokens como utilitários (sem valores arbitrários nos componentes). */
+@utility h-control {
+  height: var(--erp-control-h);
+}
+@utility h-control-sm {
+  height: var(--erp-control-h-sm);
+}
+@utility h-button {
+  height: var(--erp-button-h);
+}
+@utility h-badge {
+  height: var(--erp-badge-h);
+}
+@utility h-thead {
+  height: var(--erp-thead-h);
+}
+@utility h-row {
+  height: var(--erp-row-height);
+}
+@utility icon-block {
+  width: var(--erp-icon-block);
+  height: var(--erp-icon-block);
+}
+@utility switch-track {
+  width: var(--erp-switch-w);
+  height: var(--erp-switch-h);
+}
+@utility switch-thumb {
+  width: calc(var(--erp-switch-h) - 4px);
+  height: calc(var(--erp-switch-h) - 4px);
+}
+@utility thumb-on {
+  transform: translateX(calc(var(--erp-switch-w) - var(--erp-switch-h) + 2px));
+}
+@utility h-topbar {
+  height: var(--erp-topbar-height);
+}
+@utility px-page {
+  padding-inline: var(--erp-page-padding);
+}
+@utility max-w-page {
+  max-width: var(--erp-form-max-width);
+}

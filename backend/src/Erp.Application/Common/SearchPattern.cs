@@ -18,10 +18,26 @@ public static class SearchPattern
             return null;
         }
 
-        var escaped = term.Trim()
+        return Escape(term) + "%";
+    }
+
+    /// <summary>
+    /// Busca em qualquer parte do texto (<c>%termo%</c>). Não usa índice: varre a tabela, o que só vale onde a
+    /// medição aceita (produtos, ver docs/modules/products.md). Null quando o termo é vazio.
+    /// </summary>
+    public static string? Contains(string? term)
+    {
+        if (string.IsNullOrWhiteSpace(term))
+        {
+            return null;
+        }
+
+        return "%" + Escape(term) + "%";
+    }
+
+    private static string Escape(string term) =>
+        term.Trim()
             .Replace(EscapeCharacter, EscapeCharacter + EscapeCharacter, StringComparison.Ordinal)
             .Replace("%", EscapeCharacter + "%", StringComparison.Ordinal)
             .Replace("_", EscapeCharacter + "_", StringComparison.Ordinal);
-        return escaped + "%";
-    }
 }

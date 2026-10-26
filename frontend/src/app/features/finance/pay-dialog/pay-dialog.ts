@@ -1,17 +1,17 @@
-import { DatePickerToggle } from '../../../shared/ui/date-picker-toggle/date-picker-toggle';
 import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { form, FormField, required, submit, validate } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmDialogImports } from '@spartan-ng/helm/dialog';
+import { HlmInput } from '@spartan-ng/helm/input';
 import { Api } from '../../../api/api';
 import { payFinancialEntry } from '../../../api/fn/financial-entries/pay-financial-entry';
 import { FinancialEntryDto } from '../../../api/models/financial-entry-dto';
 import { toApiProblem } from '../../../core/http/api-problem';
 import { toServerErrors } from '../../../core/http/server-errors';
 import { Notifier } from '../../../core/notifications/notifier';
+import { FieldShell } from '../../../shared/ui/field-shell/field-shell';
 import { MoneyInput } from '../../../shared/ui/money-input/money-input';
 import { FINANCE_STRINGS } from '../finance.strings';
 
@@ -36,86 +36,58 @@ export function todayIso(): string {
 @Component({
   selector: 'erp-pay-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    DatePickerToggle,
-    CurrencyPipe,
-    FormField,
-    MatButtonModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MoneyInput,
-  ],
+  imports: [CurrencyPipe, FormField, HlmButton, HlmDialogImports, HlmInput, FieldShell, MoneyInput],
   template: `
-    <form novalidate (submit)="save($event)">
-      <h2 mat-dialog-title>{{ data.title }}</h2>
-      <mat-dialog-content>
-        <p class="entry">
-          <strong>{{ data.entry.description }}</strong>
-          <span>{{ data.entry.amount | currency }}</span>
-        </p>
-        <mat-form-field>
-          <mat-label>{{ strings.paidAt }}</mat-label>
-          <input #dateField1 matInput type="date" [formField]="payForm.paidAt" />
-          <button matSuffix [erpDatePickerToggle]="dateField1"></button>
-          @if (payForm.paidAt().errors()[0]; as error) {
-            <mat-error>{{ error.message }}</mat-error>
-          }
-        </mat-form-field>
-        <mat-form-field>
-          <mat-label>{{ strings.paidAmount }}</mat-label>
-          <erp-money-input [formField]="payForm.paidAmount" />
-          <mat-hint>{{ strings.amountHint }}</mat-hint>
-          @if (payForm.paidAmount().errors()[0]; as error) {
-            <mat-error>{{ error.message }}</mat-error>
-          }
-        </mat-form-field>
-        @for (error of payForm().errors(); track $index) {
-          <p class="error" role="alert">{{ error.message }}</p>
-        }
-      </mat-dialog-content>
-      <mat-dialog-actions align="end">
-        <button matButton type="button" mat-dialog-close>{{ strings.cancel }}</button>
-        <button
-          matButton="filled"
-          class="erp-primary-action"
-          type="submit"
-          [disabled]="payForm().submitting()"
-        >
+    <form class="grid gap-4" novalidate (submit)="save($event)">
+      <hlm-dialog-header>
+        <h3 hlmDialogTitle>{{ data.title }}</h3>
+      </hlm-dialog-header>
+
+      <p class="m-0 flex justify-between gap-4 rounded-md bg-muted px-4 py-3">
+        <strong class="font-medium">{{ data.entry.description }}</strong>
+        <span class="tabular-nums">{{ data.entry.amount | currency }}</span>
+      </p>
+
+      <erp-field-shell
+        [label]="strings.paidAt"
+        [required]="true"
+        [error]="
+          payForm.paidAt().touched() ? (payForm.paidAt().errors()[0]?.message ?? null) : null
+        "
+      >
+        <input hlmInput type="date" [formField]="payForm.paidAt" />
+      </erp-field-shell>
+      <erp-field-shell
+        [label]="strings.paidAmount"
+        [required]="true"
+        [hint]="strings.amountHint"
+        [error]="
+          payForm.paidAmount().touched()
+            ? (payForm.paidAmount().errors()[0]?.message ?? null)
+            : null
+        "
+      >
+        <erp-money-input [formField]="payForm.paidAmount" />
+      </erp-field-shell>
+      @for (error of payForm().errors(); track $index) {
+        <p class="m-0 text-sm text-destructive" role="alert">{{ error.message }}</p>
+      }
+
+      <hlm-dialog-footer>
+        <button hlmBtn variant="outline" type="button" hlmDialogClose>{{ strings.cancel }}</button>
+        <button hlmBtn type="submit" [disabled]="payForm().submitting()">
           {{ strings.confirm }}
         </button>
-      </mat-dialog-actions>
+      </hlm-dialog-footer>
     </form>
-  `,
-  styles: `
-    mat-dialog-content {
-      display: flex;
-      flex-direction: column;
-      gap: var(--erp-space-2);
-    }
-
-    .entry {
-      display: flex;
-      justify-content: space-between;
-      gap: var(--erp-space-4);
-      margin: 0 0 var(--erp-space-2);
-      padding: var(--erp-space-3) var(--erp-space-4);
-      border-radius: var(--erp-radius-md);
-      background: var(--erp-surface-muted);
-    }
-
-    .error {
-      margin: 0;
-      color: var(--erp-danger);
-    }
   `,
 })
 export class PayDialog {
   private readonly api = inject(Api);
   private readonly notifier = inject(Notifier);
-  private readonly dialogRef = inject<MatDialogRef<PayDialog, boolean>>(MatDialogRef);
+  private readonly dialogRef = inject<BrnDialogRef<boolean>>(BrnDialogRef);
 
-  protected readonly data = inject<PayDialogData>(MAT_DIALOG_DATA);
+  protected readonly data = injectBrnDialogContext<PayDialogData>();
   protected readonly strings = FINANCE_STRINGS.pay;
   protected readonly today = todayIso();
   protected readonly model = signal<PayModel>({

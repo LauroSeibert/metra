@@ -1,7 +1,7 @@
 <erp-page-header [title]="strings.list.title" [subtitle]="strings.list.subtitle">
   @if (canWrite()) {
-    <a matButton="filled" class="erp-primary-action" routerLink="edit">
-      <mat-icon>add</mat-icon>
+    <a hlmBtn routerLink="edit">
+      <erp-icon name="plus" />
       {{ strings.list.newSale }}
     </a>
   }
@@ -25,81 +25,58 @@
   (retry)="sales.reload()"
   (rowActivate)="open($event)"
 >
-  <section tableToolbar class="erp-toolbar" [attr.aria-label]="strings.list.searchLabel">
-    <mat-form-field class="number" subscriptSizing="dynamic">
-      <mat-icon matPrefix>search</mat-icon>
-      <input
-        matInput
-        erpSlashFocus
-        type="search"
-        inputmode="numeric"
-        [attr.aria-label]="strings.list.searchLabel"
-        [placeholder]="strings.list.searchLabel"
-        [value]="search()"
-        (input)="onSearchInput($event)"
-      />
-      <span matSuffix class="erp-kbd" aria-hidden="true">/</span>
-    </mat-form-field>
-
+  <section
+    tableToolbar
+    class="flex flex-wrap items-center gap-2.5 border-b border-border p-3.5"
+    [attr.aria-label]="strings.list.searchLabel"
+  >
+    <erp-search-field [label]="strings.list.searchLabel" [numeric]="true" [(value)]="search" />
     <erp-partner-picker
-      class="grow"
+      class="w-56"
       type="Customer"
-      subscriptSizing="dynamic"
+      [inline]="true"
       [label]="strings.list.partnerFilter"
       [(selected)]="partner"
     />
-
-    <mat-form-field subscriptSizing="dynamic" class="date">
-      <span matTextPrefix class="erp-filter-label">{{ strings.list.issuedFrom }}</span>
-      <input
-        #dateField1
-        matInput
-        type="date"
-        [attr.aria-label]="strings.list.issuedFrom"
-        [value]="issuedFrom()"
-        (change)="onDate('issuedFrom', $event)"
-      />
-      <button matSuffix [erpDatePickerToggle]="dateField1"></button>
-    </mat-form-field>
-
-    <mat-form-field subscriptSizing="dynamic" class="date">
-      <span matTextPrefix class="erp-filter-label">{{ strings.list.issuedTo }}</span>
-      <input
-        #dateField2
-        matInput
-        type="date"
-        [attr.aria-label]="strings.list.issuedTo"
-        [value]="issuedTo()"
-        (change)="onDate('issuedTo', $event)"
-      />
-      <button matSuffix [erpDatePickerToggle]="dateField2"></button>
-    </mat-form-field>
-
-    @if (hasFilters()) {
-      <button matButton type="button" (click)="clearFilters()">
-        <mat-icon>filter_alt_off</mat-icon>
-        {{ strings.list.clearFilters }}
-      </button>
-    }
-    <span class="erp-count">{{ strings.list.results((total() | number) ?? '0') }}</span>
+    <erp-date-field [label]="strings.list.issuedFrom" [(value)]="issuedFrom" />
+    <erp-date-field [label]="strings.list.issuedTo" [(value)]="issuedTo" />
+    <button
+      hlmBtn
+      variant="outline"
+      type="button"
+      [disabled]="!hasFilters()"
+      (click)="clearFilters()"
+    >
+      <erp-icon name="filter-x" />
+      {{ strings.list.clearFilters }}
+    </button>
+    <erp-result-count>{{ strings.list.results((total() | number) ?? '0') }}</erp-result-count>
   </section>
 
   <ng-template erpCell="number" [erpCellOf]="rows()" let-sale>
-    <span class="erp-mono">#{{ sale.number }}</span>
+    <span class="font-mono tabular-nums">#{{ sale.number }}</span>
   </ng-template>
 
   <ng-template erpCell="partner" [erpCellOf]="rows()" let-sale>
-    <a class="partner" [routerLink]="['edit', sale.id]">{{ sale.partnerName }}</a>
-    <span class="secondary">{{ strings.list.items(sale.itemCount) }}</span>
+    <a
+      class="block font-medium text-foreground no-underline hover:underline"
+      [routerLink]="['edit', sale.id]"
+      >{{ sale.partnerName }}</a
+    >
+    <span class="block text-label text-muted-foreground">{{
+      strings.list.items(sale.itemCount)
+    }}</span>
   </ng-template>
 
   <ng-template erpCell="issuedAt" [erpCellOf]="rows()" let-sale>
-    <span class="erp-mono">{{ sale.issuedAt | date: 'dd/MM/yyyy' }}</span>
+    <span class="font-mono tabular-nums">{{ sale.issuedAt | date: 'dd/MM/yyyy' }}</span>
   </ng-template>
 
   <ng-template erpCell="payment" [erpCellOf]="rows()" let-sale>
     {{ strings.paymentMethods[sale.paymentMethod] }}
-    <span class="secondary">{{ strings.list.installments(sale.installments) }}</span>
+    <span class="block text-label text-muted-foreground">{{
+      strings.list.installments(sale.installments)
+    }}</span>
   </ng-template>
 
   <ng-template erpCell="total" [erpCellOf]="rows()" let-sale>
@@ -111,37 +88,42 @@
   </ng-template>
 
   <ng-template erpCell="actions" [erpCellOf]="rows()" let-sale>
-    <div class="erp-row-actions">
+    <div class="inline-flex items-center gap-1">
       @if (canWrite() && sale.status === 'Draft') {
         <button
-          class="erp-row-action success"
+          hlmBtn
+          variant="ghost"
+          size="icon"
           type="button"
-          [title]="strings.list.confirm"
+          [hlmTooltip]="strings.list.confirm"
           [attr.aria-label]="strings.list.confirm + ' #' + sale.number"
           (click)="confirm(sale)"
         >
-          <mat-icon>task_alt</mat-icon>
+          <erp-icon name="circle-check" />
         </button>
       }
       <a
-        class="erp-row-action"
+        hlmBtn
+        variant="ghost"
+        size="icon"
         [routerLink]="['edit', sale.id]"
-        [title]="canWrite() && sale.status === 'Draft' ? strings.list.open : strings.list.view"
+        [hlmTooltip]="canWrite() && sale.status === 'Draft' ? strings.list.open : strings.list.view"
         [attr.aria-label]="strings.list.view + ' #' + sale.number"
       >
-        <mat-icon>{{
-          canWrite() && sale.status === 'Draft' ? 'edit_square' : 'visibility'
-        }}</mat-icon>
+        <erp-icon [name]="canWrite() && sale.status === 'Draft' ? 'pencil' : 'eye'" />
       </a>
       @if (canWrite() && sale.status !== 'Cancelled') {
         <button
-          class="erp-row-action danger"
+          hlmBtn
+          variant="ghost"
+          size="icon"
           type="button"
-          [title]="strings.list.cancel"
+          class="text-destructive hover:text-destructive"
+          [hlmTooltip]="strings.list.cancel"
           [attr.aria-label]="strings.list.cancel + ' #' + sale.number"
           (click)="cancel(sale)"
         >
-          <mat-icon>block</mat-icon>
+          <erp-icon name="ban" />
         </button>
       }
     </div>

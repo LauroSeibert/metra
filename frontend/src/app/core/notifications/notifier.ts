@@ -1,16 +1,16 @@
 import { Injectable, inject } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from './toast.service';
 
-/** Mensagens curtas de retorno (salvo, excluído, erro). */
+/** Mensagens curtas de retorno (salvo, excluído, erro): toast com a mensagem como título. */
 @Injectable({ providedIn: 'root' })
 export class Notifier {
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toasts = inject(ToastService);
 
   success(message: string): void {
-    this.snackBar.open(message, undefined, { duration: 3000, panelClass: 'erp-snack-success' });
+    this.toasts.success(message);
   }
 
   error(message: string): void {
-    this.snackBar.open(message, 'OK', { duration: 6000, panelClass: 'erp-snack-error' });
+    this.toasts.error(message);
   }
 }

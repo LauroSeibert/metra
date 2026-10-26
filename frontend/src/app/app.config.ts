@@ -9,7 +9,6 @@ import {
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
-import { MAT_ICON_DEFAULT_OPTIONS } from '@angular/material/icon';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideApiConfiguration } from './api/api-configuration';
 import { routes } from './app.routes';
@@ -33,7 +32,5 @@ export const appConfig: ApplicationConfig = {
     provideApiConfiguration(''),
     { provide: LOCALE_ID, useValue: 'pt-BR' },
     { provide: DEFAULT_CURRENCY_CODE, useValue: 'BRL' },
-    // Padrões de formulário e paginador ficam nas rotas lazy: shared/ui/material-defaults.ts.
-    { provide: MAT_ICON_DEFAULT_OPTIONS, useValue: { fontSet: 'material-symbols-outlined' } },
   ],
 };

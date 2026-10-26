@@ -28,9 +28,7 @@ describe('App shell', () => {
   it('renders top bar breadcrumb, side nav and home cards', async () => {
     const root = await render('/');
 
-    expect(root.querySelector('erp-top-bar .breadcrumb li')?.textContent?.trim()).toBe(
-      LAYOUT_STRINGS.home,
-    );
+    expect(root.querySelector('erp-top-bar nav li')?.textContent?.trim()).toBe(LAYOUT_STRINGS.home);
     expect(root.querySelectorAll('erp-side-nav li').length).toBe(NAV_ITEMS.length);
     expect(root.querySelector('erp-home h1')?.textContent?.trim()).toBe(HOME_STRINGS.title);
     expect(root.querySelectorAll('erp-home erp-card').length).toBe(3);
@@ -46,10 +44,8 @@ describe('App shell', () => {
   it('shows the signed-in user in the top bar', async () => {
     const root = await render('/');
 
-    expect(root.querySelector('erp-top-bar .who strong')?.textContent?.trim()).toBe(
-      'Usuária Teste',
-    );
-    expect(root.querySelector('erp-top-bar .avatar')?.textContent?.trim()).toBe('UT');
+    expect(root.querySelector('erp-top-bar strong')?.textContent?.trim()).toBe('Usuária Teste');
+    expect(root.querySelector('erp-top-bar [hlmAvatarFallback]')?.textContent?.trim()).toBe('UT');
   });
 
   it('sends visitors without a session to the login, keeping the requested page', async () => {

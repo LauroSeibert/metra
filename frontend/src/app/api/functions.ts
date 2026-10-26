@@ -99,6 +99,8 @@ export type { GetFinancialEntry$Params as GetFinancialEntry$Params } from './fn/
 export { getFinancialEntry as getFinancialEntry } from './fn/financial-entries/get-financial-entry';
 export type { UpdateFinancialEntry$Params as UpdateFinancialEntry$Params } from './fn/financial-entries/update-financial-entry';
 export { updateFinancialEntry as updateFinancialEntry } from './fn/financial-entries/update-financial-entry';
+export type { ListFinancialEntryInstallments$Params as ListFinancialEntryInstallments$Params } from './fn/financial-entries/list-financial-entry-installments';
+export { listFinancialEntryInstallments as listFinancialEntryInstallments } from './fn/financial-entries/list-financial-entry-installments';
 export type { PayFinancialEntry$Params as PayFinancialEntry$Params } from './fn/financial-entries/pay-financial-entry';
 export { payFinancialEntry as payFinancialEntry } from './fn/financial-entries/pay-financial-entry';
 export type { ReverseFinancialPayment$Params as ReverseFinancialPayment$Params } from './fn/financial-entries/reverse-financial-payment';

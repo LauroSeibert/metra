@@ -5,6 +5,7 @@ import {
   inject,
   linkedSignal,
   resource,
+  signal,
 } from '@angular/core';
 import {
   apply,
@@ -17,11 +18,20 @@ import {
   submit,
   validate,
 } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { HlmAvatar, HlmAvatarFallback } from '@spartan-ng/helm/avatar';
+import { HlmBadge } from '@spartan-ng/helm/badge';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmCard } from '@spartan-ng/helm/card';
+import {
+  HlmEmpty,
+  HlmEmptyContent,
+  HlmEmptyDescription,
+  HlmEmptyHeader,
+  HlmEmptyMedia,
+  HlmEmptyTitle,
+} from '@spartan-ng/helm/empty';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSwitch } from '@spartan-ng/helm/switch';
 import { Api } from '../../api/api';
 import { getCompanySettings } from '../../api/fn/settings/get-company-settings';
 import { updateCompanySettings } from '../../api/fn/settings/update-company-settings';
@@ -32,10 +42,18 @@ import { AuthService } from '../../core/auth/auth.service';
 import { toApiProblem } from '../../core/http/api-problem';
 import { toServerErrors } from '../../core/http/server-errors';
 import { Notifier } from '../../core/notifications/notifier';
-import { Card } from '../../shared/ui/card/card';
 import { DataTable, DataTableColumn } from '../../shared/ui/data-table/data-table';
 import { DataTableCell } from '../../shared/ui/data-table/data-table-templates';
+import { FieldShell } from '../../shared/ui/field-shell/field-shell';
+import { Icon } from '../../shared/ui/icon/icon';
+import { SearchField } from '../../shared/ui/search-field/search-field';
+import {
+  SegmentedControl,
+  SegmentedOption,
+} from '../../shared/ui/segmented-control/segmented-control';
 import { PageHeader } from '../../shared/ui/page-header/page-header';
+import { SectionCard } from '../../shared/ui/section-card/section-card';
+import { formatCompanyDocument, initialsOf } from './company-document';
 import { SETTINGS_STRINGS } from './settings.strings';
 
 /** Mesmos limites do servidor (SettingsService). */
@@ -77,18 +95,29 @@ function toModel(dto: CompanySettingsDto | null): SettingsModel {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormField,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSlideToggleModule,
-    Card,
+    HlmAvatar,
+    HlmAvatarFallback,
+    HlmBadge,
+    HlmButton,
+    HlmCard,
+    HlmEmpty,
+    HlmEmptyContent,
+    HlmEmptyDescription,
+    HlmEmptyHeader,
+    HlmEmptyMedia,
+    HlmEmptyTitle,
+    HlmInput,
+    HlmSwitch,
     DataTable,
     DataTableCell,
+    FieldShell,
+    Icon,
     PageHeader,
+    SearchField,
+    SectionCard,
+    SegmentedControl,
   ],
   templateUrl: './settings.html',
-  styleUrl: './settings.scss',
 })
 export class Settings {
   private readonly api = inject(Api);
@@ -120,20 +149,46 @@ export class Settings {
   });
   protected readonly formErrors = computed(() => this.settingsForm().errors());
 
-  protected readonly userRows = computed<readonly UserDto[]>(() =>
+  protected readonly userSearch = signal('');
+  protected readonly userRole = signal('');
+  protected readonly roleOptions: readonly SegmentedOption<string>[] = [
+    { value: '', label: SETTINGS_STRINGS.usersAll },
+    ...SETTINGS_STRINGS.roleCards.map(({ role }) => ({
+      value: role,
+      label: SETTINGS_STRINGS.roles[role],
+    })),
+  ];
+  private readonly allUsers = computed<readonly UserDto[]>(() =>
     this.users.hasValue() ? this.users.value().items : [],
   );
-  protected readonly userTotal = computed(() =>
-    this.users.hasValue() ? this.users.value().totalCount : 0,
-  );
+  protected readonly userRows = computed<readonly UserDto[]>(() => {
+    const term = this.userSearch().trim().toLowerCase();
+    const role = this.userRole();
+    return this.allUsers().filter(
+      (user) =>
+        (!role || user.role === role) &&
+        (!term ||
+          user.fullName.toLowerCase().includes(term) ||
+          user.email.toLowerCase().includes(term)),
+    );
+  });
+  protected readonly userTotal = computed(() => this.userRows().length);
   protected readonly usersError = computed(() =>
     this.users.status() === 'error' ? SETTINGS_STRINGS.usersError : null,
   );
   protected readonly userKey = (user: UserDto) => user.id;
   protected readonly inactive = (user: UserDto) => !user.active;
+  protected readonly initials = initialsOf;
 
   protected setAllowNegative(checked: boolean): void {
     this.model.update((model) => ({ ...model, allowNegativeStock: checked }));
+  }
+
+  /** Aplica a máscara do CNPJ antes de o campo ler o valor digitado. */
+  protected maskDocument(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    input.value = formatCompanyDocument(input.value);
+    this.model.update((model) => ({ ...model, companyDocument: input.value }));
   }
 
   protected async save(event: Event): Promise<void> {

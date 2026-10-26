@@ -1,4 +1,4 @@
-import { DatePickerToggle } from '../../../shared/ui/date-picker-toggle/date-picker-toggle';
+import { HlmTooltip } from '@spartan-ng/helm/tooltip';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -20,13 +20,7 @@ import {
   submit,
   validate,
 } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { Api } from '../../../api/api';
 import { cancelSale } from '../../../api/fn/sales/cancel-sale';
@@ -43,14 +37,25 @@ import { API_ERROR_CODES, toApiProblem } from '../../../core/http/api-problem';
 import { toServerErrors } from '../../../core/http/server-errors';
 import { Notifier } from '../../../core/notifications/notifier';
 import { delayedFlag } from '../../../shared/data/delayed-flag';
-import { Card } from '../../../shared/ui/card/card';
-import { ConfirmDialog, ConfirmDialogData } from '../../../shared/ui/confirm-dialog/confirm-dialog';
+import { ConfirmService } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import { MoneyInput } from '../../../shared/ui/money-input/money-input';
-import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { StatusChip, StatusTone } from '../../../shared/ui/status-chip/status-chip';
 import { PartnerPicker, PickedPartner } from '../../partners/partner-picker/partner-picker';
 import { PickedProduct, ProductPicker } from '../../products/product-picker/product-picker';
 import { SALES_STRINGS } from '../sales.strings';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmCard } from '@spartan-ng/helm/card';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
+import { HlmTextarea } from '@spartan-ng/helm/textarea';
+import { fieldError } from '../../../shared/ui/field-shell/field-error';
+import { FieldShell } from '../../../shared/ui/field-shell/field-shell';
+import { FormBanner } from '../../../shared/ui/form-banner/form-banner';
+import { FormHeader } from '../../../shared/ui/form-header/form-header';
+import { Icon } from '../../../shared/ui/icon/icon';
+import { LoadError } from '../../../shared/ui/load-error/load-error';
+import { SectionCard } from '../../../shared/ui/section-card/section-card';
 
 /** Mesmos limites do servidor (Sale). */
 export const SALE_RULES = { noteMaxLength: 500 } as const;
@@ -114,19 +119,23 @@ function lineTotal(line: SaleLine): number {
   selector: 'erp-sale-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePickerToggle,
+    HlmButton,
+    HlmCard,
+    HlmInput,
+    HlmSelectImports,
+    HlmSkeleton,
+    HlmTextarea,
+    FieldShell,
+    FormBanner,
+    FormHeader,
+    Icon,
+    LoadError,
+    SectionCard,
+    HlmTooltip,
     CurrencyPipe,
     DatePipe,
-    RouterLink,
     FormField,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-    Card,
     MoneyInput,
-    PageHeader,
     PartnerPicker,
     ProductPicker,
     StatusChip,
@@ -138,7 +147,7 @@ export class SaleForm {
   private readonly api = inject(Api);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly dialog = inject(MatDialog);
+  private readonly confirm = inject(ConfirmService);
   private readonly notifier = inject(Notifier);
 
   readonly id = input<string>();
@@ -254,7 +263,19 @@ export class SaleForm {
       .map((error) => error.message ?? ''),
   ]);
 
+  protected readonly bannerMessages = computed(() =>
+    this.bannerErrors().map((message) => ({ message })),
+  );
   protected readonly lineTotal = lineTotal;
+  protected readonly fieldError = fieldError;
+  protected readonly paymentLabel = (method: PaymentMethod): string =>
+    SALES_STRINGS.paymentMethods[method];
+
+  protected setPaymentMethod(method: PaymentMethod | null | undefined): void {
+    if (method) {
+      this.saleForm.paymentMethod().value.set(method);
+    }
+  }
 
   protected statusTone(sale: SaleDto): StatusTone {
     return STATUS_TONE[sale.status];
@@ -399,10 +420,12 @@ export class SaleForm {
   }
 
   private async ask(title: string, message: string): Promise<boolean> {
-    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
-      data: { title, message, confirmLabel: title, cancelLabel: SALES_STRINGS.actions.keep },
+    return this.confirm.ask({
+      title,
+      message,
+      confirmLabel: title,
+      cancelLabel: SALES_STRINGS.actions.keep,
     });
-    return (await firstValueFrom(ref.afterClosed())) === true;
   }
 
   private async run(action: () => Promise<SaleDto>, success: string): Promise<void> {

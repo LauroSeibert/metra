@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { email, form, FormField, required, schema, submit } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { toApiProblem } from '../../../core/http/api-problem';
 import { LAYOUT_STRINGS } from '../../../core/layout/layout.strings';
 import { ACCESS_STRINGS } from '../access.strings';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { FieldShell } from '../../../shared/ui/field-shell/field-shell';
+import { Icon } from '../../../shared/ui/icon/icon';
 
 interface LoginModel {
   email: string;
@@ -26,7 +26,7 @@ const loginSchema = schema<LoginModel>((path) => {
 @Component({
   selector: 'erp-login',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormField, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],
+  imports: [FormField, HlmButton, HlmInput, FieldShell, Icon],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })

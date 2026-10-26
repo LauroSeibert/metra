@@ -1,6 +1,6 @@
 <erp-page-header [title]="strings.history.title" [subtitle]="strings.history.subtitle">
-  <a matButton="outlined" class="erp-secondary-action" routerLink="/stock">
-    <mat-icon>arrow_back</mat-icon>
+  <a hlmBtn variant="outline" routerLink="/stock">
+    <erp-icon name="arrow-left" />
     {{ strings.history.back }}
   </a>
 </erp-page-header>
@@ -14,70 +14,45 @@
   [emptyMessage]="strings.history.empty"
   (retry)="firstPage.reload()"
 >
-  <section tableToolbar class="erp-toolbar" [attr.aria-label]="strings.history.title">
+  <section
+    tableToolbar
+    class="flex flex-wrap items-center gap-2.5 border-b border-border p-3.5"
+    [attr.aria-label]="strings.history.title"
+  >
     <erp-product-picker
-      class="grow"
-      subscriptSizing="dynamic"
+      class="min-w-56 flex-1"
+      [inline]="true"
       [label]="strings.history.product"
       [(selected)]="product"
     />
-
-    <mat-form-field subscriptSizing="dynamic">
-      <span matTextPrefix class="erp-filter-label">{{ strings.history.typeFilter }}</span>
-      <mat-select
-        [value]="type() ?? 'all'"
-        [aria-label]="strings.history.typeFilter"
-        (valueChange)="type.set($event === 'all' ? null : $event)"
-      >
-        <mat-option value="all">{{ strings.history.allTypes }}</mat-option>
-        @for (option of types; track option) {
-          <mat-option [value]="option">{{ strings.types[option] }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field subscriptSizing="dynamic" class="date">
-      <span matTextPrefix class="erp-filter-label">{{ strings.history.from }}</span>
-      <input
-        #dateField1
-        matInput
-        type="date"
-        [attr.aria-label]="strings.history.from"
-        [value]="from()"
-        (change)="onDate('from', $event)"
-      />
-      <button matSuffix [erpDatePickerToggle]="dateField1"></button>
-    </mat-form-field>
-
-    <mat-form-field subscriptSizing="dynamic" class="date">
-      <span matTextPrefix class="erp-filter-label">{{ strings.history.to }}</span>
-      <input
-        #dateField2
-        matInput
-        type="date"
-        [attr.aria-label]="strings.history.to"
-        [value]="to()"
-        (change)="onDate('to', $event)"
-      />
-      <button matSuffix [erpDatePickerToggle]="dateField2"></button>
-    </mat-form-field>
-
-    @if (hasFilters()) {
-      <button matButton type="button" (click)="clearFilters()">
-        <mat-icon>filter_alt_off</mat-icon>
-        {{ strings.history.clearFilters }}
-      </button>
-    }
+    <erp-filter-select
+      [label]="strings.history.typeFilter"
+      [options]="typeOptions"
+      [value]="type() ?? 'all'"
+      (valueChange)="setType($event)"
+    />
+    <erp-date-field [label]="strings.history.from" [(value)]="from" />
+    <erp-date-field [label]="strings.history.to" [(value)]="to" />
+    <button
+      hlmBtn
+      variant="outline"
+      type="button"
+      [disabled]="!hasFilters()"
+      (click)="clearFilters()"
+    >
+      <erp-icon name="filter-x" />
+      {{ strings.history.clearFilters }}
+    </button>
   </section>
 
   <ng-template erpCell="occurredAt" [erpCellOf]="rows()" let-movement>
-    <span class="date">{{ movement.occurredAt | date: 'short' }}</span>
+    <span class="whitespace-nowrap">{{ movement.occurredAt | date: 'short' }}</span>
   </ng-template>
 
   <ng-template erpCell="product" [erpCellOf]="rows()" let-movement>
-    <div class="product">
-      <strong>{{ movement.productName }}</strong>
-      <small>{{ movement.sku }}</small>
+    <div class="flex flex-col">
+      <strong class="font-medium">{{ movement.productName }}</strong>
+      <small class="font-mono text-label text-muted-foreground">{{ movement.sku }}</small>
     </div>
   </ng-template>
 
@@ -86,10 +61,14 @@
   </ng-template>
 
   <ng-template erpCell="quantity" [erpCellOf]="rows()" let-movement>
-    <strong class="quantity" [class.in]="movement.quantity > 0" [class.out]="movement.quantity < 0">
+    <strong
+      class="font-semibold tabular-nums"
+      [class.text-success]="movement.quantity > 0"
+      [class.text-destructive]="movement.quantity < 0"
+    >
       {{ movement.quantity > 0 ? '+' : '' }}{{ movement.quantity | number: '1.0-3' }}
     </strong>
-    <small class="unit">{{ movement.unitCode ?? '' }}</small>
+    <small class="ml-1 text-muted-foreground">{{ movement.unitCode ?? '' }}</small>
   </ng-template>
 
   <ng-template erpCell="unitCost" [erpCellOf]="rows()" let-movement>
@@ -101,7 +80,7 @@
   </ng-template>
 
   <ng-template erpCell="note" [erpCellOf]="rows()" let-movement>
-    <span class="note">
+    <span class="text-muted-foreground">
       @if (movement.type === 'Reversal' && movement.referenceId) {
         {{ strings.history.reversalOf(movement.referenceId) }}{{ movement.note ? ' · ' : '' }}
       }
@@ -113,15 +92,18 @@
     @if (movement.reversedById) {
       <erp-status-chip [label]="strings.history.reversed" tone="neutral" [plain]="true" />
     } @else if (canReverse(movement)) {
-      <div class="erp-row-actions">
+      <div class="inline-flex items-center gap-1">
         <button
-          class="erp-row-action danger"
+          hlmBtn
+          variant="ghost"
+          size="icon"
           type="button"
-          [matTooltip]="strings.history.reverse"
+          class="text-destructive hover:text-destructive"
+          [hlmTooltip]="strings.history.reverse"
           [attr.aria-label]="strings.history.reverse + ' ' + movement.id"
           (click)="reverse(movement)"
         >
-          <mat-icon>undo</mat-icon>
+          <erp-icon name="undo" />
         </button>
       </div>
     }
@@ -129,10 +111,16 @@
 </erp-data-table>
 
 @if (rows().length > 0) {
-  <div class="more">
+  <div class="more flex justify-center py-5 text-sm text-muted-foreground">
     @if (hasMore()) {
-      <button matButton="outlined" type="button" [disabled]="loadingMore()" (click)="loadMore()">
-        <mat-icon>expand_more</mat-icon>
+      <button
+        hlmBtn
+        variant="outline"
+        type="button"
+        [disabled]="loadingMore()"
+        (click)="loadMore()"
+      >
+        <erp-icon name="chevron-down" />
         {{ loadingMore() ? strings.history.loading : strings.history.loadMore }}
       </button>
     } @else {

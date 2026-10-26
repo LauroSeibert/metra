@@ -153,7 +153,9 @@ describe('ProductForm', () => {
 
     await submit();
 
-    const skuField = element.querySelector('mat-form-field');
+    const skuField = Array.from(element.querySelectorAll('erp-field-shell')).find((shell) =>
+      shell.textContent?.includes(PRODUCTS_STRINGS.form.sku),
+    );
     expect(skuField?.textContent).toContain('Já existe um produto com o SKU CAN-002.');
   });
 

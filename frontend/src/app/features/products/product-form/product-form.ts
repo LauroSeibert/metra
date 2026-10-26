@@ -1,24 +1,31 @@
-import { CurrencyPipe, DatePipe, PercentPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  afterNextRender,
   computed,
+  ElementRef,
   inject,
+  Injector,
   input,
   linkedSignal,
   resource,
   signal,
 } from '@angular/core';
 import { apply, disabled, form, FormField, submit } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSelectModule } from '@angular/material/select';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmCard } from '@spartan-ng/helm/card';
+import { HlmComboboxImports } from '@spartan-ng/helm/combobox';
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
+import { HlmSwitch } from '@spartan-ng/helm/switch';
+import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { Router, RouterLink } from '@angular/router';
 import { Api } from '../../../api/api';
+import { activateProduct } from '../../../api/fn/products/activate-product';
 import { createProduct } from '../../../api/fn/products/create-product';
+import { deactivateProduct } from '../../../api/fn/products/deactivate-product';
 import { getProduct } from '../../../api/fn/products/get-product';
 import { updateProduct } from '../../../api/fn/products/update-product';
 import { listProductCategories } from '../../../api/fn/product-categories/list-product-categories';
@@ -29,10 +36,17 @@ import { API_ERROR_CODES, toApiProblem } from '../../../core/http/api-problem';
 import { toServerErrors } from '../../../core/http/server-errors';
 import { Notifier } from '../../../core/notifications/notifier';
 import { delayedFlag } from '../../../shared/data/delayed-flag';
-import { Card } from '../../../shared/ui/card/card';
+import { ActionBar } from '../../../shared/ui/action-bar/action-bar';
+import { FieldShell } from '../../../shared/ui/field-shell/field-shell';
+import { FormBanner } from '../../../shared/ui/form-banner/form-banner';
+import { FormHeader } from '../../../shared/ui/form-header/form-header';
+import { Icon } from '../../../shared/ui/icon/icon';
+import { LoadError } from '../../../shared/ui/load-error/load-error';
+import { MarginMeter } from '../../../shared/ui/margin-meter/margin-meter';
 import { MoneyInput } from '../../../shared/ui/money-input/money-input';
-import { PageHeader } from '../../../shared/ui/page-header/page-header';
+import { SectionCard } from '../../../shared/ui/section-card/section-card';
 import { StatusChip } from '../../../shared/ui/status-chip/status-chip';
+import { PRODUCT_RULES } from '../product-rules';
 import { PRODUCTS_STRINGS } from '../products.strings';
 import {
   EMPTY_PRODUCT,
@@ -48,18 +62,25 @@ import {
   imports: [
     CurrencyPipe,
     DatePipe,
-    PercentPipe,
     RouterLink,
     FormField,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatProgressBarModule,
-    MatSelectModule,
-    Card,
+    HlmButton,
+    HlmCard,
+    HlmComboboxImports,
+    HlmDropdownMenuImports,
+    HlmInput,
+    HlmSkeleton,
+    HlmSwitch,
+    HlmTextarea,
+    ActionBar,
+    FieldShell,
+    FormBanner,
+    FormHeader,
+    Icon,
+    LoadError,
+    MarginMeter,
     MoneyInput,
-    PageHeader,
+    SectionCard,
     StatusChip,
   ],
   templateUrl: './product-form.html',
@@ -69,6 +90,8 @@ export class ProductForm {
   private readonly api = inject(Api);
   private readonly router = inject(Router);
   private readonly notifier = inject(Notifier);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
 
   /** Parâmetro `:id` da rota (withComponentInputBinding). */
   readonly id = input<string>();
@@ -124,28 +147,76 @@ export class ProductForm {
       : null;
   });
 
-  /** Largura da barra de margem (0–100), limitada para margens negativas ou acima de 100%. */
-  protected readonly marginBar = computed(() => {
-    const margin = this.margin();
-    return margin === null ? 0 : Math.min(100, Math.max(0, Math.abs(margin) * 100));
-  });
   protected readonly profit = computed(() => {
     const { costPrice, salePrice } = this.model();
     return costPrice !== null && salePrice !== null ? salePrice - costPrice : null;
   });
-  protected readonly selectedCategory = computed(
-    () => this.categoryOptions().find((category) => category.id === this.model().categoryId)?.name,
-  );
-  protected readonly selectedUnit = computed(() => {
-    const unit = this.unitOptions().find((option) => option.id === this.model().unitId);
-    return unit ? `${unit.code} · ${unit.name}` : undefined;
+  protected readonly maxDescription = PRODUCT_RULES.descriptionMaxLength;
+
+  /** Muda em relação ao que está salvo (ou ao formulário vazio, no cadastro). */
+  protected readonly dirty = computed(() => {
+    const saved = this.product.hasValue()
+      ? toProductFormModel(this.product.value())
+      : EMPTY_PRODUCT;
+    return JSON.stringify(this.model()) !== JSON.stringify(saved);
   });
+  protected readonly togglingActive = signal(false);
+
+  // Categoria e unidade usam 0 como "nenhuma" (o combobox não aceita null como valor).
+  protected readonly categoryLabel = (id: number): string =>
+    id === 0
+      ? this.strings.form.none
+      : (this.categoryOptions().find((c) => c.id === id)?.name ?? '');
+  protected readonly unitLabel = (id: number): string => {
+    const unit = this.unitOptions().find((option) => option.id === id);
+    return id === 0 ? this.strings.form.none : unit ? `${unit.code} · ${unit.name}` : '';
+  };
+
+  protected setCategory(id: number): void {
+    this.productForm.categoryId().value.set(id || null);
+  }
+
+  protected setUnit(id: number): void {
+    this.productForm.unitId().value.set(id || null);
+  }
+
+  /** Mensagem do primeiro erro do campo, depois que ele foi tocado ou o envio foi tentado. */
+  protected errorOf(field: {
+    touched(): boolean;
+    errors(): readonly { message?: string }[];
+  }): string | null {
+    return field.touched() ? (field.errors()[0]?.message ?? null) : null;
+  }
+
+  /** Ativa ou inativa na hora (endpoints próprios), mantendo o que foi digitado e ainda não salvo. */
+  protected async toggleActive(): Promise<void> {
+    const current = this.product.hasValue() ? this.product.value() : null;
+    if (!current || this.togglingActive()) {
+      return;
+    }
+    this.togglingActive.set(true);
+    try {
+      const updated = await this.api.invoke(current.active ? deactivateProduct : activateProduct, {
+        id: current.id,
+      });
+      const typed = this.model();
+      this.product.set(updated);
+      this.model.set(typed);
+      this.notifier.success(
+        updated.active ? PRODUCTS_STRINGS.list.activated : PRODUCTS_STRINGS.list.deactivated,
+      );
+    } catch (error) {
+      this.notifier.error(toApiProblem(error).message);
+    } finally {
+      this.togglingActive.set(false);
+    }
+  }
 
   protected async save(event: Event): Promise<void> {
     event.preventDefault();
     this.conflict.set(false);
 
-    await submit(this.productForm, async () => {
+    const submitted = await submit(this.productForm, async () => {
       const request = this.toRequest();
       try {
         // Depois de salvar, continua na tela com os dados como o servidor gravou (SKU gerado,
@@ -170,11 +241,21 @@ export class ProductForm {
         return toServerErrors(this.productForm, problem, { 'product.sku_duplicate': 'sku' });
       }
     });
+    if (!submitted) {
+      this.focusFirstInvalid();
+    }
   }
 
   protected reload(): void {
     this.conflict.set(false);
     this.product.reload();
+  }
+
+  private focusFirstInvalid(): void {
+    afterNextRender(
+      () => this.host.nativeElement.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(),
+      { injector: this.injector },
+    );
   }
 
   private toRequest(): CreateProductRequest {

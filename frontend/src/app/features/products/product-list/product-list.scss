@@ -7,7 +7,6 @@
   text-decoration: none;
 
   &:hover {
-    color: var(--erp-primary);
     text-decoration: underline;
   }
 }
@@ -15,7 +14,7 @@
 .category {
   display: block;
   color: var(--erp-text-muted);
-  font-size: var(--erp-font-size-sm);
+  font-size: var(--erp-font-size-caption);
 }
 
 .sku {
@@ -48,10 +47,8 @@
 .label,
 dt {
   color: var(--erp-text-subtle);
-  font-size: var(--erp-font-size-xs);
-  font-weight: var(--erp-font-weight-semibold);
-  letter-spacing: var(--erp-letter-spacing-caps);
-  text-transform: uppercase;
+  font-size: var(--erp-font-size-caption);
+  font-weight: var(--erp-font-weight-medium);
 }
 
 .metrics {
@@ -78,17 +75,33 @@ dt {
   }
 }
 
-// Estoque abaixo do mínimo (âmbar) e zerado (vermelho), com a palavra antes do número.
-.stock-flag {
-  margin-right: var(--erp-space-2);
-  font-family: var(--erp-font-family);
-  font-size: var(--erp-font-size-sm);
+// Estoque: abaixo do mínimo, ponto e número em âmbar; zerado, em vermelho.
+.stock {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--erp-space-2);
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--erp-radius-pill);
+    background: currentColor;
+  }
+
+  &.low {
+    color: var(--erp-warning-text);
+    font-weight: var(--erp-font-weight-medium);
+  }
+
+  &.zero {
+    color: var(--erp-danger);
+    font-weight: var(--erp-font-weight-medium);
+  }
 }
 
-.low {
-  color: var(--erp-warning-text);
-}
-
-.zero {
-  color: var(--erp-danger);
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2px;
 }

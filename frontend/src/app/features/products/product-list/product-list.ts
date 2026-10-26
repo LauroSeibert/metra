@@ -9,13 +9,13 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { HlmBadge } from '@spartan-ng/helm/badge';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmComboboxImports } from '@spartan-ng/helm/combobox';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HlmTooltip } from '@spartan-ng/helm/tooltip';
 import { Api } from '../../../api/api';
 import { activateProduct } from '../../../api/fn/products/activate-product';
 import { deactivateProduct } from '../../../api/fn/products/deactivate-product';
@@ -44,6 +44,7 @@ import {
   DataTableCell,
   DataTableExpandedRow,
 } from '../../../shared/ui/data-table/data-table-templates';
+import { Icon } from '../../../shared/ui/icon/icon';
 import { KpiItem, KpiStrip } from '../../../shared/ui/kpi-strip/kpi-strip';
 import { SlashFocus } from '../../../shared/ui/slash-focus';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
@@ -68,17 +69,18 @@ const DEFAULT_SORT: DataTableSort = { field: 'name', direction: 'asc' };
   selector: 'erp-product-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HlmTooltip,
     CurrencyPipe,
     DatePipe,
     DecimalPipe,
     PercentPipe,
     RouterLink,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-    MatTooltipModule,
+    HlmBadge,
+    HlmButton,
+    HlmComboboxImports,
+    HlmInput,
+    HlmSelectImports,
+    Icon,
     DataTable,
     DataTableCell,
     DataTableExpandedRow,
@@ -247,6 +249,14 @@ export class ProductList {
 
   protected readonly rowKey = (product: ProductListItemDto) => product.id;
 
+  /** Texto dos filtros em lista (combobox de categoria e seleção de estoque). */
+  protected readonly categoryLabel = (id: number): string =>
+    id === 0
+      ? PRODUCTS_STRINGS.list.allCategories
+      : (this.categoryOptions().find((category) => category.id === id)?.name ?? '');
+  protected readonly stockLabel = (lowOnly: boolean): string =>
+    lowOnly ? PRODUCTS_STRINGS.list.lowStock : PRODUCTS_STRINGS.list.allStock;
+
   constructor() {
     effect(() => {
       void this.router.navigate([], {
@@ -275,6 +285,11 @@ export class ProductList {
 
   protected onSearchInput(event: Event): void {
     this.search.set((event.target as HTMLInputElement).value);
+  }
+
+  protected clearSearch(input: HTMLInputElement): void {
+    this.search.set('');
+    input.focus();
   }
 
   protected clearFilters(): void {
