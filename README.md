@@ -72,6 +72,49 @@ English. Everything below is plain Markdown (or a small script) that Claude Code
 | `docs/design-system.md` | visual identity and UI patterns (Spartan UI + Tailwind + `--erp-*` tokens) |
 | `docs/adr/` | architecture decision records |
 
+## Experiment: do the `.md` files help?
+
+A first proof of concept (Oct 26, 2026) for goal 2. Same prompts, same model (`sonnet`), three branches that differ
+only in which Markdown files exist. Each run is a fresh headless session (`claude -p`), and the numbers come from
+its JSON result.
+
+| Branch | What it contains |
+| --- | --- |
+| [`bench/all-md`](../../tree/bench/all-md) | every `.md` file (`CLAUDE.md`, `docs/`, `.claude/`, READMEs) |
+| [`bench/claude-only`](../../tree/bench/claude-only) | only the `.md` files inside `.claude/` |
+| [`bench/no-md`](../../tree/bench/no-md) | no `.md` files at all |
+
+One run per cell, API-equivalent cost reported by Claude Code:
+
+| Prompt | Branch | Cost | Turns | Total tokens |
+| --- | --- | ---: | ---: | ---: |
+| Change the primary color to blue | all-md | $0.144 | 8 | 186k |
+| | no-md | $0.136 | 11 | 177k |
+| Add a `brand` field to products, end to end | all-md | **$0.302** | **15** | **522k** |
+| | claude-only | $0.378 | 31 | 815k |
+| | no-md | $0.412 | 22 | 1,072k |
+| How is authentication implemented? | all-md | $0.174 | **10** | **116k** |
+| | no-md | $0.170 | 13 | 189k |
+
+![Brand field: cost per run](docs/images/add-brand-field-cost-per-run.png)
+
+![Brand field: context read from cache](docs/images/add-brand-field-cached-context-tokens.png)
+
+![Auth question: total tokens processed](docs/images/how-auth-was-implemented-total-tokens-processed.png)
+
+What it suggests:
+
+- **Trivial edit:** no difference. The file is easy to find without any documentation.
+- **Multi-file task:** with the docs the agent took fewer turns and read less context (`brand`: cost −27%, 15 turns
+  against 22). Part of that is scope: the branches did not deliver exactly the same changes.
+- **Read-only questions:** fewer tokens (−38% on `auth`), but about the same cost, because cached tokens are cheap.
+  In a second round of 12 runs, `all-md` averaged 4.7 turns against 6.0 for `no-md` (−22%) at the same cost.
+- **Trade-off:** docs carry intent and business rules that the code does not state, but the agent may trust them
+  without checking the code, so they need to stay current.
+
+This is a small experiment, not a benchmark: one project, one model, one to two runs per cell, so single differences
+can be luck. The plan is to repeat it with more runs and a fixed scope per prompt.
+
 ## License
 
 [MIT](LICENSE) © 2026 Lauro Seibert
