@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <UserSecretsId>erp-demo-api</UserSecretsId>
+    <UserSecretsId>metra-api</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Bogus" />

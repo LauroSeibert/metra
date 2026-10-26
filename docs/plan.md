@@ -142,7 +142,7 @@ O ERP tem oito módulos que se conectam por eventos de negócio reais: confirmar
 A arquitetura é um monolito modular em monorepo: a API tem quatro camadas com dependência em uma só direção, e o front espelha as mesmas funcionalidades.
 
 ```text
-erp-demo/
+metra/
 ├── CLAUDE.md                  # mapa do sistema, comandos, regras globais
 ├── .claude/
 │   ├── rules/                 # regras por tema ou caminho
@@ -316,7 +316,7 @@ O contexto é dividido em camadas, e cada informação entra na camada mais bara
 **Exemplo de `CLAUDE.md` raiz** (cerca de 30 linhas):
 
 ```markdown
-# ERP Demo
+# Metra
 
 Simulação de ERP para pequenas empresas de comércio.
 Monorepo: `backend/` (.NET 10, MySQL 9.7) e `frontend/` (Angular 22).
@@ -409,7 +409,7 @@ Faltam quatro passos para começar: instalar as ferramentas, criar o repositóri
 
 O [Angular 22.0 exige Node ^22.22.3, ^24.15.0 ou ^26.0.0 e TypeScript 6.0](https://next.angular.dev/reference/versions); o TypeScript vem como dependência do projeto e não é instalado à parte. O Claude Code instala no PowerShell com `irm https://claude.ai/install.ps1 | iex` ou com `winget install Anthropic.ClaudeCode`, conforme a [documentação de instalação](https://code.claude.com/docs/en/setup.md). Não é preciso instalar MySQL (o Docker cuida), nem Angular CLI ou TypeScript globais.
 
-**2. Criar o repositório.** Criar um repositório vazio `erp-demo` no GitHub, clonar, abrir um terminal na pasta e salvar este documento, exportado em Markdown, como `docs/plan.md`.
+**2. Criar o repositório.** Criar um repositório vazio `metra` no GitHub, clonar, abrir um terminal na pasta e salvar este documento, exportado em Markdown, como `docs/plan.md`.
 
 **3. Primeiro pedido ao Claude Code.** No terminal, dentro da pasta, rodar `claude` e enviar:
 
