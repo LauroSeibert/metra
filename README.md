@@ -1,13 +1,26 @@
 # Metra
 
-Metra is a demo ERP for small retail businesses, built to study how to organize context for Claude Code
-(`CLAUDE.md`, rules and skills) in a mid-sized system while spending few tokens.
+Metra is a demo ERP for small retail businesses. It is deliberately small, but it is built the way a real ERP
+should be.
 
-## Features
+## Goals
 
-Products (system code, SKU, duplicate and delete), partners (customers and suppliers), stock, accounts receivable
-and payable (installments, payment, reversal and history), sales, dashboard, settings and profile, with light and
-dark themes and three access roles (administrator, operator and read-only).
+1. **Apply good ERP practices, even in a low-complexity system.** The functionality is only a base for the second
+   goal, so the focus is on how it is built:
+   - **Module organization:** clean layers on the API (domain, application, infrastructure, endpoints) and one
+     folder per feature on the front end, with a reference module that new ones copy.
+   - **Tests:** unit tests for domain rules, integration tests against a real MySQL, and front-end component tests.
+   - **Performance:** server-side pagination, filtering and sorting, with every new index checked with `EXPLAIN`
+     against a seed of 100 thousand products and 1 million stock movements.
+   - **Data integrity:** stock movements and financial entries are never deleted, balances are updated
+     transactionally, numbering is sequential without gaps, and edits use optimistic concurrency.
+   - **Contracts and access:** an OpenAPI contract with a generated client, role-based authorization, and business
+     rules documented per module.
+2. **Measure how much Markdown context files affect Claude Code.** The repository carries project context as
+   Markdown (`CLAUDE.md`, rules, skills and module docs). A goal of the project is to measure how those files change
+   token usage and the speed with which Claude Code makes changes and improvements. The plan is to branch from the
+   same commit, remove or restore the context files per scenario, and repeat the same tasks at least three times,
+   recording model versions, prompts and results (see `docs/plan.md`).
 
 ## Stack
 
