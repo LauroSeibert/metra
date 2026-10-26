@@ -6,7 +6,7 @@ Módulo de referência: novos módulos copiam sua estrutura (skills `new-endpoin
 
 - O produto é identificado pelo `id`; o SKU é o código de negócio (busca, etiqueta, balcão).
 - **Código do sistema** (`code`): número sequencial e único, o último criado mais um (tabela `document_sequence`, linha
-  `product`, incremento atômico na transação da criação). Nunca muda e é a ordenação padrão da listagem. Produtos
+  `product`, incremento atômico na transação da criação). Nunca muda e é a ordenação padrão da listagem (decrescente: o mais novo primeiro). Produtos
   anteriores à coluna receberam `code = id`.
 - SKU opcional na entrada, até 40 caracteres, letras, números, `.`, `-` ou `_`, começando por letra ou número.
   É gravado sem espaços nas pontas e em maiúsculas; duplicidade (ignorando caixa) → 409 `product.sku_duplicate`.
@@ -30,7 +30,7 @@ Módulo de referência: novos módulos copiam sua estrutura (skills `new-endpoin
 
 | Rota | Uso |
 | --- | --- |
-| `GET /api/v1/products` | `search`, `categoryId`, `active`, `sort` (`code` padrão, `name`, `sku`, `salePrice`, `createdAt`), `page`, `pageSize` |
+| `GET /api/v1/products` | `search`, `categoryId`, `active`, `sort` (`-code` padrão, `name`, `sku`, `salePrice`, `createdAt`), `page`, `pageSize` |
 | `GET/PUT /api/v1/products/{id}` | detalhe e edição (com `version`) |
 | `POST /api/v1/products` | cadastro |
 | `POST /api/v1/products/{id}/activate` · `/deactivate` | situação |

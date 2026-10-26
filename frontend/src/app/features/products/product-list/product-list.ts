@@ -60,7 +60,7 @@ const ACTIVE_BY_STATUS: Record<StatusFilter, boolean | undefined> = {
 };
 
 const SORTABLE_FIELDS = ['code', 'sku', 'name', 'salePrice'] as const;
-const DEFAULT_SORT: DataTableSort = { field: 'code', direction: 'asc' };
+const DEFAULT_SORT: DataTableSort = { field: 'code', direction: 'desc' };
 
 /**
  * Listagem de produtos: busca com debounce, filtros, ordenação e paginação no servidor, estado na

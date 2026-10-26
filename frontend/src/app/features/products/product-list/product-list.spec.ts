@@ -48,7 +48,7 @@ describe('ProductList', () => {
       search: undefined,
       categoryId: undefined,
       active: undefined,
-      sort: 'code',
+      sort: '-code',
       page: 1,
       pageSize: 20,
     });

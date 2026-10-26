@@ -17,7 +17,7 @@ public sealed class ProductService(IErpDbContext db)
     {
         ArgumentNullException.ThrowIfNull(query);
         var page = PageRequest.From(query.Page, query.PageSize);
-        var sort = SortRequest.Parse(query.Sort, "code", SortFields);
+        var sort = SortRequest.Parse(string.IsNullOrWhiteSpace(query.Sort) ? "-code" : query.Sort, "code", SortFields);
 
         var products = db.Products.AsNoTracking();
 
