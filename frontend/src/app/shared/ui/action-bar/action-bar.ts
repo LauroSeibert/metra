@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, input, signal } from '@angular/core';
 import { Icon } from '../icon/icon';
 import { UI_STRINGS } from '../ui.strings';
 
@@ -17,7 +17,7 @@ import { UI_STRINGS } from '../ui.strings';
         <span class="size-1.5 rounded-full bg-warning" aria-hidden="true"></span>
         {{ strings.unsavedChanges }}
       </span>
-    } @else if (showSaved()) {
+    } @else if (showSaved() && edited()) {
       <span class="inline-flex items-center gap-1.5 text-label text-success" role="status">
         <erp-icon name="circle-check" [size]="16" />
         {{ strings.allSaved }}
@@ -28,8 +28,16 @@ import { UI_STRINGS } from '../ui.strings';
 })
 export class ActionBar {
   readonly dirty = input(false);
-  /** Mostra "Tudo salvo" quando não há mudança (some no cadastro novo, que ainda não foi salvo). */
+  /** Permite "Tudo salvo" (some no cadastro novo, que ainda não foi salvo). */
   readonly showSaved = input(true);
+
+  /** "Tudo salvo" só aparece depois de uma edição, nunca na abertura da tela. */
+  protected readonly edited = signal(false);
+  private readonly watchEdits = effect(() => {
+    if (this.dirty()) {
+      this.edited.set(true);
+    }
+  });
 
   protected readonly strings = UI_STRINGS;
 }

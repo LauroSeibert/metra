@@ -81,77 +81,79 @@
           [title]="strings.form.customer"
           [description]="strings.form.customerHint"
         >
-          <div class="@container grid grid-cols-1 gap-4 @xl:grid-cols-2">
-            <erp-partner-picker
-              class="@xl:col-span-2"
-              type="Customer"
-              [label]="strings.form.partner"
-              [required]="true"
-              [disabled]="!editable()"
-              [error]="attempted() && !partner() ? strings.validation.partner : null"
-              [(selected)]="partner"
-            />
-
-            <erp-field-shell [label]="strings.form.issuedAt" [required]="true">
-              <input hlmInput type="date" [formField]="saleForm.issuedAt" />
-            </erp-field-shell>
-
-            <erp-field-shell [label]="strings.form.paymentMethod">
-              <hlm-select
-                [value]="model().paymentMethod"
-                [itemToString]="paymentLabel"
+          <div class="@container">
+            <div class="grid grid-cols-1 gap-4 @xl:grid-cols-2">
+              <erp-partner-picker
+                class="@xl:col-span-2"
+                type="Customer"
+                [label]="strings.form.partner"
+                [required]="true"
                 [disabled]="!editable()"
-                (valueChange)="setPaymentMethod($event)"
-              >
-                <hlm-select-trigger class="w-full">
-                  <hlm-select-value />
-                </hlm-select-trigger>
-                <hlm-select-content *hlmSelectPortal>
-                  @for (method of paymentMethods; track method) {
-                    <hlm-select-item [value]="method">{{
-                      strings.paymentMethods[method]
-                    }}</hlm-select-item>
-                  }
-                </hlm-select-content>
-              </hlm-select>
-            </erp-field-shell>
-
-            <erp-field-shell
-              [label]="strings.form.installments"
-              [error]="fieldError(saleForm.installments())"
-            >
-              <input
-                hlmInput
-                type="number"
-                class="tabular-nums"
-                [formField]="saleForm.installments"
+                [error]="attempted() && !partner() ? strings.validation.partner : null"
+                [(selected)]="partner"
               />
-            </erp-field-shell>
 
-            <erp-field-shell
-              [label]="strings.form.saleDiscount"
-              [hint]="
-                editable() && maxDiscountPercent() !== null
-                  ? strings.form.maxDiscount(maxDiscountPercent()!)
-                  : null
-              "
-              [error]="fieldError(saleForm.discount())"
-            >
-              <erp-money-input [formField]="saleForm.discount" />
-            </erp-field-shell>
+              <erp-field-shell [label]="strings.form.issuedAt" [required]="true">
+                <input hlmInput type="date" [formField]="saleForm.issuedAt" />
+              </erp-field-shell>
 
-            <erp-field-shell
-              class="@xl:col-span-2"
-              [label]="strings.form.note"
-              [error]="fieldError(saleForm.note())"
-            >
-              <textarea
-                hlmTextarea
-                class="min-h-16"
-                rows="2"
-                [formField]="saleForm.note"
-              ></textarea>
-            </erp-field-shell>
+              <erp-field-shell [label]="strings.form.paymentMethod">
+                <hlm-select
+                  [value]="model().paymentMethod"
+                  [itemToString]="paymentLabel"
+                  [disabled]="!editable()"
+                  (valueChange)="setPaymentMethod($event)"
+                >
+                  <hlm-select-trigger class="w-full">
+                    <hlm-select-value />
+                  </hlm-select-trigger>
+                  <hlm-select-content *hlmSelectPortal>
+                    @for (method of paymentMethods; track method) {
+                      <hlm-select-item [value]="method">{{
+                        strings.paymentMethods[method]
+                      }}</hlm-select-item>
+                    }
+                  </hlm-select-content>
+                </hlm-select>
+              </erp-field-shell>
+
+              <erp-field-shell
+                [label]="strings.form.installments"
+                [error]="fieldError(saleForm.installments())"
+              >
+                <input
+                  hlmInput
+                  type="number"
+                  class="tabular-nums"
+                  [formField]="saleForm.installments"
+                />
+              </erp-field-shell>
+
+              <erp-field-shell
+                [label]="strings.form.saleDiscount"
+                [hint]="
+                  editable() && maxDiscountPercent() !== null
+                    ? strings.form.maxDiscount(maxDiscountPercent()!)
+                    : null
+                "
+                [error]="fieldError(saleForm.discount())"
+              >
+                <erp-money-input [formField]="saleForm.discount" />
+              </erp-field-shell>
+
+              <erp-field-shell
+                class="@xl:col-span-2"
+                [label]="strings.form.note"
+                [error]="fieldError(saleForm.note())"
+              >
+                <textarea
+                  hlmTextarea
+                  class="min-h-16"
+                  rows="2"
+                  [formField]="saleForm.note"
+                ></textarea>
+              </erp-field-shell>
+            </div>
           </div>
         </erp-section-card>
 

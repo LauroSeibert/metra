@@ -88,5 +88,7 @@ export class PartnerPicker {
   );
 
   protected readonly key = (partner: PickedPartner): number => partner.id;
-  protected readonly display = (partner: PickedPartner): string => partner.name;
+  /** Nome e, se houver, o CPF/CNPJ: é o que aparece no campo depois de escolher. */
+  protected readonly display = (partner: PickedPartner): string =>
+    partner.document ? `${partner.name} · ${formatDocument(partner.document)}` : partner.name;
 }

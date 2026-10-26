@@ -56,7 +56,6 @@ export const PARTNERS_STRINGS = {
   form: {
     newTitle: 'Novo parceiro',
     editTitle: 'Editar parceiro',
-    subtitle: 'Campos com * são obrigatórios.',
     identification: 'Identificação',
     identificationHint: 'Quem é o parceiro e que papel ele tem nas operações.',
     contact: 'Contato',

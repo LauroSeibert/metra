@@ -59,49 +59,51 @@
           [title]="strings.form.identification"
           [description]="strings.form.identificationHint"
         >
-          <div class="@container grid grid-cols-1 gap-4 @xl:grid-cols-3">
-            <erp-field-shell [label]="strings.form.type">
-              <hlm-select
-                [value]="model().type"
-                [itemToString]="typeLabel"
-                [disabled]="!canWrite()"
-                (valueChange)="setType($event)"
+          <div class="@container">
+            <div class="grid grid-cols-1 gap-4 @xl:grid-cols-3">
+              <erp-field-shell [label]="strings.form.type">
+                <hlm-select
+                  [value]="model().type"
+                  [itemToString]="typeLabel"
+                  [disabled]="!canWrite()"
+                  (valueChange)="setType($event)"
+                >
+                  <hlm-select-trigger class="w-full">
+                    <hlm-select-value />
+                  </hlm-select-trigger>
+                  <hlm-select-content *hlmSelectPortal>
+                    @for (type of types; track type) {
+                      <hlm-select-item [value]="type">{{ strings.types[type] }}</hlm-select-item>
+                    }
+                  </hlm-select-content>
+                </hlm-select>
+              </erp-field-shell>
+
+              <erp-field-shell
+                class="@xl:col-span-2"
+                [label]="strings.form.name"
+                [required]="true"
+                [error]="fieldError(partnerForm.name())"
               >
-                <hlm-select-trigger class="w-full">
-                  <hlm-select-value />
-                </hlm-select-trigger>
-                <hlm-select-content *hlmSelectPortal>
-                  @for (type of types; track type) {
-                    <hlm-select-item [value]="type">{{ strings.types[type] }}</hlm-select-item>
-                  }
-                </hlm-select-content>
-              </hlm-select>
-            </erp-field-shell>
+                <input hlmInput type="text" autocomplete="off" [formField]="partnerForm.name" />
+              </erp-field-shell>
 
-            <erp-field-shell
-              class="@xl:col-span-2"
-              [label]="strings.form.name"
-              [required]="true"
-              [error]="fieldError(partnerForm.name())"
-            >
-              <input hlmInput type="text" autocomplete="off" [formField]="partnerForm.name" />
-            </erp-field-shell>
-
-            <erp-field-shell
-              class="@xl:col-span-2"
-              [label]="strings.form.document"
-              [hint]="strings.form.documentHint"
-              [error]="fieldError(partnerForm.document())"
-            >
-              <input
-                hlmInput
-                class="font-mono"
-                type="text"
-                autocomplete="off"
-                [formField]="partnerForm.document"
-                (blur)="formatDocumentField()"
-              />
-            </erp-field-shell>
+              <erp-field-shell
+                class="@xl:col-span-2"
+                [label]="strings.form.document"
+                [hint]="strings.form.documentHint"
+                [error]="fieldError(partnerForm.document())"
+              >
+                <input
+                  hlmInput
+                  class="font-mono"
+                  type="text"
+                  autocomplete="off"
+                  [formField]="partnerForm.document"
+                  (blur)="formatDocumentField()"
+                />
+              </erp-field-shell>
+            </div>
           </div>
         </erp-section-card>
 
@@ -110,18 +112,23 @@
           [title]="strings.form.contact"
           [description]="strings.form.contactHint"
         >
-          <div class="@container grid grid-cols-1 gap-4 @xl:grid-cols-3">
-            <erp-field-shell
-              class="@xl:col-span-2"
-              [label]="strings.form.email"
-              [error]="fieldError(partnerForm.email())"
-            >
-              <input hlmInput type="email" autocomplete="off" [formField]="partnerForm.email" />
-            </erp-field-shell>
+          <div class="@container">
+            <div class="grid grid-cols-1 gap-4 @xl:grid-cols-3">
+              <erp-field-shell
+                class="@xl:col-span-2"
+                [label]="strings.form.email"
+                [error]="fieldError(partnerForm.email())"
+              >
+                <input hlmInput type="email" autocomplete="off" [formField]="partnerForm.email" />
+              </erp-field-shell>
 
-            <erp-field-shell [label]="strings.form.phone" [error]="fieldError(partnerForm.phone())">
-              <input hlmInput type="tel" autocomplete="off" [formField]="partnerForm.phone" />
-            </erp-field-shell>
+              <erp-field-shell
+                [label]="strings.form.phone"
+                [error]="fieldError(partnerForm.phone())"
+              >
+                <input hlmInput type="tel" autocomplete="off" [formField]="partnerForm.phone" />
+              </erp-field-shell>
+            </div>
           </div>
         </erp-section-card>
       </div>

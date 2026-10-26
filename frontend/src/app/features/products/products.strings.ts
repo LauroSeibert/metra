@@ -76,7 +76,6 @@ export const PRODUCTS_STRINGS = {
   form: {
     newTitle: 'Novo produto',
     editTitle: 'Editar produto',
-    subtitle: 'Campos com * são obrigatórios.',
     readOnly: 'Seu perfil permite só consultar.',
     sku: 'SKU',
     name: 'Nome',

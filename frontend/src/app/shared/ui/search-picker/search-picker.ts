@@ -47,7 +47,7 @@ import { UI_STRINGS } from '../ui.strings';
         >
           <hlm-combobox-trigger
             class="w-full justify-between"
-            [class.pr-10]="selected() && !disabled()"
+            [class.pr-16]="selected() && !disabled()"
             [attr.aria-label]="label()"
           >
             <span class="flex min-w-0 items-center gap-2">
@@ -82,7 +82,7 @@ import { UI_STRINGS } from '../ui.strings';
             variant="ghost"
             size="icon-xs"
             type="button"
-            class="absolute top-1/2 right-8 -translate-y-1/2"
+            class="absolute top-1/2 right-10 -translate-y-1/2"
             [attr.aria-label]="clearLabel()"
             (click)="selected.set(null)"
           >
