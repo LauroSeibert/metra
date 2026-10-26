@@ -1,4 +1,4 @@
-# ERP Demo
+# Metra
 
 Simulação de ERP para pequenas empresas de comércio.
 Monorepo: `backend/` (.NET 10, MySQL 9.7) e `frontend/` (Angular 22).

@@ -1,5 +1,5 @@
 export const LAYOUT_STRINGS = {
-  appName: 'ERP Demo',
+  appName: 'Metra',
   appTagline: 'Gestão comercial',
   home: 'Dashboard',
   /** Breadcrumb das rotas de primeiro nível (app.routes.ts), sem importar as strings da funcionalidade. */
