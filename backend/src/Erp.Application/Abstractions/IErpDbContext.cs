@@ -46,6 +46,12 @@ public interface IErpDbContext
     DatabaseFacade Database { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Próximo número de uma sequência de <c>document_sequence</c>, por incremento atômico na transação
+    /// aberta: a linha fica travada até o commit, então números não se repetem e um rollback devolve o número.
+    /// </summary>
+    Task<long> NextSequenceNumberAsync(string sequenceName, CancellationToken cancellationToken = default);
 }
 
 /// <summary>

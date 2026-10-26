@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Bogus;
+using Erp.Domain.Common;
 using Erp.Domain.Products;
 using Erp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -143,6 +144,7 @@ internal sealed class SeedRunner(string connectionString, SeedProfile profile)
                     CostPrice: cost,
                     SalePrice: Math.Round(cost * faker.Random.Decimal(1.2m, 2.0m), 2),
                     MinStock: faker.Random.Int(0, 50)));
+                product.AssignCode(number);
                 if (faker.Random.Bool(0.08f))
                 {
                     product.Deactivate();
@@ -154,6 +156,17 @@ internal sealed class SeedRunner(string connectionString, SeedProfile profile)
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             Console.WriteLine($"  {start + count:N0}/{profile.Products:N0} produtos");
         }
+
+        await using var sequenceDb = CreateContext();
+        var sequence = await sequenceDb.DocumentSequences.FirstOrDefaultAsync(s => s.Name == DocumentSequence.Product, cancellationToken).ConfigureAwait(false);
+        if (sequence is null)
+        {
+            sequence = DocumentSequence.Create(DocumentSequence.Product);
+            sequenceDb.DocumentSequences.Add(sequence);
+        }
+
+        sequence.EnsureAtLeast(profile.Products);
+        await sequenceDb.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     private ErpDbContext CreateContext() =>

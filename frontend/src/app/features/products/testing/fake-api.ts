@@ -9,6 +9,7 @@ import { page } from '../../../shared/testing/fake-api';
 export function productItem(overrides: Partial<ProductListItemDto> = {}): ProductListItemDto {
   return {
     id: 1,
+    code: 1,
     sku: 'CAN-001',
     name: 'Caneta azul',
     description: null,

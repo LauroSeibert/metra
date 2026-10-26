@@ -7,7 +7,7 @@ namespace Erp.Domain.Products;
 /// <summary>
 /// Produto vendável. Regras: SKU único (garantido pelo banco e pelo caso de uso) e opcional na
 /// entrada: em branco, é gerado a partir da categoria e do id; categoria e unidade opcionais;
-/// preços não negativos e nunca excluído: produto fora de uso é inativado.
+/// preços não negativos e só se exclui produto sem vendas nem movimentações de estoque: os demais são inativados.
 /// </summary>
 public sealed partial class Product : Entity
 {
@@ -24,6 +24,12 @@ public sealed partial class Product : Entity
     private Product()
     {
     }
+
+    /// <summary>
+    /// Código do sistema: número sequencial e único, o último criado mais um, atribuído na criação e nunca
+    /// alterado. É a ordenação padrão da listagem.
+    /// </summary>
+    public long Code { get; private set; }
 
     public string Sku { get; private set; } = string.Empty;
 
@@ -58,6 +64,13 @@ public sealed partial class Product : Entity
     }
 
     public void Update(ProductData data) => Apply(data);
+
+    /// <summary>Define o código do sistema; quem cria o produto pede o próximo número da sequência.</summary>
+    public void AssignCode(long code)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(code);
+        Code = code;
+    }
 
     public void Activate() => Active = true;
 

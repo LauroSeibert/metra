@@ -53,6 +53,7 @@ export const PRODUCTS_STRINGS = {
     totalHint: 'Em todo o catálogo',
   },
   columns: {
+    code: 'Código',
     product: 'Produto',
     stock: 'Estoque',
     unitShort: 'Unid.',
@@ -103,6 +104,14 @@ export const PRODUCTS_STRINGS = {
     backToList: 'Produtos',
     moreActions: 'Mais ações',
     viewMovements: 'Ver movimentações de estoque',
+    systemCode: 'Código do sistema',
+    duplicate: 'Duplicar produto',
+    duplicated: 'Produto duplicado. Você está na cópia.',
+    deleteProduct: 'Excluir produto',
+    deleteTitle: 'Excluir o produto?',
+    deleteMessage: (name: string) =>
+      `"${name}" será excluído de vez. Só é possível se ele nunca teve venda nem movimentação de estoque; senão, inative-o.`,
+    deleted: 'Produto excluído.',
     activeHint: 'Disponível nas vendas',
     inactiveHint: 'Fora das vendas',
     searchOption: 'Buscar…',

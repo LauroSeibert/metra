@@ -11,6 +11,7 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
     {
         builder.ConfigureEntity();
 
+        builder.Property(p => p.Code).IsRequired();
         builder.Property(p => p.Sku).HasMaxLength(Product.SkuMaxLength).IsRequired();
         builder.Property(p => p.Name).HasMaxLength(Product.NameMaxLength).IsRequired();
         builder.Property(p => p.Description).HasMaxLength(Product.DescriptionMaxLength);
@@ -30,6 +31,7 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .OnDelete(DeleteBehavior.Restrict);
 
         // Índices justificados em docs/modules/products.md (EXPLAIN com 100 mil produtos).
+        builder.HasIndex(p => p.Code).IsUnique();
         builder.HasIndex(p => p.Sku).IsUnique();
         builder.HasIndex(p => p.Name);
         builder.HasIndex(p => new { p.CategoryId, p.Name });

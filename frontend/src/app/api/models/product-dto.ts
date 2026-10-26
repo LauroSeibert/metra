@@ -5,6 +5,7 @@ export interface ProductDto {
   active: boolean;
   categoryId: number | null;
   categoryName: string | null;
+  code: number;
   costPrice: number;
   createdAt: string;
   description: string | null;

@@ -109,6 +109,10 @@ export type { GetProduct$Params as GetProduct$Params } from './fn/products/get-p
 export { getProduct as getProduct } from './fn/products/get-product';
 export type { UpdateProduct$Params as UpdateProduct$Params } from './fn/products/update-product';
 export { updateProduct as updateProduct } from './fn/products/update-product';
+export type { DeleteProduct$Params as DeleteProduct$Params } from './fn/products/delete-product';
+export { deleteProduct as deleteProduct } from './fn/products/delete-product';
+export type { DuplicateProduct$Params as DuplicateProduct$Params } from './fn/products/duplicate-product';
+export { duplicateProduct as duplicateProduct } from './fn/products/duplicate-product';
 export type { ActivateProduct$Params as ActivateProduct$Params } from './fn/products/activate-product';
 export { activateProduct as activateProduct } from './fn/products/activate-product';
 export type { DeactivateProduct$Params as DeactivateProduct$Params } from './fn/products/deactivate-product';

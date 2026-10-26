@@ -98,6 +98,7 @@ public static class ErrorCodes
 
     public const string ProductNotFound = "product.not_found";
     public const string ProductSkuDuplicate = "product.sku_duplicate";
+    public const string ProductInUse = "product.in_use";
     public const string ProductCategoryNotFound = "product_category.not_found";
     public const string ProductCategoryNameDuplicate = "product_category.name_duplicate";
     public const string ProductCategoryInUse = "product_category.in_use";
