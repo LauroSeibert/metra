@@ -22,6 +22,10 @@ should be.
    same commit, remove or restore the context files per scenario, and repeat the same tasks at least three times,
    recording model versions, prompts and results (see `docs/plan.md`).
 
+## Dashboard
+
+![Metra dashboard](docs/images/metra-dashboard.png)
+
 ## Stack
 
 | Layer | Technologies |
